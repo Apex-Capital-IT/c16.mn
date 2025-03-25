@@ -17,7 +17,7 @@ export default function Home() {
           <div className="mb-12">
             <div className="relative h-[400px] w-full overflow-hidden rounded-lg">
               <Image
-                src="/medeenii_cover.jpg"
+                src="/medeenii_cover1.jpg"
                 alt={featuredArticle.title}
                 fill
                 className="object-cover"
@@ -56,7 +56,7 @@ export default function Home() {
                 <div key={article.id} className="border-b pb-6">
                   <div className="relative h-48 mb-4 overflow-hidden rounded-md">
                     <Image
-                      src="/medeenii_cover.jpg"
+                      src="/medeenii_cover1.jpg"
                       alt={article.title}
                       fill
                       className="object-cover"

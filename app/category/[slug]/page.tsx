@@ -72,7 +72,7 @@ export default async function CategoryPage({
                       </Link>
                     ) : (
                       <Image
-                        src="/medeenii_cover.jpg"
+                        src="/medeenii_cover1.jpg"
                         alt={article.title}
                         fill
                         className="object-cover"

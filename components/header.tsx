@@ -11,9 +11,7 @@ import type { Article } from "@/lib/db";
 const categories = [
   { name: "Нийгэм, Улс Төр", href: "/category/politics" },
   { name: "Эдийн Засаг", href: "/category/economy" },
-  { name: "Урлаг, Спорт", href: "/category/sports" },
   { name: "Бусад", href: "/category/other" },
-  { name: "Судалгаа", href: "/category/research" },
   { name: "Нийтлэлчид", href: "/category/bloggers" },
   { name: "Видео Контент", href: "/category/video" },
 ];

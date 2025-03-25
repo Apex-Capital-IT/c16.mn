@@ -76,7 +76,7 @@ export default async function ArticlePage({
 
             <div className="relative h-[400px] w-full mb-8 rounded-lg overflow-hidden">
               <Image
-                src="/medeenii_cover.jpg"
+                src="/medeenii_cover1.jpg"
                 alt={article.title}
                 fill
                 className="object-cover"
