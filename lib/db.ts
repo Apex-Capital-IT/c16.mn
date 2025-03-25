@@ -29,9 +29,7 @@ export type Category = {
 export const categories: Category[] = [
   { id: "1", name: "Politics", slug: "politics", count: 24, color: "blue" },
   { id: "2", name: "Economy", slug: "economy", count: 18, color: "green" },
-  { id: "3", name: "Sports", slug: "sports", count: 15, color: "purple" },
-  { id: "4", name: "Other", slug: "other", count: 12, color: "orange" },
-  { id: "5", name: "Research", slug: "research", count: 10, color: "red" },
+  { id: "4", name: "Other", slug: "other", count: 37, color: "orange" },
   {
     id: "6",
     name: "Bloggers",
@@ -47,73 +45,184 @@ export const articles: Article[] = [
   {
     id: "1",
     title: "Эрчим хүчний реформд гологдсон дулаан",
-    slug: "1",
+    slug: "erchim-huchnii-reform",
     excerpt:
-      "Эрчим хүчний тухай хуульд эрчим хүч гэдгийг цахилгаан, дулаан үйлдвэрлэх зориулалтаар ашиглаж болох бүх төрлийн түлш, сэргээгдэх болон бусад эх үүсвэрийг болон түүнийг ашиглан хэрэглэгчийн хэрэгцээнд зориулан үйлдвэрлэсэн цахилгаан, дулаан, шугам сүлжээгээр дамжуулан хэрэглэгчид түгээх метаны хийг хэлнэ хэмээн заасан байдаг. ",
+      "Эрчим хүчний тухай хуульд эрчим хүч гэдгийг цахилгаан, дулаан үйлдвэрлэх зориулалтаар ашиглаж болох бүх төрлийн түлш, сэргээгдэх болон бусад эх үүсвэрийг болон түүнийг ашиглан хэрэглэгчийн хэрэгцээнд зориулан үйлдвэрлэсэн цахилгаан, дулааны талаар",
     content: `
-      <p>Эрчим хүчний тухай хуульд эрчим хүч гэдгийг цахилгаан, дулаан үйлдвэрлэх зориулалтаар ашиглаж болох бүх төрлийн түлш, сэргээгдэх болон бусад эх үүсвэрийг болон түүнийг ашиглан хэрэглэгчийн хэрэгцээнд зориулан үйлдвэрлэсэн цахилгаан, дулаан, шугам сүлжээгээр дамжуулан хэрэглэгчид түгээх метаны хийг хэлнэ хэмээн заасан байдаг. Өөрөөр хэлбэл, эрчим хүчний салбар гэсэн малгайн дор цахилгаан болон дулаан гэсэн хоёр том агуулга хамт явдаг байна. Гэсэн ч олон нийтийн ойлголт эрчим хүч гэхээр нь тогны, цахилгааны асуудлыг ойлгох тохиолдол бий.</p>
-      
-      <p>Гэтэл иргэд нь ч гэлтгүй төр нь ч гэсэн эрчим хүч гэдгээр зөвхөн цахилгааны асуудлыг ойлгодог бололтой.</p>
-      
-      <h2>Учир нь, Засгийн газар эрчим хүчний реформ хийнэ гэчхээд зөвхөн цахилгааны үнэд зохицуулалт хийж, дулааны үнэ дээр нүдээ аниад өнгөрлөө.</h2>
-      
-      <p>"Тодруулбал, өнгөрсөн оны 11-р сард ААН-ийн цахилгааны үнийг 30 хувиар, айл өрхийн хэрэглээг гурван шатлалтай нэмсэн. Ийнхүү үнэ нэмж байгаа шалтгаанаа эрчим хүчний салбарын алдагдлыг нөхөх зорилготой хэмээн тайлбарласан юм. Тухайн үед эрчим хүчний салбар 203 тэрбум төгрөгийн алдагдалтай ажиллах тооцоотой байсан бөгөөд ийнхүү үнэ нэмснээр энэ алдагдлаас сэргийлнэ гэж үзсэн. Энэ үед дулааны үнийг оны дараа нэмнэ гэж байсан ч яг нэмэх дээрээ тулахад улс төрчид шийдвэрээсээ ухарч, хэрэгжих хугацааг тодорхойгүй хугацаагаар хойшлууллаа. Үүнийгээ тайлбарлахдаа тогны үнийн нэмэгдлээс болж инфляц өндөр гарсан, төрөөс үнэ нэмдгээс болж иргэд хэцүү амьдарч байна хэмээн учирласан. Угтаа бол шийдвэр гаргагчид энэ бүх эрсдэлийг тооцоолж л шийдвэрээ гаргасан баймаар. "</p>
-      
-      <h2>Дулаан нэмээгүйгээс болж 118 тэрбумын алдагдал хүлээнэ</h2>
-      
-      <p>Хамгийн гол нь дулааны үнэ нэмэхийг хойшлуулснаар эрчим хүчний салбар 118 тэрбум төгрөгийн алдагдал хүлээх эрсдэлтэй байна. Энэ талаар ЭХЗХ-ны эх сурвалжууд news.mn сайтад тодруулга өгчээ. Тэдний мэдээлснээр "Дулааны эрчим хүчний тарифын хувьд 118 тэрбум төгрөгийн дутагдалд орох тооцоо гарсан. Хэрэв энэ дүн татаасаар олгогдохгүй бол эх үүсвэрийн дутагдалд орох, салбарын нөхцөл байдал хүндрэх, өр үүсээд явах эрсдэл тулгарна" гэсэн байна. 
-
-Өөрөөр хэлбэл, энэхүү дутагдлыг 118 тэрбум төгрөгийн алдагдлыг нөхөхийн тулд нэг бол үнэ нэмэх шаардлагатай, үгүй бол төрөөс татаас авах шаардлагатай гэсэн үг юм. </p>
-      
-      <h2>Хэрэв үнэ нэмэх бол дараах байдлаар нэмнэ. </h2>
-      
-      
-      <ul>
-        <li>Улаанбаатар хотод 1 мкв нь 506 төгрөг</li>
-        <li>Дархан, Эрдэнэт, Чойбалсан хотод 1 мкв нь 648 төгрөг </li>
-        <li>Бусад аймгийн төвүүдэд 1 мкв нь 1024 төгрөг хүрээд байна. </li>
-      </ul>
+      <p>Эрчим хүчний тухай хуульд эрчим хүч гэдгийг цахилгаан, дулаан үйлдвэрлэх зориулалтаар ашиглаж болох бүх төрлийн түлш, сэргээгдэх болон бусад эх үүсвэрийг болон түүнийг ашиглан хэрэглэгчийн хэрэгцээнд зориулан үйлдвэрлэсэн цахилгаан, дулаан, шугам сүлжээгээр дамжуулан хэрэглэгчид түгээх метаны хийг хэлнэ хэмээн заасан байдаг.</p>
+      <p>Гэтэл иргэд нь ч гэлтгүй төр нь ч гэсэн эрчим хүч гэдгээр зөвхөн цахилгааны асуудлыг ойлгодог бололтой. Учир нь, Засгийн газар эрчим хүчний реформ хийнэ гэчхээд зөвхөн цахилгааны үнэд зохицуулалт хийж, дулааны үнэ дээр нүдээ аниад өнгөрлөө.</p>
     `,
     category: "Politics",
     categorySlug: "politics",
-    imageUrl: "/placeholder.svg?height=400&width=800",
-    author: "Gantuya",
-    date: "March 21, 2025",
+    imageUrl: "/medeenii_cover1.jpg",
+    author: "Б.Гантуяа",
+    date: "2024-03-20",
     views: 6837,
     featured: true,
   },
   {
     id: "2",
-    title: "Central Bank Maintains Current Interest Rates Despite Pressure",
-    slug: "central-bank-interest-rates",
+    title: "Монгол Улсын эдийн засгийн өсөлт 2024 онд 5.4 хувь байна",
+    slug: "mongol-ulsiin-ediin-zasgiin-usult",
     excerpt:
-      "The Central Bank has decided to maintain current interest rates despite growing pressure from various sectors to implement cuts to stimulate economic growth.",
+      "Дэлхийн банкнаас Монгол Улсын эдийн засгийн өсөлтийг 2024 онд 5.4 хувь байна гэж таамаглаж байна. Энэ нь өмнөх жилийн өсөлтөөс 0.8 пунктээр өндөр үзүүлэлт юм.",
     content: `
-      <p>The Central Bank has decided to maintain current interest rates despite growing pressure from various sectors to implement cuts to stimulate economic growth.</p>
-      
-      <p>In its monthly monetary policy meeting, the bank's board voted unanimously to keep the benchmark interest rate at 4.5%, citing concerns about inflation and the need to maintain economic stability.</p>
-      
-      <h2>Economic Considerations</h2>
-      
-      <p>"While we understand the desire for lower interest rates to stimulate growth, our primary mandate is to ensure price stability," said the Central Bank Governor in a statement. "Current economic indicators suggest that maintaining the current rate is the most prudent course of action."</p>
-      
-      <p>The decision comes amid mixed economic signals, with strong employment figures but slowing GDP growth in the last quarter. Business associations have been calling for rate cuts to reduce borrowing costs and stimulate investment.</p>
-      
-      <h2>Market Reaction</h2>
-      
-      <p>Financial markets reacted with moderate volatility to the announcement, with the stock market initially dropping before recovering by the end of the trading day. Currency exchange rates remained relatively stable.</p>
-      
-      <p>Economists are divided on the decision, with some supporting the cautious approach while others argue that the economy needs monetary stimulus to avoid a potential slowdown.</p>
+      <p>Дэлхийн банкнаас Монгол Улсын эдийн засгийн өсөлтийг 2024 онд 5.4 хувь байна гэж таамаглаж байна. Энэ нь өмнөх жилийн өсөлтөөс 0.8 пунктээр өндөр үзүүлэлт юм.</p>
+      <h2>Өсөлтийн гол хөдөлгөгч хүчин зүйлс</h2>
+      <ul>
+        <li>Уул уурхайн салбарын өсөлт</li>
+        <li>Хятад улсын эдийн засгийн сэргэлт</li>
+        <li>Гадаадын шууд хөрөнгө оруулалтын өсөлт</li>
+      </ul>
+      <p>Гэвч инфляцийн дарамт, гадаад өрийн асуудал зэрэг сорилтууд байсаар байна.</p>
     `,
     category: "Economy",
     categorySlug: "economy",
-    imageUrl: "/placeholder.svg?height=400&width=800",
-    author: "Sarah Johnson",
-    date: "March 20, 2025",
+    imageUrl: "/medeenii_cover1.jpg",
+    author: "Д.Болормаа",
+    date: "2024-03-21",
     views: 5242,
   },
   {
     id: "3",
+    title: "Оюу Толгойн экспортын орлого 40 хувиар өсчээ",
+    slug: "oyu-tolgoi-export-revenue",
+    excerpt:
+      "Оюу Толгой компанийн 2024 оны эхний улирлын экспортын орлого өмнөх оны мөн үеэс 40 хувиар өсч, 1.2 тэрбум ам.долларт хүрлээ.",
+    content: `
+      <p>Оюу Толгой компанийн 2024 оны эхний улирлын экспортын орлого өмнөх оны мөн үеэс 40 хувиар өсч, 1.2 тэрбум ам.долларт хүрлээ. Энэ нь гүний уурхайн бүтээн байгуулалт дууссантай холбоотой юм.</p>
+      <h2>Үндсэн үзүүлэлтүүд</h2>
+      <ul>
+        <li>Зэсийн баяжмалын үйлдвэрлэл 30% өссөн</li>
+        <li>Алтны агуулга өмнөх оноос 2 дахин нэмэгдсэн</li>
+        <li>Ажилчдын тоо 20% өссөн</li>
+      </ul>
+      <p>Энэхүү өсөлт нь Монгол Улсын ДНБ-д эерэгээр нөлөөлөх төлөвтэй байна.</p>
+    `,
+    category: "Economy",
+    categorySlug: "economy",
+    imageUrl: "/medeenii_cover1.jpg",
+    author: "Б.Батбаяр",
+    date: "2024-03-19",
+    views: 6200,
+  },
+  {
+    id: "4",
+    title: "Монголын хөрөнгийн зах зээлийн үнэлгээ түүхэн дээд түвшинд хүрлээ",
+    slug: "mongolian-stock-market-peak",
+    excerpt:
+      "Монголын хөрөнгийн биржийн зах зээлийн нийт үнэлгээ анх удаа 5 их наяд төгрөгийг давж, шинэ түүхэн амжилт тогтоолоо.",
+    content: `
+      <p>Монголын хөрөнгийн биржийн зах зээлийн нийт үнэлгээ анх удаа 5 их наяд төгрөгийг давж, шинэ түүхэн амжилт тогтоолоо. Энэ нь сүүлийн 3 жилийн хугацаанд 2 дахин өссөн үзүүлэлт юм.</p>
+      <h2>Өсөлтийн гол шалтгаанууд</h2>
+      <ul>
+        <li>Хөрөнгө оруулагчдын тоо нэмэгдсэн</li>
+        <li>Компаниудын санхүүгийн үзүүлэлт сайжирсан</li>
+        <li>Гадаадын хөрөнгө оруулалт нэмэгдсэн</li>
+      </ul>
+    `,
+    category: "Economy",
+    categorySlug: "economy",
+    imageUrl: "/medeenii_cover1.jpg",
+    author: "Г.Золбоо",
+    date: "2024-03-18",
+    views: 4832,
+  },
+  {
+    id: "5",
+    title: "Монголын эдийн засагт нөлөөлж буй 5 том эрсдэл",
+    slug: "mongolian-economy-risks",
+    excerpt:
+      "Монгол Улсын эдийн засагт тулгарч буй гол эрсдэлүүд болон тэдгээрийг даван туулах арга замуудын талаарх дүн шинжилгээ.",
+    content: `
+      <p>Монгол Улсын эдийн засагт тулгарч буй гол эрсдэлүүд болон тэдгээрийг даван туулах арга замуудын талаарх дүн шинжилгээг танилцуулж байна.</p>
+      <h2>Тулгамдсан асуудлууд</h2>
+      <ul>
+        <li>Гадаад өрийн дарамт</li>
+        <li>Инфляцийн өсөлт</li>
+        <li>Валютын ханшийн хэлбэлзэл</li>
+        <li>Уул уурхайн хэт хамаарал</li>
+        <li>Дэд бүтцийн хөгжил удаашралтай</li>
+      </ul>
+    `,
+    category: "Economy",
+    categorySlug: "economy",
+    imageUrl: "/medeenii_cover1.jpg",
+    author: "Д.Ганбат",
+    date: "2024-03-17",
+    views: 7845,
+  },
+  {
+    id: "6",
+    title: "Монголын технологийн салбарын ирээдүй",
+    slug: "mongolian-tech-future",
+    excerpt:
+      "Монголын технологийн салбарын хөгжил, стартап экосистем, болон дижитал шилжилтийн талаарх дүн шинжилгээ.",
+    content: `
+      <p>Монголын технологийн салбар сүүлийн жилүүдэд эрчимтэй хөгжиж байна. Стартап компаниуд олноор бий болж, гадаадын хөрөнгө оруулагчдын анхаарлыг татаж эхэллээ.</p>
+      <h2>Гол чиг хандлагууд</h2>
+      <ul>
+        <li>Финтек салбарын өсөлт</li>
+        <li>Хиймэл оюун ухааны хэрэглээ</li>
+        <li>Дижитал шилжилт</li>
+      </ul>
+      <p>Цаашид энэ салбар улам хурдацтай хөгжих хандлагатай байна.</p>
+    `,
+    category: "Bloggers",
+    categorySlug: "bloggers",
+    imageUrl: "/medeenii_cover1.jpg",
+    author: "Б.Төгөлдөр",
+    date: "2024-03-16",
+    views: 5128,
+  },
+  {
+    id: "7",
+    title: "Монголын залуу үеийнхний санхүүгийн боловсрол",
+    slug: "youth-financial-education",
+    excerpt:
+      "Монголын залуучуудын санхүүгийн боловсрол, хуримтлал, хөрөнгө оруулалтын талаарх судалгаа ба дүгнэлт.",
+    content: `
+      <p>Монголын залуучуудын дунд явуулсан судалгаагаар тэдний 70 хувь нь санхүүгийн боловсролоо дээшлүүлэх хэрэгцээ байгааг илэрхийлжээ.</p>
+      <h2>Гол асуудлууд</h2>
+      <ul>
+        <li>Санхүүгийн мэдлэг дутмаг</li>
+        <li>Хуримтлал багатай</li>
+        <li>Зээлийн хэт хамаарал</li>
+      </ul>
+      <p>Энэ асуудлыг шийдвэрлэхэд боловсролын систем чухал үүрэг гүйцэтгэнэ.</p>
+    `,
+    category: "Bloggers",
+    categorySlug: "bloggers",
+    imageUrl: "/medeenii_cover1.jpg",
+    author: "С.Билгүүн",
+    date: "2024-03-15",
+    views: 4567,
+  },
+  {
+    id: "8",
+    title: "Монголын бизнес эрхлэгч эмэгтэйчүүд",
+    slug: "mongolian-women-entrepreneurs",
+    excerpt:
+      "Монголын бизнес эрхлэгч эмэгтэйчүүдийн амжилтын түүх, тулгарч буй бэрхшээл, ба ирээдүйн боломжууд.",
+    content: `
+      <p>Монголын бизнес эрхлэгч эмэгтэйчүүдийн тоо жил бүр өсөж байна. Тэд эдийн засгийн өсөлтөд чухал хувь нэмэр оруулж байна.</p>
+      <h2>Амжилтын түлхүүр</h2>
+      <ul>
+        <li>Тууштай байдал</li>
+        <li>Инноваци</li>
+        <li>Сүлжээ холбоо</li>
+      </ul>
+      <p>Тэдний туршлага бусдад сургамж болж чадна.</p>
+    `,
+    category: "Bloggers",
+    categorySlug: "bloggers",
+    imageUrl: "/medeenii_cover1.jpg",
+    author: "О.Сарангэрэл",
+    date: "2024-03-14",
+    views: 3982,
+  },
+  {
+    id: "10",
     title: "International Summit Addresses Climate Change Initiatives",
     slug: "international-climate-summit",
     excerpt:
@@ -143,7 +252,7 @@ export const articles: Article[] = [
     views: 6200,
   },
   {
-    id: "4",
+    id: "11",
     title: "Economic Ecosystem Development Initiative Launched",
     slug: "economic-ecosystem-development",
     excerpt:
@@ -180,7 +289,7 @@ export const articles: Article[] = [
     views: 4832,
   },
   {
-    id: "5",
+    id: "12",
     title: "National Team Qualifies for World Cup Finals",
     slug: "national-team-world-cup",
     excerpt:
@@ -210,80 +319,7 @@ export const articles: Article[] = [
     views: 7845,
   },
   {
-    id: "6",
-    title: "New Tax Regulations to Take Effect Next Quarter",
-    slug: "new-tax-regulations",
-    excerpt:
-      "The government has announced new tax regulations that will take effect at the beginning of the next fiscal quarter, impacting both individuals and businesses.",
-    content: `
-      <p>The government has announced new tax regulations that will take effect at the beginning of the next fiscal quarter, impacting both individuals and businesses across the country.</p>
-      
-      <p>The changes, which were approved by parliament last month after extensive debate, include adjustments to income tax brackets, new deductions for certain types of investments, and modified corporate tax rates.</p>
-      
-      <h2>Individual Tax Changes</h2>
-      
-      <p>"These reforms are designed to make our tax system more progressive while encouraging savings and investment," stated the Minister of Finance. "The average middle-income family will see a modest reduction in their tax burden."</p>
-      
-      <p>Key changes for individual taxpayers include:</p>
-      
-      <ul>
-        <li>Expansion of the lowest tax bracket, reducing taxes for lower-income earners</li>
-        <li>New deductions for education expenses and retirement savings</li>
-        <li>Increased child tax credits for families</li>
-      </ul>
-      
-      <h2>Business Taxation</h2>
-      
-      <p>For businesses, the new regulations introduce a tiered corporate tax structure based on company size and revenue, with small businesses receiving more favorable rates to encourage entrepreneurship and growth.</p>
-      
-      <p>Additionally, enhanced tax incentives will be available for companies investing in research and development, renewable energy, and job creation in economically disadvantaged regions.</p>
-    `,
-    category: "Economy",
-    categorySlug: "economy",
-    imageUrl: "/placeholder.svg?height=400&width=800",
-    author: "Robert Kim",
-    date: "March 16, 2025",
-    views: 5128,
-  },
-  {
-    id: "7",
-    title: "Tech Innovation Summit Draws Global Attention",
-    slug: "tech-innovation-summit",
-    excerpt:
-      "The annual Tech Innovation Summit has attracted record attendance this year, with industry leaders showcasing cutting-edge technologies and discussing future trends.",
-    content: `
-      <p>The annual Tech Innovation Summit has attracted record attendance this year, with industry leaders showcasing cutting-edge technologies and discussing future trends that will shape the digital landscape.</p>
-      
-      <p>Held in the capital city's convention center, the three-day event features keynote speeches, panel discussions, product demonstrations, and networking opportunities for technology professionals, investors, and enthusiasts.</p>
-      
-      <h2>Emerging Technologies</h2>
-      
-      <p>"We're witnessing an unprecedented pace of technological change," noted the summit's keynote speaker, the CEO of a leading global tech company. "From artificial intelligence to quantum computing, the innovations being developed today will fundamentally transform how we live and work."</p>
-      
-      <p>Among the most discussed technologies at this year's summit are:</p>
-      
-      <ul>
-        <li>Advanced AI systems capable of complex reasoning and creativity</li>
-        <li>Practical applications of quantum computing in medicine and materials science</li>
-        <li>Next-generation renewable energy storage solutions</li>
-        <li>Immersive augmented reality platforms for education and training</li>
-      </ul>
-      
-      <h2>Local Tech Ecosystem</h2>
-      
-      <p>The summit also highlighted the growing importance of the local technology sector, with several homegrown startups presenting their innovations alongside international tech giants.</p>
-      
-      <p>Government officials used the occasion to announce new initiatives to support the technology ecosystem, including increased funding for STEM education, tax incentives for tech startups, and infrastructure improvements to support digital businesses.</p>
-    `,
-    category: "Bloggers",
-    categorySlug: "bloggers",
-    imageUrl: "/placeholder.svg?height=400&width=800",
-    author: "Lisa Park",
-    date: "March 15, 2025",
-    views: 4567,
-  },
-  {
-    id: "8",
+    id: "15",
     title: "Healthcare Reform Bill Passes First Reading",
     slug: "healthcare-reform-bill",
     excerpt:
@@ -321,7 +357,7 @@ export const articles: Article[] = [
     views: 3982,
   },
   {
-    id: "9",
+    id: "16",
     title: "Famous Actor to Star in Upcoming Historical Drama",
     slug: "actor-historical-drama",
     excerpt:
@@ -358,7 +394,7 @@ export const articles: Article[] = [
     views: 5621,
   },
   {
-    id: "10",
+    id: "17",
     title: "Scientists Discover Potential Breakthrough in Cancer Research",
     slug: "cancer-research-breakthrough",
     excerpt:
@@ -403,8 +439,17 @@ export const getArticleById = (id: string) =>
 export const getArticleBySlug = (slug: string) =>
   articles.find((article) => article.slug === slug);
 
-export const getArticlesByCategory = (categorySlug: string) =>
-  articles.filter((article) => article.categorySlug === categorySlug);
+export const getArticlesByCategory = (categorySlug: string) => {
+  if (categorySlug === "other") {
+    return articles.filter(
+      (article) =>
+        article.categorySlug === "other" ||
+        article.categorySlug === "sports" ||
+        article.categorySlug === "research"
+    );
+  }
+  return articles.filter((article) => article.categorySlug === categorySlug);
+};
 
 export const searchArticles = (query: string) => {
   const lowercaseQuery = query.toLowerCase();
