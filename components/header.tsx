@@ -63,7 +63,6 @@ export default function Header() {
     }
   };
 
-  // Handle search on enter key
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
       handleSearch();
@@ -90,8 +89,7 @@ export default function Header() {
               <div key={category.name} className="flex items-center">
                 <Link
                   href={category.href}
-                  className="text-sm font-medium hover:text-red-500 transition-colors px-4 py-3"
-                >
+                  className="text-sm font-medium hover:text-red-500 transition-colors px-4 py-3">
                   {category.name}
                 </Link>
                 {index < categories.length - 1 && (
@@ -106,15 +104,13 @@ export default function Header() {
             <button
               onClick={() => setIsSearchOpen(!isSearchOpen)}
               className="p-2 hover:text-red-500 transition-colors"
-              aria-label="Search"
-            >
+              aria-label="Search">
               <Search size={20} />
             </button>
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="p-2 ml-2 md:hidden hover:text-red-500 transition-colors"
-              aria-label="Menu"
-            >
+              aria-label="Menu">
               {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
@@ -135,8 +131,7 @@ export default function Header() {
               <button
                 onClick={handleSearch}
                 className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
-                aria-label="Submit search"
-              >
+                aria-label="Submit search">
                 <Search size={18} />
               </button>
             </div>
@@ -152,8 +147,7 @@ export default function Header() {
                     <li key={article.id} className="border-b last:border-0">
                       <button
                         onClick={() => handleResultClick(article.slug)}
-                        className="w-full text-left p-3 hover:bg-gray-100 transition-colors"
-                      >
+                        className="w-full text-left p-3 hover:bg-gray-100 transition-colors">
                         <div className="flex items-start">
                           <div className="flex-1">
                             <h4 className="font-medium text-gray-900">
@@ -196,8 +190,7 @@ export default function Header() {
                   <Link
                     href={category.href}
                     className="block py-2 hover:text-red-500 transition-colors"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
+                    onClick={() => setIsMenuOpen(false)}>
                     {category.name}
                   </Link>
                 </li>

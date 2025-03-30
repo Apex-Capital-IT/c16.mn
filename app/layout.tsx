@@ -22,18 +22,18 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <ThemeProvider
+        {/* <ThemeProvider
           attribute="class"
           defaultTheme="light"
           enableSystem
           disableTransitionOnChange
-        >
-          <div className="flex flex-col min-h-screen">
-            <Header />
-            <div className="flex-grow">{children}</div>
-            <Footer />
-          </div>
-        </ThemeProvider>
+        > */}
+        <div className="flex flex-col min-h-screen">
+          <Header />
+          <div className="flex-grow">{children}</div>
+          <Footer />
+        </div>
+        {/* </ThemeProvider> */}
       </body>
     </html>
   );
