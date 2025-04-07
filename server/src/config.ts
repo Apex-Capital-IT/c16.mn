@@ -1,13 +1,17 @@
 import { connect } from "mongoose";
-import env from "dotenv";
-env.config();
+import dotenv from "dotenv";
 
-const URL: string = process.env.DB_URL || "";
+dotenv.config();
 
-export const connectDataBase = async () => {
+export const DB_URL: string = process.env.DB_URL || "";
+export const PORT: number = Number(process.env.PORT) || 8000;
+
+export const connectDataBase = async (): Promise<void> => {
   try {
-    await connect(URL);
+    await connect(DB_URL);
+    console.log("✅ Database холбогдлоо");
   } catch (err) {
-    console.log("Database holboltod aldaa garlaa");
+    console.error("❌ Database холболт амжилтгүй боллоо:", err);
+    process.exit(1);
   }
 };
