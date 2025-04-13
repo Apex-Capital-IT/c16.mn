@@ -1,22 +1,17 @@
-// import { Schema, model, models, Types } from "mongoose";
+import mongoose from "mongoose";
 
-// export type NewsModelType = {
-//   title: string;
-//   description: string;
-//   category: string;
-//   newsImage: string;
-//   createdAt: Date;
-//   updatedAt: Date;
-// };
+const newsSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  content: { type: String, required: true },
+  category: { type: String, required: true },
+  newsImage: { type: String },
+  authorName: { type: String },
+  authorImage: { type: String },
+  slug: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+});
 
-// const NewsSchema = new Schema<NewsModelType>({
-//   title: { type: String, required: true },
-//   description: { type: String, required: true },
-//   category: { type: String, required: true },
-//   newsImage: { type: String, required: true },
-//   createdAt: { type: Date, default: Date.now },
-//   updatedAt: { type: Date, default: Date.now },
-// });
-
-// export const NewsModel =
-//   models.News || model<NewsModelType>("News", NewsSchema);
+export const NewsModel = mongoose.model("News", newsSchema);
