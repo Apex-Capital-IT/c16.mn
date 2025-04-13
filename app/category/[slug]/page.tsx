@@ -1,25 +1,49 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Clock, Eye, MessageSquare } from "lucide-react";
-import { getArticlesByCategory, getCategoryBySlug } from "@/lib/db";
-import TrendingNews from "@/components/trending-news";
+import { Clock, Eye } from "lucide-react";
 
-// Mark the component as async and type params as a Promise
+async function getArticlesByCategory(categorySlug: string) {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/news`, {
+      next: { revalidate: 60 }
+    });
+    if (!res.ok) throw new Error('Failed to fetch articles');
+    const allArticles = await res.json();
+    
+    // Convert the URL slug back to the original category name
+    const categoryName = categorySlug
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+    
+    // Filter articles by category
+    const articles = allArticles.filter((article: any) => 
+      article.category.toLowerCase() === categoryName.toLowerCase()
+    );
+    
+    return articles;
+  } catch (error) {
+    console.error('Error fetching articles:', error);
+    return [];
+  }
+}
+
 export default async function CategoryPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: { slug: string }
 }) {
-  // Await params to resolve the slug
-  const { slug } = await params;
-  const category = await getCategoryBySlug(slug);
-  const articles = await getArticlesByCategory(slug);
+  const articles = await getArticlesByCategory(params.slug);
+  const categoryName = params.slug
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
 
-  if (!category) {
+  if (articles.length === 0) {
     return (
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-4">Category not found</h1>
-        <p>The category you are looking for does not exist.</p>
+        <p>No articles found in this category.</p>
         <Link
           href="/"
           className="text-blue-600 hover:underline mt-4 inline-block"
@@ -33,78 +57,47 @@ export default async function CategoryPage({
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">{category.name}</h1>
+        <h1 className="text-3xl font-bold mb-2">{categoryName}</h1>
         <p className="text-gray-600">
-          Latest news and updates from {category.name} category
+          Latest news and updates from {categoryName} category
         </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
-          {articles.length === 0 ? (
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <p>No articles found in this category.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {articles.map((article) => (
-                <div
-                  key={article.id}
-                  className="bg-white rounded-lg shadow-sm overflow-hidden"
-                >
-                  <div className="relative h-48">
-                    {article.youtubeUrl ? (
-                      <Link
-                        href={article.youtubeUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <iframe
-                          width="100%"
-                          height="230px"
-                          src={article.youtubeUrl.replace("watch?v=", "embed/")} // Convert YouTube URL to embed format
-                          title={article.title}
-                          frameBorder="0"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                          className="object-cover"
-                        />
-                      </Link>
-                    ) : (
-                      <Image
-                        src="/medeenii_cover1.jpg"
-                        alt={article.title}
-                        fill
-                        className="object-cover"
-                      />
-                    )}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {articles.map((article: any) => (
+              <div
+                key={article._id}
+                className="bg-white rounded-lg shadow-sm overflow-hidden"
+              >
+                <div className="relative h-48">
+                  <Image
+                    src={article.newsImage || "/medeenii_cover1.jpg"}
+                    alt={article.title}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div className="p-4">
+                  <div className="mb-2">
+                    <span className="bg-red-600 text-white text-xs px-2 py-1 rounded uppercase font-semibold">
+                      {article.category}
+                    </span>
                   </div>
-                  <div className="p-4">
-                    <Link href={`/article/${article.slug}`}>
-                      <h2 className="text-xl font-semibold mb-2 hover:text-red-600 transition-colors">
-                        {article.title}
-                      </h2>
-                    </Link>
-                    <p className="text-gray-600 mb-4 line-clamp-2">
-                      {article.excerpt}
-                    </p>
-                    <div className="flex items-center text-xs text-gray-500">
-                      <Clock size={14} className="mr-1" />
-                      <span className="mr-4">{article.date}</span>
-                      <Eye size={14} className="mr-1" />
-                      <span className="mr-4">{article.views}</span>
-                      {/* Note: 'comments' isn't in the Article type, remove or add to type if needed */}
-                      {/* <span>{article.comments}</span> */}
-                    </div>
+                  <h2 className="text-xl font-bold mb-2">{article.title}</h2>
+                  <p className="text-gray-600 mb-4">{article.description}</p>
+                  <div className="flex items-center text-sm text-gray-500">
+                    <Clock size={16} className="mr-1" />
+                    <span className="mr-4">
+                      {new Date(article.publishedDate).toLocaleDateString()}
+                    </span>
+                    <span>By {article.authorName}</span>
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="lg:col-span-1">
-          <TrendingNews />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

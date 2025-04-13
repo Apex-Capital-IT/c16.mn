@@ -1,42 +1,32 @@
 import Link from "next/link";
-import { getCategories } from "@/lib/db";
+import axiosInstance, { NewsArticle } from "@/lib/axios";
 
-export default function NewsCategories() {
-  const categories = getCategories();
+async function getCategories(): Promise<string[]> {
+  try {
+    const res = await axiosInstance.get<NewsArticle[]>('/api/news');
+    // Get unique categories from news
+    const categories = [...new Set(res.data.map(article => article.category))];
+    return categories;
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    return [];
+  }
+}
 
-  const getColorClass = (color: string) => {
-    const colorMap: Record<string, string> = {
-      blue: "bg-black",
-      green: "bg-black",
-      purple: "bg-black",
-      orange: "bg-black",
-      red: "bg-black",
-      indigo: "bg-black",
-      pink: "bg-black",
-    };
-    return colorMap[color] || "bg-gray-500";
-  };
+export default async function NewsCategories() {
+  const categories = await getCategories();
 
   return (
-    <div className="news-categories bg-gray-50 rounded-lg p-6">
-      <h2 className="text-2xl font-bold mb-6">Categories</h2>
-
-      <div className="space-y-3">
+    <div className="bg-white rounded-lg shadow-sm p-6">
+      <h3 className="text-xl font-bold mb-4">Categories</h3>
+      <div className="space-y-2">
         {categories.map((category) => (
           <Link
-            key={category.id}
-            href={`/category/${category.slug}`}
-            className="flex items-center justify-between p-3 bg-white rounded-md hover:shadow-md transition-shadow"
+            key={category}
+            href={`/category/${category.toLowerCase().replace(/\s+/g, '-')}`}
+            className="block py-2 hover:text-red-600 transition-colors"
           >
-            <div className="flex items-center">
-              <span
-                className={`w-3 h-3 rounded-full ${getColorClass(
-                  category.color
-                )} mr-3`}
-              ></span>
-              <span className="font-medium">{category.name}</span>
-            </div>
-            <span className="text-sm text-gray-500">{category.count}</span>
+            {category}
           </Link>
         ))}
       </div>

@@ -6,7 +6,6 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Search, Menu, X } from "lucide-react";
-import type { Article } from "@/lib/db";
 
 const categories = [
   { name: "Нийгэм, Улс Төр", href: "/category/politics" },
@@ -16,11 +15,22 @@ const categories = [
   { name: "Видео Контент", href: "/category/video" },
 ];
 
+interface SearchResult {
+  _id: string;
+  title: string;
+  description: string;
+  category: string;
+  newsImage: string;
+  authorName: string;
+  publishedDate: string;
+  slug: string;
+}
+
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<Article[]>([]);
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -55,7 +65,7 @@ export default function Header() {
         `/api/search?q=${encodeURIComponent(searchQuery)}`
       );
       const data = await response.json();
-      setSearchResults(data.articles);
+      setSearchResults(data);
     } catch (error) {
       console.error("Search error:", error);
     } finally {
@@ -70,8 +80,8 @@ export default function Header() {
   };
 
   // Navigate to article and reset search
-  const handleResultClick = (slug: string) => {
-    router.push(`/article/${slug}`);
+  const handleResultClick = (category: string, slug: string) => {
+    router.push(`/${category.toLowerCase()}/${slug}`);
     setSearchResults([]);
     setSearchQuery("");
   };
@@ -144,9 +154,9 @@ export default function Header() {
                 </div>
                 <ul>
                   {searchResults.map((article) => (
-                    <li key={article.id} className="border-b last:border-0">
+                    <li key={article._id} className="border-b last:border-0">
                       <button
-                        onClick={() => handleResultClick(article.slug)}
+                        onClick={() => handleResultClick(article.category, article.slug)}
                         className="w-full text-left p-3 hover:bg-gray-100 transition-colors">
                         <div className="flex items-start">
                           <div className="flex-1">
@@ -154,14 +164,14 @@ export default function Header() {
                               {article.title}
                             </h4>
                             <p className="text-sm text-gray-500 line-clamp-1">
-                              {article.excerpt}
+                              {article.description}
                             </p>
                             <div className="flex items-center mt-1">
                               <span className="text-xs bg-red-100 text-red-800 px-2 py-0.5 rounded">
                                 {article.category}
                               </span>
                               <span className="text-xs text-gray-500 ml-2">
-                                {article.date}
+                                {new Date(article.publishedDate).toLocaleDateString()}
                               </span>
                             </div>
                           </div>
