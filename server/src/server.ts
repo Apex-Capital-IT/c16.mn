@@ -31,7 +31,8 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import newsRoutes from "./routes/news.routes";
+import signUpRouter from "./routes/signUpRouter";
+import loginRouter from "./routes/loginRouter";
 
 dotenv.config();
 
@@ -42,11 +43,10 @@ const MONGO_URI = process.env.MONGO_URI || "";
 app.use(express.json());
 app.use(cors());
 
-// Debugging: Ensure this path is correctly registered
-console.log(newsRoutes);
+// app.use("/api", newsRoutes);
 
-app.use("/api", newsRoutes);
-
+app.use("/api", signUpRouter);
+app.use("/api", loginRouter);
 console.log("MONGO_URI: ", MONGO_URI);
 
 mongoose
