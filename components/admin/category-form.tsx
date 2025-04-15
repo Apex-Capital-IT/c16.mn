@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,44 +8,61 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { CircleDashed, Save } from "lucide-react";
 
-export function CategoryForm({ category = null }: { category?: any }) {
+export function AuthorForm({ category = null }: { category?: any }) {
   const [name, setName] = useState(category?.name || "");
-  const [slug, setSlug] = useState(category?.slug || "");
-  const [color, setColor] = useState(category?.color || "#3b82f6"); // Default blue
+  const [file, setFile] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Auto-generate slug from name
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newName = e.target.value;
-    setName(newName);
-    setSlug(
-      newName
-        .toLowerCase()
-        .replace(/\s+/g, "-")
-        .replace(/[^a-z0-9-]/g, "")
-    );
+    setName(e.target.value);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setFile(e.target.files[0]);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const formData = new FormData();
+      formData.append("authorName", name);
+      if (file) {
+        formData.append("authorImage", file);
+      }
+
+      const res = await fetch("http://localhost:8000/api/create/author", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Author үүсгэхэд алдаа гарлаа");
+      }
+
+      alert("Нийтлэгчийг амжилттай үүсгэлээ!");
+      setName("");
+      setFile(null);
+    } catch (error: any) {
+      alert(error.message);
+    } finally {
       setIsSubmitting(false);
-      // In a real app, you would redirect to the categories list after successful creation
-      alert("Category saved successfully!");
-    }, 1000);
+    }
   };
 
   return (
     <Card className="p-6">
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="name">Category Name</Label>
+          <Label htmlFor="name">Нийтлэгчийн Нэр</Label>
           <Input
             id="name"
-            placeholder="e.g. Technology"
+            placeholder="Нийтлэгчийн Нэр"
             value={name}
             onChange={handleNameChange}
             required
@@ -54,48 +70,32 @@ export function CategoryForm({ category = null }: { category?: any }) {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="slug">Slug</Label>
+          <Label htmlFor="image">Зураг сонгох</Label>
           <Input
-            id="slug"
-            placeholder="e.g. technology"
-            value={slug}
-            onChange={(e) => setSlug(e.target.value)}
-            required
+            id="image"
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
           />
-          <p className="text-xs text-muted-foreground">
-            The slug is used in the URL: /category/
-            <strong>{slug || "example"}</strong>
-          </p>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="color">Color</Label>
-          <div className="flex items-center gap-2">
-            <Input
-              id="color"
-              type="color"
-              value={color}
-              onChange={(e) => setColor(e.target.value)}
-              className="w-12 h-10 p-1"
+          {file && (
+            <img
+              src={URL.createObjectURL(file)}
+              alt="Preview"
+              className="w-32 h-32 object-cover rounded"
             />
-            <div
-              className="w-10 h-10 rounded-full border"
-              style={{ backgroundColor: color }}
-            />
-            <span className="text-sm font-mono">{color}</span>
-          </div>
+          )}
         </div>
 
         <Button type="submit" className="gap-2" disabled={isSubmitting}>
           {isSubmitting ? (
             <>
               <CircleDashed className="h-4 w-4 animate-spin" />
-              Saving...
+              Хадгалж байна...
             </>
           ) : (
             <>
               <Save className="h-4 w-4" />
-              Save Category
+              Нэрийг хадгалах
             </>
           )}
         </Button>

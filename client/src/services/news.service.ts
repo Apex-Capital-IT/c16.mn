@@ -1,18 +1,27 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:3000/api";
+const API_URL = "http://localhost:8000/api";
 
 export interface News {
   _id: string;
   title: string;
   content: string;
   category: string;
-  image?: string;
+  newsImages: string[];
+  authorName: string;
+  authorImage: string;
+  banner: boolean;
+  slug: string;
   createdAt: string;
+  updatedAt: string;
 }
 
-export const createNews = async (newsData: Omit<News, "_id" | "createdAt">) => {
-  const response = await axios.post(`${API_URL}/news`, newsData);
+export const createNews = async (formData: FormData) => {
+  const response = await axios.post(`${API_URL}/create/news`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
   return response.data;
 };
 

@@ -1,6 +1,6 @@
-import type { Metadata } from "next";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { DashboardHeader } from "@/components/admi/dashboard-header";
+import { Overview } from "@/components/admi/overview";
+import { RecentPosts } from "@/components/admi/recent-posts";
 import {
   Card,
   CardContent,
@@ -8,104 +8,77 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { FileText, Plus, Tag } from "lucide-react";
-import { DashboardStats } from "@/components/admin/dashboard-stats";
-import { RecentPosts } from "@/components/admin/recent-posts";
-
-export const metadata: Metadata = {
-  title: "Admin Dashboard | News App",
-  description: "Admin dashboard for the News App",
-};
 
 export default function AdminDashboard() {
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <div className="flex gap-2">
-          <Link href="/admin/posts/new" passHref>
-            <Button size="sm" className="gap-1">
-              <Plus className="h-4 w-4" />
-              New Post
-            </Button>
-          </Link>
-          <Link href="/admin/categories/new" passHref>
-            <Button size="sm" variant="outline" className="gap-1">
-              <Tag className="h-4 w-4" />
-              New Category
-            </Button>
-          </Link>
-        </div>
-      </div>
+    <div className="flex flex-col gap-6">
+      <DashboardHeader
+        title="Dashboard"
+        description="Blog website admin panel"
+      />
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <DashboardStats />
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Posts</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">142</div>
+            <p className="text-xs text-muted-foreground">
+              +20% from last month
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Authors</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">12</div>
+            <p className="text-xs text-muted-foreground">+2 new authors</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Categories</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">8</div>
+            <p className="text-xs text-muted-foreground">+1 from last month</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Page Views</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">24,563</div>
+            <p className="text-xs text-muted-foreground">
+              +12.5% from last month
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card>
-          <CardHeader className="pb-3">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
+        <Card className="col-span-4">
+          <CardHeader>
+            <CardTitle>Overview</CardTitle>
+            <CardDescription>
+              Blog post views for the last 30 days.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pl-2">
+            <Overview />
+          </CardContent>
+        </Card>
+        <Card className="col-span-3">
+          <CardHeader>
             <CardTitle>Recent Posts</CardTitle>
-            <CardDescription>Your latest published articles</CardDescription>
+            <CardDescription>Recently published posts.</CardDescription>
           </CardHeader>
           <CardContent>
             <RecentPosts />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>Common tasks and shortcuts</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-2">
-              <h3 className="text-sm font-medium">Posts</h3>
-              <div className="grid grid-cols-2 gap-2">
-                <Link href="/admin/posts/new" passHref>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full justify-start gap-2">
-                    <Plus className="h-4 w-4" />
-                    Create Post
-                  </Button>
-                </Link>
-                <Link href="/admin/posts" passHref>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full justify-start gap-2">
-                    <FileText className="h-4 w-4" />
-                    All Posts
-                  </Button>
-                </Link>
-              </div>
-            </div>
-
-            <div className="grid gap-2">
-              <h3 className="text-sm font-medium">Categories</h3>
-              <div className="grid grid-cols-2 gap-2">
-                <Link href="/admin/categories/new" passHref>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full justify-start gap-2">
-                    <Plus className="h-4 w-4" />
-                    Create Category
-                  </Button>
-                </Link>
-                <Link href="/admin/categories" passHref>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full justify-start gap-2">
-                    <Tag className="h-4 w-4" />
-                    All Categories
-                  </Button>
-                </Link>
-              </div>
-            </div>
           </CardContent>
         </Card>
       </div>

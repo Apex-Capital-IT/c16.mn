@@ -15,7 +15,7 @@ function generateSlug(title: string) {
 
 async function getLatestNews(): Promise<NewsArticle[]> {
   try {
-    const res = await axiosInstance.get<NewsArticle[]>('/api/news');
+    const res = await axiosInstance.get<NewsArticle[]>("/api/news");
     return res.data;
   } catch (error) {
     console.error("Error fetching news:", error);
@@ -30,7 +30,7 @@ export default async function Home() {
   return (
     <main className="min-h-screen bg-white">
       <div className="container mx-auto px-4 py-8">
-        {latestArticle && (
+        {/* {latestArticle && (
           <div className="mb-12">
             <Link href={`/${latestArticle.category}/1`} prefetch={false}>
               <div className="relative h-[500px] w-full overflow-hidden rounded-lg">
@@ -56,7 +56,9 @@ export default async function Home() {
                   </p>
                   <div className="flex items-center text-sm">
                     <span className="mr-4">
-                      {new Date(latestArticle.publishedDate).toLocaleDateString()}
+                      {new Date(
+                        latestArticle.publishedDate
+                      ).toLocaleDateString()}
                     </span>
                     <span>By {latestArticle.authorName}</span>
                   </div>
@@ -64,11 +66,11 @@ export default async function Home() {
               </div>
             </Link>
           </div>
-        )}
+        )} */}
 
         <EmailSubscription />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <h2 className="text-2xl font-bold mb-6">Latest News</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -108,7 +110,7 @@ export default async function Home() {
               <NewsCategories />
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </main>
   );

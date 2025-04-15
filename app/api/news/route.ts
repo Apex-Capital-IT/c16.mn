@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
-import { NewsModel } from "@/app/models/news.model";
 
 // Connect to MongoDB
 const connectDB = async () => {
@@ -15,13 +14,39 @@ const connectDB = async () => {
 
 export async function POST(request: Request) {
   try {
-    await connectDB();
+    // Get the form data from the request
+    const formData = await request.formData();
     
-    const body = await request.json();
-    const newArticle = new NewsModel(body);
-    await newArticle.save();
+    // Log the form data for debugging
+    console.log("Form data received:", {
+      title: formData.get("title"),
+      content: formData.get("content"),
+      category: formData.get("category"),
+      authorName: formData.get("authorName"),
+      banner: formData.get("banner"),
+      hasNewsImages: formData.getAll("newsImages").length > 0,
+    });
+    
+    // Forward the form data to the backend
+    console.log("Sending request to:", `${process.env.NEXT_PUBLIC_API_URL}/api/create/news`);
+    
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/create/news`, {
+      method: "POST",
+      body: formData, // Forward the FormData directly
+    });
 
-    return NextResponse.json(newArticle);
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("Error response from backend:", errorData);
+      return NextResponse.json(
+        { error: errorData.message || "Failed to create article" },
+        { status: response.status }
+      );
+    }
+
+    const data = await response.json();
+    console.log("Success response from backend:", data);
+    return NextResponse.json(data);
   } catch (error) {
     console.error("Error creating article:", error);
     return NextResponse.json(
@@ -33,15 +58,35 @@ export async function POST(request: Request) {
 
 export async function GET(request: Request) {
   try {
-    await connectDB();
-    
     const { searchParams } = new URL(request.url);
-    const category = searchParams.get('category');
+    const category = searchParams.get("category");
     
-    const query = category ? { category } : {};
-    const articles = await NewsModel.find(query).sort({ createdAt: -1 });
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/news${category ? `?category=${category}` : ""}`,
+      {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      }
+    );
 
-    return NextResponse.json(articles);
+    if (!response.ok) {
+      const errorData = await response.json();
+      return NextResponse.json(
+        { error: errorData.message || "Failed to fetch articles" },
+        { status: response.status }
+      );
+    }
+
+    const data = await response.json();
+    return NextResponse.json(data, {
+      headers: {
+        'Cache-Control': 'no-store, must-revalidate',
+        'Pragma': 'no-cache'
+      }
+    });
   } catch (error) {
     console.error("Error fetching articles:", error);
     return NextResponse.json(
@@ -49,4 +94,4 @@ export async function GET(request: Request) {
       { status: 500 }
     );
   }
-} 
+}

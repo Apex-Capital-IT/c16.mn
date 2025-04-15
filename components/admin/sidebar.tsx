@@ -13,12 +13,12 @@ export function Sidebar() {
   };
 
   return (
-    <div className="flex h-screen w-64 flex-col border-r bg-white">
+    <div className="flex h-screen justify-between w-64 flex-col border-r bg-white">
       <div className="flex h-14 items-center border-b px-4">
         <Link
           href="/admin"
           className="flex items-center gap-2 font-bold text-xl">
-          <span className="text-primary">News</span>
+          <span className="text-primary">c16.mn</span>
           <span>Admin</span>
         </Link>
       </div>
@@ -29,23 +29,23 @@ export function Sidebar() {
               variant={isActive("/admin") ? "secondary" : "ghost"}
               className="w-full justify-start gap-2">
               <Home className="h-4 w-4" />
-              Dashboard
+              News
             </Button>
           </Link>
-          <Link href="/admin/posts" passHref>
+          {/* <Link href="/admin/posts" passHref>
             <Button
               variant={isActive("/admin/posts") ? "secondary" : "ghost"}
               className="w-full justify-start gap-2">
               <FileText className="h-4 w-4" />
               Posts
             </Button>
-          </Link>
+          </Link> */}
           <Link href="/admin/categories" passHref>
             <Button
               variant={isActive("/admin/categories") ? "secondary" : "ghost"}
               className="w-full justify-start gap-2">
               <FileText className="h-4 w-4" />
-              Categories
+              Authors
             </Button>
           </Link>
         </nav>
