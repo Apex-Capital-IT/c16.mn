@@ -1,6 +1,6 @@
-import axios from 'axios';
+import axios from "axios";
 
-const API_URL = 'http://localhost:3000/api';
+const API_URL = "https://a.apex.mn/";
 
 export interface NewsArticle {
   _id: string;
@@ -18,14 +18,14 @@ export interface NewsArticle {
 
 export const getNews = async (category?: string): Promise<NewsArticle[]> => {
   try {
-    const url = category 
+    const url = category
       ? `${API_URL}/news?category=${encodeURIComponent(category)}`
       : `${API_URL}/news`;
-      
+
     const response = await axios.get<NewsArticle[]>(url);
     return response.data;
   } catch (error) {
-    console.error('Error fetching news:', error);
+    console.error("Error fetching news:", error);
     throw error;
   }
 };
@@ -35,17 +35,19 @@ export const getFeaturedNews = async (): Promise<NewsArticle | null> => {
     const response = await axios.get<NewsArticle>(`${API_URL}/news/featured`);
     return response.data;
   } catch (error) {
-    console.error('Error fetching featured news:', error);
+    console.error("Error fetching featured news:", error);
     throw error;
   }
 };
 
 export const searchNews = async (query: string): Promise<NewsArticle[]> => {
   try {
-    const response = await axios.get<NewsArticle[]>(`${API_URL}/search?q=${encodeURIComponent(query)}`);
+    const response = await axios.get<NewsArticle[]>(
+      `${API_URL}/search?q=${encodeURIComponent(query)}`
+    );
     return response.data;
   } catch (error) {
-    console.error('Error searching news:', error);
+    console.error("Error searching news:", error);
     throw error;
   }
-}; 
+};

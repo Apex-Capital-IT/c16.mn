@@ -18,12 +18,14 @@ const MONGO_URI = process.env.MONGO_URI || "";
 // ensureDirectories();
 
 // Configure CORS to accept requests from the frontend
-app.use(cors({
-  origin: ["http://localhost:3000", "http://127.0.0.1:3000"],
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: ["https://a.apex.mn/", "http://127.0.0.1:3000"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -56,6 +58,6 @@ mongoose
       name: err.name,
       message: err.message,
       code: err.code,
-      codeName: err.codeName
+      codeName: err.codeName,
     });
   });
