@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from "axios";
 
 export interface NewsArticle {
   _id: string;
@@ -17,8 +17,8 @@ export interface NewsArticle {
 const axiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
-export default axiosInstance; 
+export default axiosInstance;

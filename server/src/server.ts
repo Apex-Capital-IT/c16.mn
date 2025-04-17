@@ -18,9 +18,20 @@ const MONGO_URI = process.env.MONGO_URI || "";
 // ensureDirectories();
 
 // Configure CORS to accept requests from the frontend
+const allowedOrigins = [
+  "https://a.apex.mn/",
+  "http://localhost:3000", // For local dev
+  "https://c16-mn.onrender.com", // Add your deployment domain
+];
 app.use(
   cors({
-    origin: true,
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
