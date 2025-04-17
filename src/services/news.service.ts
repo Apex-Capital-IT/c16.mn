@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const API_URL = "https://a.apex.mn/";
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL || "https://c16-mn.onrender.com";
 
 export interface NewsArticle {
   _id: string;

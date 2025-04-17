@@ -20,7 +20,7 @@ const MONGO_URI = process.env.MONGO_URI || "";
 // Configure CORS to accept requests from the frontend
 app.use(
   cors({
-    origin: ["https://a.apex.mn/", "http://127.0.0.1:3000", "https://c16-mn.onrender.com"],
+    origin: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
