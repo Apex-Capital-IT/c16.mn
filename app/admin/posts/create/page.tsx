@@ -134,7 +134,6 @@ export default function CreatePostPage() {
   const handleSelectChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
 
-    // If author is selected, update the author name
     if (name === "authorName") {
       setSelectedAuthor(value);
       const author = authors.find((a) => a.name === value);
