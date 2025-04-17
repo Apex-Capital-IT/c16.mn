@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8000/api";
+const API_URL = "http://https://c16-mn.onrender.com/api";
 
 export interface News {
   _id: string;
@@ -19,7 +19,7 @@ export interface News {
 export const createNews = async (formData: FormData) => {
   const response = await axios.post(`${API_URL}/create/news`, formData, {
     headers: {
-      'Content-Type': 'multipart/form-data',
+      "Content-Type": "multipart/form-data",
     },
   });
   return response.data;
@@ -28,4 +28,4 @@ export const createNews = async (formData: FormData) => {
 export const getNews = async () => {
   const response = await axios.get(`${API_URL}/news`);
   return response.data;
-}; 
+};

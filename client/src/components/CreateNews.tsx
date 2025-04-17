@@ -20,16 +20,23 @@ const CreateNews: React.FC = () => {
 
   const [authorImage, setAuthorImage] = useState<File | null>(null);
   const [newsImages, setNewsImages] = useState<File[]>([]);
-  const [previewAuthorImage, setPreviewAuthorImage] = useState<string | null>(null);
+  const [previewAuthorImage, setPreviewAuthorImage] = useState<string | null>(
+    null
+  );
   const [previewNewsImages, setPreviewNewsImages] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value, type } = e.target;
-    if (type === 'checkbox') {
-      setFormData({ ...formData, [name]: (e.target as HTMLInputElement).checked });
+    if (type === "checkbox") {
+      setFormData({
+        ...formData,
+        [name]: (e.target as HTMLInputElement).checked,
+      });
     } else {
       setFormData({ ...formData, [name]: value });
     }
@@ -39,7 +46,7 @@ const CreateNews: React.FC = () => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setAuthorImage(file);
-      
+
       // Create preview URL
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -52,13 +59,13 @@ const CreateNews: React.FC = () => {
   const handleNewsImagesChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const filesArray = Array.from(e.target.files);
-      setNewsImages(prev => [...prev, ...filesArray]);
-      
+      setNewsImages((prev) => [...prev, ...filesArray]);
+
       // Create preview URLs
-      filesArray.forEach(file => {
+      filesArray.forEach((file) => {
         const reader = new FileReader();
         reader.onloadend = () => {
-          setPreviewNewsImages(prev => [...prev, reader.result as string]);
+          setPreviewNewsImages((prev) => [...prev, reader.result as string]);
         };
         reader.readAsDataURL(file);
       });
@@ -66,8 +73,8 @@ const CreateNews: React.FC = () => {
   };
 
   const removeNewsImage = (index: number) => {
-    setNewsImages(prev => prev.filter((_, i) => i !== index));
-    setPreviewNewsImages(prev => prev.filter((_, i) => i !== index));
+    setNewsImages((prev) => prev.filter((_, i) => i !== index));
+    setPreviewNewsImages((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -78,30 +85,34 @@ const CreateNews: React.FC = () => {
 
     try {
       const formDataToSend = new FormData();
-      
+
       // Add text fields
       Object.entries(formData).forEach(([key, value]) => {
         formDataToSend.append(key, value.toString());
       });
-      
+
       // Add author image
       if (authorImage) {
-        formDataToSend.append('authorImage', authorImage);
+        formDataToSend.append("authorImage", authorImage);
       }
-      
+
       // Add news images
       newsImages.forEach((file, index) => {
-        formDataToSend.append('newsImages', file);
+        formDataToSend.append("newsImages", file);
       });
 
-      const response = await axios.post('http://localhost:8000/api/create/news', formDataToSend, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      const response = await axios.post(
+        "https://c16-mn.onrender.com/api/create/news",
+        formDataToSend,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
       setSuccess("Мэдээ амжилттай үүслээ");
-      
+
       // Reset form
       setFormData({
         title: "",
@@ -125,22 +136,25 @@ const CreateNews: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-6 text-center">Шинэ мэдээ үүсгэх</h2>
-      
+
       {error && (
         <div className="mb-4 p-4 bg-red-100 text-red-700 rounded-md">
           {error}
         </div>
       )}
-      
+
       {success && (
         <div className="mb-4 p-4 bg-green-100 text-green-700 rounded-md">
           {success}
         </div>
       )}
-      
+
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="title">
+          <label
+            className="block text-gray-700 text-sm font-bold mb-2"
+            htmlFor="title"
+          >
             Гарчиг
           </label>
           <input
@@ -153,9 +167,12 @@ const CreateNews: React.FC = () => {
             required
           />
         </div>
-        
+
         <div>
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="content">
+          <label
+            className="block text-gray-700 text-sm font-bold mb-2"
+            htmlFor="content"
+          >
             Агуулга
           </label>
           <textarea
@@ -168,9 +185,12 @@ const CreateNews: React.FC = () => {
             required
           />
         </div>
-        
+
         <div>
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="category">
+          <label
+            className="block text-gray-700 text-sm font-bold mb-2"
+            htmlFor="category"
+          >
             Ангилал
           </label>
           <input
@@ -183,9 +203,12 @@ const CreateNews: React.FC = () => {
             required
           />
         </div>
-        
+
         <div>
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="authorName">
+          <label
+            className="block text-gray-700 text-sm font-bold mb-2"
+            htmlFor="authorName"
+          >
             Зохиолчийн нэр
           </label>
           <input
@@ -198,9 +221,12 @@ const CreateNews: React.FC = () => {
             required
           />
         </div>
-        
+
         <div>
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="authorImage">
+          <label
+            className="block text-gray-700 text-sm font-bold mb-2"
+            htmlFor="authorImage"
+          >
             Зохиолчийн зураг
           </label>
           <input
@@ -214,17 +240,20 @@ const CreateNews: React.FC = () => {
           />
           {previewAuthorImage && (
             <div className="mt-2">
-              <img 
-                src={previewAuthorImage} 
-                alt="Author preview" 
+              <img
+                src={previewAuthorImage}
+                alt="Author preview"
                 className="w-32 h-32 object-cover rounded-md"
               />
             </div>
           )}
         </div>
-        
+
         <div>
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="newsImages">
+          <label
+            className="block text-gray-700 text-sm font-bold mb-2"
+            htmlFor="newsImages"
+          >
             Мэдээний зургууд
           </label>
           <input
@@ -240,9 +269,9 @@ const CreateNews: React.FC = () => {
             <div className="mt-2 grid grid-cols-3 gap-2">
               {previewNewsImages.map((preview, index) => (
                 <div key={index} className="relative">
-                  <img 
-                    src={preview} 
-                    alt={`News preview ${index + 1}`} 
+                  <img
+                    src={preview}
+                    alt={`News preview ${index + 1}`}
                     className="w-full h-24 object-cover rounded-md"
                   />
                   <button
@@ -257,7 +286,7 @@ const CreateNews: React.FC = () => {
             </div>
           )}
         </div>
-        
+
         <div className="flex items-center">
           <input
             type="checkbox"
@@ -271,16 +300,16 @@ const CreateNews: React.FC = () => {
             Баннер мэдээ
           </label>
         </div>
-        
+
         <div>
           <button
             type="submit"
             disabled={isSubmitting}
             className={`w-full py-2 px-4 rounded-md text-white font-medium ${
-              isSubmitting ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'
+              isSubmitting ? "bg-blue-400" : "bg-blue-600 hover:bg-blue-700"
             }`}
           >
-            {isSubmitting ? 'Илгэж байна...' : 'Мэдээ үүсгэх'}
+            {isSubmitting ? "Илгэж байна..." : "Мэдээ үүсгэх"}
           </button>
         </div>
       </form>
@@ -288,4 +317,4 @@ const CreateNews: React.FC = () => {
   );
 };
 
-export default CreateNews; 
+export default CreateNews;

@@ -34,7 +34,7 @@ export function AuthorForm({ category = null }: { category?: any }) {
         formData.append("authorImage", file);
       }
 
-      const res = await fetch("http://localhost:8000/api/create/author", {
+      const res = await fetch("https://c16-mn.onrender.com/api/create/author", {
         method: "POST",
         body: formData,
       });
