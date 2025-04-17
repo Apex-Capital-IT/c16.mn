@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://https://c16-mn.onrender.com/api";
+const API_URL = "https://c16-mn.onrender.com/api";
 
 export interface News {
   _id: string;

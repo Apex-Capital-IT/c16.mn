@@ -31,7 +31,7 @@ export default function CreateNews() {
   useEffect(() => {
     const fetchAuthors = async () => {
       try {
-        const response = await fetch("https://c16-mn.onrender.com/api/authors");
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/authors`);
         const data = await response.json();
         setAuthors(data);
       } catch (error) {
@@ -49,7 +49,7 @@ export default function CreateNews() {
 
     try {
       const response = await fetch(
-        "https://c16-mn.onrender.com/api/create/news",
+        `${process.env.NEXT_PUBLIC_API_URL}/api/create/news`,
         {
           method: "POST",
           headers: {
