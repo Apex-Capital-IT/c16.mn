@@ -51,7 +51,9 @@ export default function CreatePostPage() {
 
   const [authorImage, setAuthorImage] = useState<File | null>(null);
   const [newsImages, setNewsImages] = useState<File[]>([]);
-  const [previewAuthorImage, setPreviewAuthorImage] = useState<string | null>(null);
+  const [previewAuthorImage, setPreviewAuthorImage] = useState<string | null>(
+    null
+  );
   const [previewNewsImages, setPreviewNewsImages] = useState<string[]>([]);
   const [selectedAuthor, setSelectedAuthor] = useState<string>("");
 
@@ -62,23 +64,27 @@ export default function CreatePostPage() {
         // Fetch categories and authors from the API
         const [categoriesRes, authorsRes] = await Promise.all([
           axios.get<{ categories: any[] }>("/api/categories"),
-          axios.get<{ authors: any[] }>("/api/authors")
+          axios.get<{ authors: any[] }>("/api/authors"),
         ]);
-        
+
         // Process categories data
         const categoriesData = categoriesRes.data.categories || [];
-        setCategories(categoriesData.map((cat: any) => ({
-          id: cat._id,
-          name: cat.categoryName
-        })));
-        
+        setCategories(
+          categoriesData.map((cat: any) => ({
+            id: cat._id,
+            name: cat.categoryName,
+          }))
+        );
+
         // Process authors data
         const authorsData = authorsRes.data.authors || [];
-        setAuthors(authorsData.map((author: any) => ({
-          id: author._id,
-          name: author.authorName,
-          image: author.authorImage
-        })));
+        setAuthors(
+          authorsData.map((author: any) => ({
+            id: author._id,
+            name: author.authorName,
+            image: author.authorImage,
+          }))
+        );
       } catch (error) {
         console.error("Error fetching data:", error);
         toast({
@@ -93,10 +99,18 @@ export default function CreatePostPage() {
           { id: "2", name: "React" },
           { id: "3", name: "Technology" },
         ]);
-        
+
         setAuthors([
-          { id: "1", name: "John Doe", image: "https://via.placeholder.com/150" },
-          { id: "2", name: "Jane Smith", image: "https://via.placeholder.com/150" },
+          {
+            id: "1",
+            name: "John Doe",
+            image: "https://via.placeholder.com/150",
+          },
+          {
+            id: "2",
+            name: "Jane Smith",
+            image: "https://via.placeholder.com/150",
+          },
         ]);
       } finally {
         setLoading(false);
@@ -119,11 +133,11 @@ export default function CreatePostPage() {
 
   const handleSelectChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
-    
+
     // If author is selected, update the author name
     if (name === "authorName") {
       setSelectedAuthor(value);
-      const author = authors.find(a => a.name === value);
+      const author = authors.find((a) => a.name === value);
       if (author) {
         setPreviewAuthorImage(author.image);
       }
@@ -134,7 +148,7 @@ export default function CreatePostPage() {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setAuthorImage(file);
-      
+
       // Create preview URL
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -148,15 +162,18 @@ export default function CreatePostPage() {
     if (e.target.files) {
       const files = Array.from(e.target.files);
       console.log("News images selected:", files.length);
-      console.log("News images details:", files.map(f => ({ name: f.name, size: f.size, type: f.type })));
-      
-      setNewsImages(prev => [...prev, ...files]);
-      
+      console.log(
+        "News images details:",
+        files.map((f) => ({ name: f.name, size: f.size, type: f.type }))
+      );
+
+      setNewsImages((prev) => [...prev, ...files]);
+
       // Create preview URLs
-      files.forEach(file => {
+      files.forEach((file) => {
         const reader = new FileReader();
         reader.onloadend = () => {
-          setPreviewNewsImages(prev => [...prev, reader.result as string]);
+          setPreviewNewsImages((prev) => [...prev, reader.result as string]);
         };
         reader.readAsDataURL(file);
       });
@@ -164,13 +181,13 @@ export default function CreatePostPage() {
   };
 
   const removeNewsImage = (index: number) => {
-    setNewsImages(prev => prev.filter((_, i) => i !== index));
-    setPreviewNewsImages(prev => prev.filter((_, i) => i !== index));
+    setNewsImages((prev) => prev.filter((_, i) => i !== index));
+    setPreviewNewsImages((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (newsImages.length === 0) {
       toast({
         title: "Error",
@@ -179,24 +196,24 @@ export default function CreatePostPage() {
       });
       return;
     }
-    
+
     try {
       setSubmitting(true);
 
       // Create FormData object for file upload
       const formDataToSend = new FormData();
-      formDataToSend.append('title', formData.title);
-      formDataToSend.append('content', formData.content);
-      formDataToSend.append('category', formData.category);
-      formDataToSend.append('authorName', formData.authorName);
-      formDataToSend.append('banner', formData.banner.toString());
-      
+      formDataToSend.append("title", formData.title);
+      formDataToSend.append("content", formData.content);
+      formDataToSend.append("category", formData.category);
+      formDataToSend.append("authorName", formData.authorName);
+      formDataToSend.append("banner", formData.banner.toString());
+
       // Append news images - try a different approach
       console.log("Appending news images to FormData:", newsImages.length);
-      
+
       // Clear any existing newsImages entries
       for (let i = 0; i < newsImages.length; i++) {
-        formDataToSend.append('newsImages', newsImages[i]);
+        formDataToSend.append("newsImages", newsImages[i]);
       }
 
       console.log("Submitting form data:", {
@@ -205,13 +222,13 @@ export default function CreatePostPage() {
         category: formData.category,
         authorName: formData.authorName,
         banner: formData.banner,
-        newsImagesCount: newsImages.length
+        newsImagesCount: newsImages.length,
       });
 
       // Send to API
       const response = await axios.post("/api/news", formDataToSend, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         },
       });
 
@@ -226,16 +243,17 @@ export default function CreatePostPage() {
       router.push("/admin/posts");
     } catch (error: any) {
       console.error("Error creating news post:", error);
-      
+
       // Log more detailed error information
       if (error.response) {
         console.error("Error response data:", error.response.data);
         console.error("Error response status:", error.response.status);
       }
-      
+
       toast({
         title: "Error",
-        description: error.response?.data?.error || "Failed to create news post",
+        description:
+          error.response?.data?.error || "Failed to create news post",
         variant: "destructive",
       });
     } finally {
@@ -255,9 +273,7 @@ export default function CreatePostPage() {
         title="Create News Post"
         description="Create a new news article"
         action={
-          <Button
-            onClick={handleSubmit}
-            disabled={submitting}>
+          <Button onClick={handleSubmit} disabled={submitting}>
             {submitting ? "Publishing..." : "Publish"}
           </Button>
         }
@@ -303,7 +319,8 @@ export default function CreatePostPage() {
                     value={formData.category}
                     onValueChange={(value) =>
                       handleSelectChange("category", value)
-                    }>
+                    }
+                  >
                     <SelectTrigger id="category">
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
@@ -323,7 +340,8 @@ export default function CreatePostPage() {
                     value={formData.authorName}
                     onValueChange={(value) =>
                       handleSelectChange("authorName", value)
-                    }>
+                    }
+                  >
                     <SelectTrigger id="authorName">
                       <SelectValue placeholder="Select author" />
                     </SelectTrigger>
@@ -339,9 +357,9 @@ export default function CreatePostPage() {
 
                 {selectedAuthor && previewAuthorImage && (
                   <div className="flex items-center gap-2">
-                    <img 
-                      src={previewAuthorImage} 
-                      alt="Selected author" 
+                    <img
+                      src={previewAuthorImage}
+                      alt="Selected author"
                       className="w-10 h-10 rounded-full object-cover"
                     />
                     <span className="font-medium">{selectedAuthor}</span>
@@ -362,9 +380,9 @@ export default function CreatePostPage() {
                     <div className="mt-2 grid grid-cols-3 gap-2">
                       {previewNewsImages.map((preview, index) => (
                         <div key={index} className="relative">
-                          <img 
-                            src={preview} 
-                            alt={`News image ${index + 1}`} 
+                          <img
+                            src={preview}
+                            alt={`News image ${index + 1}`}
                             className="w-full h-32 object-cover rounded"
                           />
                           <button
@@ -381,8 +399,8 @@ export default function CreatePostPage() {
                 </div>
 
                 <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="banner" 
+                  <Checkbox
+                    id="banner"
                     checked={formData.banner}
                     onCheckedChange={handleCheckboxChange}
                   />
@@ -396,36 +414,40 @@ export default function CreatePostPage() {
           <Card>
             <CardContent className="pt-6">
               <div className="space-y-4">
-                <h1 className="text-2xl font-bold">{formData.title || "Untitled"}</h1>
-                
+                <h1 className="text-2xl font-bold">
+                  {formData.title || "Untitled"}
+                </h1>
+
                 {previewAuthorImage && (
                   <div className="flex items-center gap-2">
-                    <img 
-                      src={previewAuthorImage} 
-                      alt="Author" 
+                    <img
+                      src={previewAuthorImage}
+                      alt="Author"
                       className="w-10 h-10 rounded-full"
                     />
-                    <span className="font-medium">{formData.authorName || "Unknown Author"}</span>
+                    <span className="font-medium">
+                      {formData.authorName || "Unknown Author"}
+                    </span>
                   </div>
                 )}
-                
+
                 {previewNewsImages.length > 0 && (
                   <div className="grid grid-cols-1 gap-4">
                     {previewNewsImages.map((preview, index) => (
-                      <img 
-                        key={index} 
-                        src={preview} 
-                        alt={`News image ${index + 1}`} 
+                      <img
+                        key={index}
+                        src={preview}
+                        alt={`News image ${index + 1}`}
                         className="w-full h-64 object-cover rounded"
                       />
                     ))}
                   </div>
                 )}
-                
+
                 <div className="prose max-w-none">
                   <p>{formData.content || "No content yet"}</p>
                 </div>
-                
+
                 {formData.category && (
                   <div className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700">
                     {formData.category}

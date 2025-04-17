@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
-import { NewsModel } from "@/app/models/news.model";
+import { NewsModel } from "../../../server/src/models/news.model";
 
 const connectDB = async () => {
   try {

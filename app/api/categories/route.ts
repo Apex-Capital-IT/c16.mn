@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/categories`);
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/categories`
+    );
 
     if (!response.ok) {
       const errorData = await response.json();
@@ -36,13 +38,16 @@ export async function POST(request: Request) {
       );
     }
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/create/category`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    });
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/create/category`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      }
+    );
 
     if (!response.ok) {
       const errorData = await response.json();
@@ -61,4 +66,4 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
-} 
+}

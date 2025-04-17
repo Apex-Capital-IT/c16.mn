@@ -27,15 +27,17 @@ export default async function Home() {
   const news = await getLatestNews();
   const latestArticle = news[0]; // Get the most recent article
 
+  console.log(latestArticle);
+
   return (
     <main className="min-h-screen bg-white">
       <div className="container mx-auto px-4 py-8">
-        {/* {latestArticle && (
+        {latestArticle && (
           <div className="mb-12">
             <Link href={`/${latestArticle.category}/1`} prefetch={false}>
               <div className="relative h-[500px] w-full overflow-hidden rounded-lg">
                 <Image
-                  src={latestArticle.newsImage}
+                  src="https://unread.today/files/007afc64-288a-4208-b9d7-3eda84011c1d/6b14a94472c91bd94f086dac96694c79.jpeg"
                   alt={latestArticle.title}
                   fill
                   className="object-cover"
@@ -66,20 +68,23 @@ export default async function Home() {
               </div>
             </Link>
           </div>
-        )} */}
+        )}
 
         <EmailSubscription />
 
-        {/* <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <h2 className="text-2xl font-bold mb-6">Latest News</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {news.map((article: NewsArticle, index: number) => (
                 <div key={article._id} className="border-b pb-6">
-                  <Link href={`/${article.category}/${index + 1}`} prefetch={false}>
+                  <Link
+                    href={`/${article.category}/${index + 1}`}
+                    prefetch={false}
+                  >
                     <div className="relative h-48 mb-4 overflow-hidden rounded-md">
                       <Image
-                        src={article.newsImage}
+                        src="https://unread.today/files/007afc64-288a-4208-b9d7-3eda84011c1d/6b14a94472c91bd94f086dac96694c79.jpeg"
                         alt={article.title}
                         fill
                         className="object-cover"
@@ -110,7 +115,7 @@ export default async function Home() {
               <NewsCategories />
             </div>
           </div>
-        </div> */}
+        </div>
       </div>
     </main>
   );

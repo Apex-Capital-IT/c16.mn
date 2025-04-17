@@ -2,8 +2,11 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    console.log("Fetching authors from:", `${process.env.NEXT_PUBLIC_API_URL}/api/authors`);
-    
+    console.log(
+      "Fetching authors from:",
+      `${process.env.NEXT_PUBLIC_API_URL}/api/authors`
+    );
+
     if (!process.env.NEXT_PUBLIC_API_URL) {
       console.error("NEXT_PUBLIC_API_URL is not defined");
       return NextResponse.json(
@@ -11,13 +14,16 @@ export async function GET() {
         { status: 500 }
       );
     }
-    
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/authors`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/authors`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     if (!response.ok) {
       const errorData = await response.json();
@@ -43,14 +49,17 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
-    
+
     // Log the form data for debugging
     console.log("Form data received:", {
       authorName: formData.get("authorName"),
       hasImage: formData.has("authorImage"),
-      imageType: formData.get("authorImage") instanceof File ? (formData.get("authorImage") as File).type : "not a file",
+      imageType:
+        formData.get("authorImage") instanceof File
+          ? (formData.get("authorImage") as File).type
+          : "not a file",
     });
-    
+
     // Check if the API URL is set
     if (!process.env.NEXT_PUBLIC_API_URL) {
       console.error("NEXT_PUBLIC_API_URL is not set");
@@ -59,12 +68,15 @@ export async function POST(request: Request) {
         { status: 500 }
       );
     }
-    
+
     // Forward the form data to the backend server
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/create/author`, {
-      method: "POST",
-      body: formData,
-    });
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/create/author`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
 
     if (!response.ok) {
       const errorData = await response.json();
@@ -85,4 +97,4 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
-} 
+}
