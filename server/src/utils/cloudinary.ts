@@ -31,6 +31,11 @@ export const uploadToCloudinary = (fileBuffer: Buffer, folder: string) => {
     console.log(`Uploading file to Cloudinary in folder: ${folder}, size: ${fileBuffer.length} bytes`);
     console.log("File buffer type:", typeof fileBuffer);
     console.log("File buffer is Buffer:", Buffer.isBuffer(fileBuffer));
+    console.log("Cloudinary configuration:", {
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY ? "***" : "missing",
+      api_secret: process.env.CLOUDINARY_API_SECRET ? "***" : "missing",
+    });
 
     try {
       const stream = cloudinary.uploader.upload_stream(

@@ -19,8 +19,17 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
-import { DashboardHeader } from "@/components/admi/dashboard-header";
+import { DashboardHeader } from "@/components/admin/dashboard-header";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Trash2 } from "lucide-react";
 
 interface Category {
   id: string;
@@ -225,11 +234,15 @@ export default function CreatePostPage() {
       });
 
       // Send to API
-      const response = await axios.post("/api/news", formDataToSend, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await axios.post(
+        "http://localhost:8000/api/create/news",
+        formDataToSend,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
       console.log("Response from API:", response.data);
 
@@ -269,57 +282,56 @@ export default function CreatePostPage() {
   return (
     <div className="flex flex-col gap-6">
       <DashboardHeader
-        title="Create News Post"
-        description="Create a new news article"
+        title="Нийтлэл үүсгэх"
+        description="Шинэ мэдээний нийтлэл үүсгэх"
         action={
           <Button onClick={handleSubmit} disabled={submitting}>
-            {submitting ? "Publishing..." : "Publish"}
+            {submitting ? "Нийтэлж байна..." : "Нийтлэх"}
           </Button>
         }
       />
 
       <Tabs defaultValue="edit">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="edit">Edit</TabsTrigger>
-          <TabsTrigger value="preview">Preview</TabsTrigger>
+          <TabsTrigger value="edit">Засварлах</TabsTrigger>
+          <TabsTrigger value="preview">Урьдчилан үзэх</TabsTrigger>
         </TabsList>
         <TabsContent value="edit">
           <Card>
             <CardContent className="pt-6">
               <form className="space-y-6">
                 <div className="grid gap-3">
-                  <Label htmlFor="title">Title</Label>
+                  <Label htmlFor="title">Гарчиг</Label>
                   <Input
                     id="title"
                     name="title"
                     value={formData.title}
                     onChange={handleInputChange}
-                    placeholder="Enter news title"
+                    placeholder="Мэдээний гарчгийг оруулна уу"
                     required
                   />
                 </div>
 
                 <div className="grid gap-3">
-                  <Label htmlFor="content">Content</Label>
+                  <Label htmlFor="content">Агуулга</Label>
                   <Textarea
                     id="content"
                     name="content"
                     value={formData.content}
                     onChange={handleInputChange}
-                    placeholder="Write your news content here..."
+                    placeholder="Мэдээлэлээ энд бичнэ үү..."
                     rows={10}
                     required
                   />
                 </div>
 
                 <div className="grid gap-3">
-                  <Label htmlFor="category">Category</Label>
+                  <Label htmlFor="category">Ангилал</Label>
                   <Select
                     value={formData.category}
                     onValueChange={(value) =>
                       handleSelectChange("category", value)
-                    }
-                  >
+                    }>
                     <SelectTrigger id="category">
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
@@ -334,13 +346,12 @@ export default function CreatePostPage() {
                 </div>
 
                 <div className="grid gap-3">
-                  <Label htmlFor="authorName">Author</Label>
+                  <Label htmlFor="authorName">Нийтлэгч</Label>
                   <Select
                     value={formData.authorName}
                     onValueChange={(value) =>
                       handleSelectChange("authorName", value)
-                    }
-                  >
+                    }>
                     <SelectTrigger id="authorName">
                       <SelectValue placeholder="Select author" />
                     </SelectTrigger>
@@ -366,7 +377,7 @@ export default function CreatePostPage() {
                 )}
 
                 <div className="grid gap-3">
-                  <Label htmlFor="newsImages">News Images</Label>
+                  <Label htmlFor="newsImages">Мэдээний зураг</Label>
                   <Input
                     id="newsImages"
                     type="file"
@@ -376,23 +387,49 @@ export default function CreatePostPage() {
                     required
                   />
                   {previewNewsImages.length > 0 && (
-                    <div className="mt-2 grid grid-cols-3 gap-2">
-                      {previewNewsImages.map((preview, index) => (
-                        <div key={index} className="relative">
-                          <img
-                            src={preview}
-                            alt={`News image ${index + 1}`}
-                            className="w-full h-32 object-cover rounded"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removeNewsImage(index)}
-                            className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
-                          >
-                            ×
-                          </button>
-                        </div>
-                      ))}
+                    <div className="mt-4">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Урьдчилан үзэх</TableHead>
+                            <TableHead>Файлын нэр</TableHead>
+                            <TableHead>Хэмжээ</TableHead>
+                            <TableHead>Төрөл</TableHead>
+                            <TableHead className="text-right">
+                              Үйлдлүүд
+                            </TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {newsImages.map((file, index) => (
+                            <TableRow key={index}>
+                              <TableCell>
+                                <img
+                                  src={previewNewsImages[index]}
+                                  alt={`News image ${index + 1}`}
+                                  className="w-20 h-20 object-cover rounded"
+                                />
+                              </TableCell>
+                              <TableCell>{file.name}</TableCell>
+                              <TableCell>
+                                {(file.size / 1024).toFixed(2)} KB
+                              </TableCell>
+                              <TableCell>{file.type}</TableCell>
+                              <TableCell className="text-right">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => removeNewsImage(index)}>
+                                  <Trash2 className="h-4 w-4" />
+                                  <span className="sr-only">
+                                    Зургийг арилгах
+                                  </span>
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
                     </div>
                   )}
                 </div>
@@ -403,7 +440,7 @@ export default function CreatePostPage() {
                     checked={formData.banner}
                     onCheckedChange={handleCheckboxChange}
                   />
-                  <Label htmlFor="banner">Set as banner news</Label>
+                  <Label htmlFor="banner">Баннер мэдээ болгон тохируулах</Label>
                 </div>
               </form>
             </CardContent>
@@ -414,7 +451,7 @@ export default function CreatePostPage() {
             <CardContent className="pt-6">
               <div className="space-y-4">
                 <h1 className="text-2xl font-bold">
-                  {formData.title || "Untitled"}
+                  {formData.title || "Гарчиггүй"}
                 </h1>
 
                 {previewAuthorImage && (
@@ -444,7 +481,7 @@ export default function CreatePostPage() {
                 )}
 
                 <div className="prose max-w-none">
-                  <p>{formData.content || "No content yet"}</p>
+                  <p>{formData.content || "Одоогоор контент алга"}</p>
                 </div>
 
                 {formData.category && (

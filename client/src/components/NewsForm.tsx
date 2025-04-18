@@ -12,7 +12,13 @@ const NewsForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await createNews(formData);
+      const formDataToSend = new FormData();
+      formDataToSend.append("title", formData.title);
+      formDataToSend.append("content", formData.content);
+      formDataToSend.append("category", formData.category);
+      formDataToSend.append("image", formData.image);
+      
+      await createNews(formDataToSend);
       setFormData({ title: "", content: "", category: "", image: "" });
       alert("News created successfully!");
     } catch (error) {

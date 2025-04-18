@@ -11,11 +11,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PlusCircle, Pencil, Trash2, Eye } from "lucide-react";
+import { PlusCircle, Pencil, Trash2, Eye, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { DashboardHeader } from "@/components/admi/dashboard-header";
+import { DashboardHeader } from "@/components/admin/dashboard-header";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface Post {
   _id: string;
@@ -27,12 +33,14 @@ interface Post {
   slug: string;
   createdAt: string;
   updatedAt: string;
+  newsImages: string[];
 }
 
 export default function PostsPage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   useEffect(() => {
     fetchPosts();
@@ -43,9 +51,9 @@ export default function PostsPage() {
       setLoading(true);
       const response = await axios.get<Post[]>("/api/news", {
         headers: {
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
-        }
+          "Cache-Control": "no-cache",
+          Pragma: "no-cache",
+        },
       });
       console.log("Fetched posts:", response.data);
       setPosts(response.data || []);
@@ -86,13 +94,13 @@ export default function PostsPage() {
   return (
     <div className="flex flex-col gap-6">
       <DashboardHeader
-        title="News Posts"
-        description="Manage news articles"
+        title="Нийтлэл"
+        description="Мэдээний нийтлэлийг удирдах"
         action={
           <Link href="/admin/posts/create">
             <Button>
               <PlusCircle className="mr-2 h-4 w-4" />
-              Create News
+              Мэдээ үүсгэх
             </Button>
           </Link>
         }
@@ -102,52 +110,102 @@ export default function PostsPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Title</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Author</TableHead>
-              <TableHead>Banner</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>Гарчиг</TableHead>
+              <TableHead>Ангилал</TableHead>
+              <TableHead>Нийтлэгч</TableHead>
+              <TableHead>Баннер</TableHead>
+              <TableHead>Огноо</TableHead>
+              <TableHead className="text-right">Үйлдлүүд</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-4">
-                  Loading posts...
+                  Нийтлэлүүд ачаалж байна...
                 </TableCell>
               </TableRow>
             ) : posts.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-4">
-                  No posts found
+                  Нийтлэл олдсонгүй
                 </TableCell>
               </TableRow>
             ) : (
               posts.map((post) => (
                 <TableRow key={post._id}>
                   <TableCell className="font-medium">
-                    <div>
-                      <div className="font-medium">{post.title}</div>
-                      <div className="text-sm text-muted-foreground truncate max-w-[300px]">
-                        {post.content.substring(0, 100)}...
+                    <div className="flex items-start gap-4">
+                      {/* Title and content */}
+                      <div className="flex flex-col gap-2 w-[300px]">
+                        <div className="font-medium text-lg truncate">{post.title}</div>
+                        <div className="text-sm text-muted-foreground line-clamp-2">
+                          {post.content}
+                        </div>
                       </div>
+
+                      {/* News images preview */}
+                      {post.newsImages?.length > 0 && (
+                        <div className="flex-shrink-0">
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+                            <span>
+                              {post.newsImages.length} image
+                              {post.newsImages.length !== 1 ? "s" : ""}
+                            </span>
+                          </div>
+                          <div className="flex gap-2">
+                            {post.newsImages.slice(0, 3).map((image, index) => (
+                              <div
+                                key={index}
+                                className="relative group cursor-pointer"
+                                onClick={() => setSelectedImage(image)}>
+                                <img
+                                  src={image}
+                                  alt={`News image ${index + 1}`}
+                                  className="w-24 h-24 object-cover rounded-md shadow-sm transition-transform duration-300 group-hover:scale-110"
+                                />
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-md flex items-center justify-center">
+                                  <Eye className="h-5 w-5 text-white" />
+                                </div>
+                              </div>
+                            ))}
+                            {post.newsImages.length > 3 && (
+                              <div className="w-24 h-24 bg-muted rounded-md flex items-center justify-center hover:bg-muted/80 transition-colors">
+                                <span className="text-sm font-medium text-muted-foreground">
+                                  +{post.newsImages.length - 3}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </TableCell>
-                  <TableCell>{post.category}</TableCell>
-                  <TableCell>{post.authorName}</TableCell>
+
+                  {/* Category */}
+                  <TableCell className="text-sm text-muted-foreground">
+                    {post.category}
+                  </TableCell>
+
+                  {/* Author */}
+                  <TableCell className="text-sm">{post.authorName}</TableCell>
+
+                  {/* Type badge */}
                   <TableCell>
-                    <Badge
-                      variant={
-                        post.banner ? "default" : "secondary"
-                      }>
+                    <Badge variant={post.banner ? "default" : "secondary"}>
                       {post.banner ? "Banner" : "Regular"}
                     </Badge>
                   </TableCell>
-                  <TableCell>{new Date(post.createdAt).toLocaleDateString()}</TableCell>
+
+                  {/* Date */}
+                  <TableCell className="text-sm text-muted-foreground">
+                    {new Date(post.createdAt).toLocaleDateString()}
+                  </TableCell>
+
+                  {/* Actions */}
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                      <Button variant="ghost" size="icon" asChild>
+                      {/* <Button variant="ghost" size="icon" asChild>
                         <Link href={`/admin/posts/preview/${post.slug}`}>
                           <Eye className="h-4 w-4" />
                           <span className="sr-only">Preview</span>
@@ -158,12 +216,12 @@ export default function PostsPage() {
                           <Pencil className="h-4 w-4" />
                           <span className="sr-only">Edit</span>
                         </Link>
-                      </Button>
+                      </Button> */}
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => handleDelete(post._id)}>
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-4 w-4 text-destructive" />
                         <span className="sr-only">Delete</span>
                       </Button>
                     </div>
@@ -174,6 +232,35 @@ export default function PostsPage() {
           </TableBody>
         </Table>
       </div>
+
+      {/* Image Preview Modal */}
+      <Dialog
+        open={!!selectedImage}
+        onOpenChange={() => setSelectedImage(null)}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle className="flex justify-between items-center">
+              <span>Image Preview</span>
+              <Button
+                className="w-4 h-4"
+                variant="ghost"
+                size="icon"
+                onClick={() => setSelectedImage(null)}>
+                {/* <X className="h-4 w-4" /> */}
+              </Button>
+            </DialogTitle>
+          </DialogHeader>
+          {selectedImage && (
+            <div className="relative w-full h-[70vh]">
+              <img
+                src={selectedImage}
+                alt="Preview"
+                className="w-full h-full object-contain"
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

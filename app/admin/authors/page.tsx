@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { DashboardHeader } from "@/components/admi/dashboard-header";
+import { DashboardHeader } from "@/components/admin/dashboard-header";
 import AuthorForm from "@/components/admin/AuthorForm";
 import { AuthorList } from "@/components/admin/author-list";
 

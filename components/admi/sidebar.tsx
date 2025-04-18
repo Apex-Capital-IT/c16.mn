@@ -51,11 +51,6 @@ export function Sidebar({ className }: SidebarNavProps) {
       href: "/admin/categories",
       icon: Tag,
     },
-    {
-      title: "Settings",
-      href: "/admin/settings",
-      icon: Settings,
-    },
   ];
 
   return (
@@ -105,12 +100,7 @@ export function Sidebar({ className }: SidebarNavProps) {
             ))}
           </nav>
         </ScrollArea>
-        <div className="mt-auto border-t p-4">
-          <Button variant="outline" className={cn("w-full", !isOpen && "p-2")}>
-            <LogOut className="h-5 w-5" />
-            {isOpen && <span className="ml-2">Logout</span>}
-          </Button>
-        </div>
+        <div className="mt-auto border-t p-4"></div>
       </div>
     </>
   );

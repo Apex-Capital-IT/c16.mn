@@ -13,6 +13,7 @@ export const createNews = async (
     console.log("CreateNews controller called");
     console.log("Request body:", req.body);
     console.log("Request files:", req.files);
+    console.log("Request headers:", req.headers);
     
     const { title, content, category, authorName, banner } = req.body;
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };

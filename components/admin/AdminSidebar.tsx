@@ -58,7 +58,7 @@ export default function AdminSidebar() {
             </nav>
           </div>
           <div className="flex-shrink-0 flex bg-gray-700 p-4">
-            <button
+            {/* <button
               onClick={() => signOut()}
               className="flex-shrink-0 w-full group block">
               <div className="flex items-center">
@@ -71,7 +71,7 @@ export default function AdminSidebar() {
                   </p>
                 </div>
               </div>
-            </button>
+            </button> */}
           </div>
         </div>
       </div>
