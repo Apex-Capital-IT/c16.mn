@@ -16,6 +16,7 @@ export const getAllAuthors = async (
 
     if (!authors.length) {
       res.status(200).json({ 
+        success: true,
         message: "Зохиолч олдсонгүй",
         authors: [] 
       });
@@ -23,13 +24,17 @@ export const getAllAuthors = async (
     }
 
     res.status(200).json({
+      success: true,
       message: "Зохиолчдын жагсаалт",
       authors
     });
   } catch (error) {
     console.error("Error fetching authors:", error);
+    // Ensure we always send a proper JSON response
     res.status(500).json({ 
-      message: "Зохиолчдын жагсаалтыг авахад алдаа гарлаа" 
+      success: false,
+      message: "Зохиолчдын жагсаалтыг авахад алдаа гарлаа",
+      error: error instanceof Error ? error.message : "Unknown error"
     });
   }
 };

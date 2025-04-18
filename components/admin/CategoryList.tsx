@@ -29,13 +29,19 @@ export function CategoryList() {
         setError(null);
         
         const res = await fetch("/api/categories");
+        let data;
         
-        if (!res.ok) {
-          const errorData = await res.json();
-          throw new Error(errorData.error || "Ангилал авахад алдаа гарлаа");
+        try {
+          data = await res.json();
+        } catch (parseError) {
+          console.error("Failed to parse response as JSON:", parseError);
+          throw new Error("Ангилал авахад алдаа гарлаа - Серверээс буруу хариу ирлээ");
         }
         
-        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || data.message || "Ангилал авахад алдаа гарлаа");
+        }
+        
         setCategories(Array.isArray(data.categories) ? data.categories : []);
       } catch (error) {
         console.error("Ангилал авахад алдаа гарлаа", error);
