@@ -14,6 +14,14 @@ export interface NewsArticle {
   updatedAt: string;
 }
 
+export interface Author {
+  _id: string;
+  authorName: string;
+  authorImage: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // Sample fallback data for build time
 export const fallbackNewsData: NewsArticle[] = [
   {
@@ -42,12 +50,31 @@ export const fallbackNewsData: NewsArticle[] = [
   }
 ];
 
-const axiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
-  headers: {
-    "Content-Type": "application/json",
+// Sample fallback data for authors
+export const fallbackAuthorData: Author[] = [
+  {
+    _id: "fallback-author-1",
+    authorName: "Admin",
+    authorImage: "https://unread.today/files/007afc64-288a-4208-b9d7-3eda84011c1d/6b14a94472c91bd94f086dac96694c79.jpeg",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   },
-  timeout: 5000, // 5 second timeout
+  {
+    _id: "fallback-author-2",
+    authorName: "John Doe",
+    authorImage: "https://unread.today/files/007afc64-288a-4208-b9d7-3eda84011c1d/6b14a94472c91bd94f086dac96694c79.jpeg",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  }
+];
+
+// Create axios instance with default config
+const axiosInstance = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://c16-mn.onrender.com',
+  timeout: 10000, // 10 seconds timeout
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
 // Add a response interceptor to handle errors

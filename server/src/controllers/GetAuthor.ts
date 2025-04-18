@@ -8,17 +8,39 @@ export const getAllAuthors = async (
   try {
     console.log("Fetching all authors");
     
+    // Get pagination parameters from query
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+    
+    // Optimize query with pagination and select only needed fields
     const authors = await AuthorModel.find()
       .sort({ createdAt: -1 }) // Sort by newest first
-      .select('authorName authorImage createdAt'); // Only select needed fields
+      .select('authorName authorImage createdAt') // Only select needed fields
+      .skip(skip)
+      .limit(limit)
+      .lean(); // Use lean() for better performance
 
-    console.log(`Found ${authors.length} authors`);
+    // Get total count for pagination
+    const total = await AuthorModel.countDocuments();
+
+    console.log(`Found ${authors.length} authors (page ${page}, limit ${limit})`);
+
+    // Set cache headers
+    res.setHeader('Cache-Control', 'public, max-age=60'); // Cache for 1 minute
+    res.setHeader('X-Total-Count', total.toString());
 
     if (!authors.length) {
       res.status(200).json({ 
         success: true,
         message: "Зохиолч олдсонгүй",
-        authors: [] 
+        authors: [],
+        pagination: {
+          page,
+          limit,
+          total,
+          pages: Math.ceil(total / limit)
+        }
       });
       return;
     }
@@ -26,7 +48,13 @@ export const getAllAuthors = async (
     res.status(200).json({
       success: true,
       message: "Зохиолчдын жагсаалт",
-      authors
+      authors,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit)
+      }
     });
   } catch (error) {
     console.error("Error fetching authors:", error);

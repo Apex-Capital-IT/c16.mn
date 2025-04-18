@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     if (!process.env.NEXT_PUBLIC_API_URL) {
       console.error("NEXT_PUBLIC_API_URL is not defined");
@@ -10,10 +10,15 @@ export async function GET() {
       );
     }
 
-    console.log("Fetching authors from:", `${process.env.NEXT_PUBLIC_API_URL}/api/authors`);
+    // Get pagination parameters from URL
+    const { searchParams } = new URL(request.url);
+    const page = searchParams.get('page') || '1';
+    const limit = searchParams.get('limit') || '10';
+    
+    console.log("Fetching authors from:", `${process.env.NEXT_PUBLIC_API_URL}/api/authors?page=${page}&limit=${limit}`);
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/authors`,
+      `${process.env.NEXT_PUBLIC_API_URL}/api/authors?page=${page}&limit=${limit}`,
       {
         method: "GET",
         headers: {
@@ -34,7 +39,14 @@ export async function GET() {
 
     const data = await response.json();
     console.log("Authors data received:", data);
-    return NextResponse.json(data);
+    
+    // Set cache headers
+    return NextResponse.json(data, {
+      headers: {
+        'Cache-Control': 'public, max-age=60',
+        'X-Total-Count': response.headers.get('X-Total-Count') || '0'
+      }
+    });
   } catch (error) {
     console.error("Error fetching authors:", error);
     return NextResponse.json(

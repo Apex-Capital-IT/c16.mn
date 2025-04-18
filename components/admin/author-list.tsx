@@ -10,19 +10,17 @@ import {
 } from "@/components/ui/table";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-
-type Author = {
-  _id: string;
-  authorName: string;
-  authorImage?: string;
-  createdAt: string;
-  updatedAt: string;
-};
+import { Author, fallbackAuthorData } from "@/lib/axios";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function AuthorList() {
   const [authors, setAuthors] = useState<Author[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [totalAuthors, setTotalAuthors] = useState(0);
 
   useEffect(() => {
     const fetchAuthors = async () => {
@@ -30,30 +28,72 @@ export function AuthorList() {
         setLoading(true);
         setError(null);
         
-        // Use the Next.js API route instead of directly calling the backend
-        const res = await fetch("/api/authors");
+        // Use the Next.js API route with pagination
+        const res = await fetch(`/api/authors?page=${page}&limit=10`);
         
         if (!res.ok) {
           const errorData = await res.json();
           throw new Error(errorData.error || "Authors авахад алдаа гарлаа");
         }
         
+        // Get total count from headers
+        const totalCount = parseInt(res.headers.get('X-Total-Count') || '0');
+        setTotalAuthors(totalCount);
+        
+        // Check if there are more pages
+        setHasMore(page * 10 < totalCount);
+        
         const data = await res.json();
-        setAuthors(Array.isArray(data.authors) ? data.authors : []);
+        
+        // If it's the first page, replace authors, otherwise append
+        if (page === 1) {
+          setAuthors(Array.isArray(data.authors) ? data.authors : []);
+        } else {
+          setAuthors(prev => [...prev, ...(Array.isArray(data.authors) ? data.authors : [])]);
+        }
       } catch (error) {
         console.error("Authors авахад алдаа гарлаа", error);
         setError(error instanceof Error ? error.message : "Authors авахад алдаа гарлаа");
-        setAuthors([]);
+        
+        // Use fallback data in case of error
+        if (page === 1) {
+          setAuthors(fallbackAuthorData);
+        }
       } finally {
         setLoading(false);
       }
     };
 
     fetchAuthors();
-  }, []);
+  }, [page]);
 
-  if (loading) {
-    return <div>Loading...</div>;
+  const loadMore = () => {
+    setPage(prev => prev + 1);
+  };
+
+  if (loading && page === 1) {
+    return (
+      <div className="rounded-md border bg-white p-4">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Зураг</TableHead>
+              <TableHead>Нэр</TableHead>
+              <TableHead>Үүсгэсэн огноо</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {[1, 2, 3].map((i) => (
+              <TableRow key={i}>
+                <TableCell><Skeleton className="h-10 w-10 rounded-full" /></TableCell>
+                <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    );
   }
 
   if (error) {
@@ -61,46 +101,60 @@ export function AuthorList() {
   }
 
   return (
-    <div className="rounded-md border bg-white p-4">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Зураг</TableHead>
-            <TableHead>Нэр</TableHead>
-            <TableHead>Үүсгэсэн огноо</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {authors.length === 0 ? (
+    <div>
+      <div className="rounded-md border bg-white p-4">
+        <Table>
+          <TableHeader>
             <TableRow>
-              <TableCell colSpan={3} className="text-center">
-                Зохиолч олдсонгүй
-              </TableCell>
+              <TableHead>Зураг</TableHead>
+              <TableHead>Нэр</TableHead>
+              <TableHead>Үүсгэсэн огноо</TableHead>
             </TableRow>
-          ) : (
-            authors.map((author) => (
-              <TableRow key={author._id}>
-                <TableCell>
-                  {author.authorImage && (
-                    <div className="relative w-10 h-10">
-                      <Image
-                        src={author.authorImage}
-                        alt={author.authorName}
-                        fill
-                        className="object-cover rounded-full"
-                      />
-                    </div>
-                  )}
-                </TableCell>
-                <TableCell>{author.authorName}</TableCell>
-                <TableCell>
-                  {new Date(author.createdAt).toLocaleDateString()}
+          </TableHeader>
+          <TableBody>
+            {authors.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={3} className="text-center">
+                  Зохиолч олдсонгүй
                 </TableCell>
               </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
+            ) : (
+              authors.map((author) => (
+                <TableRow key={author._id}>
+                  <TableCell>
+                    {author.authorImage && (
+                      <div className="relative w-10 h-10">
+                        <Image
+                          src={author.authorImage}
+                          alt={author.authorName}
+                          fill
+                          className="object-cover rounded-full"
+                        />
+                      </div>
+                    )}
+                  </TableCell>
+                  <TableCell>{author.authorName}</TableCell>
+                  <TableCell>
+                    {new Date(author.createdAt).toLocaleDateString()}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
+      
+      {hasMore && (
+        <div className="mt-6 text-center">
+          <Button 
+            onClick={loadMore} 
+            disabled={loading}
+            variant="outline"
+          >
+            {loading ? "Уншиж байна..." : "Дараагийн"}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
