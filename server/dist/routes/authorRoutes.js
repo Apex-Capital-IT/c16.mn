@@ -5,6 +5,6 @@ const createAuthor_1 = require("../controllers/createAuthor");
 const upload_1 = require("../middleware/upload");
 const GetAuthor_1 = require("../controllers/GetAuthor");
 const authorRouter = (0, express_1.Router)();
-authorRouter.post("/create/author", upload_1.upload.single("authorImage"), createAuthor_1.createAuthor);
+authorRouter.post("/authors", upload_1.upload.single("authorImage"), createAuthor_1.createAuthor);
 authorRouter.get("/authors", GetAuthor_1.getAllAuthors);
 exports.default = authorRouter;

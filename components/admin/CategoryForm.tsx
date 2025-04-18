@@ -28,7 +28,7 @@ export default function CategoryForm({ onSuccess }: CategoryFormProps) {
         return;
       }
 
-      const response = await fetch("/api/categories", {
+      const response = await fetch("/api/create/categories", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

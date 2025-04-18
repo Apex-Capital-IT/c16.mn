@@ -6,26 +6,14 @@ import { Button } from "@/components/ui/button";
 import { FileText, Home, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  LayoutDashboard,
-  Users,
-  Tag,
-  Settings,
-  Menu,
-} from "lucide-react";
+import { LayoutDashboard, Users, Tag, Settings, Menu } from "lucide-react";
 import { useState } from "react";
-import { useMobile } from "@/hooks/use-mobile";
 
 interface SidebarNavProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 export function Sidebar({ className }: SidebarNavProps) {
   const pathname = usePathname();
-  const isMobile = useMobile();
-  const [isOpen, setIsOpen] = useState(!isMobile);
-
-  const toggleSidebar = () => {
-    setIsOpen(!isOpen);
-  };
+  const [isOpen, setIsOpen] = useState(true);
 
   const items = [
     {
@@ -48,40 +36,35 @@ export function Sidebar({ className }: SidebarNavProps) {
       href: "/admin/categories",
       icon: Tag,
     },
-    {
-      title: "Settings",
-      href: "/admin/settings",
-      icon: Settings,
-    },
   ];
 
   return (
     <>
-      {isMobile && (
-        <Button
-          variant="ghost"
-          size="icon"
-          className="fixed top-4 left-4 z-50"
-          onClick={toggleSidebar}>
-          <Menu className="h-5 w-5" />
-        </Button>
-      )}
-
       <div
         className={cn(
-          "flex flex-col border-r bg-background h-screen",
-          isOpen ? "w-64" : isMobile ? "w-0" : "w-16",
+          "flex flex-col border-r bg-background h-screen fixed",
           "transition-all duration-300 ease-in-out",
+          isOpen ? "w-[250px]" : "w-[60px]",
           className
-        )}>
+        )}
+        data-sidebar-collapsed={!isOpen}>
         <div className="flex h-14 items-center border-b px-4">
-          <Link href="/admin" className="flex items-center gap-2 font-semibold">
+          <Link
+            href="/admin"
+            className="flex items-center gap-2 font-semibold justify-center">
             {isOpen ? (
-              <span>c16.mn Admin</span>
+              <span>Admin</span>
             ) : (
-              <span className="sr-only">c16.mn Admin</span>
+              <span className="sr-only">Admin</span>
             )}
           </Link>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="ml-auto"
+            onClick={() => setIsOpen(!isOpen)}>
+            <Menu className="h-5 w-5" />
+          </Button>
         </div>
         <ScrollArea className="flex-1">
           <nav className="grid gap-1 px-2 py-4">

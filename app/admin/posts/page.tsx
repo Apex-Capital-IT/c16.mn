@@ -138,7 +138,9 @@ export default function PostsPage() {
                     <div className="flex items-start gap-4">
                       {/* Title and content */}
                       <div className="flex flex-col gap-2 w-[300px]">
-                        <div className="font-medium text-lg truncate">{post.title}</div>
+                        <div className="font-medium text-lg truncate">
+                          {post.title}
+                        </div>
                         <div className="text-sm text-muted-foreground line-clamp-2">
                           {post.content}
                         </div>
