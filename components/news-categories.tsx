@@ -1,5 +1,5 @@
 import Link from "next/link";
-import axiosInstance, { NewsArticle } from "@/lib/axios";
+import axiosInstance, { NewsArticle, fallbackNewsData } from "@/lib/axios";
 
 async function getCategories(): Promise<string[]> {
   try {
@@ -7,8 +7,13 @@ async function getCategories(): Promise<string[]> {
     // Get unique categories from news
     const categories = [...new Set(res.data.map(article => article.category))];
     return categories;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching categories:', error);
+    // Return fallback categories during build or when API is unavailable
+    if (process.env.NODE_ENV === 'production' || error.code === 'ECONNREFUSED') {
+      console.warn('Using fallback categories');
+      return [...new Set(fallbackNewsData.map(article => article.category))];
+    }
     return [];
   }
 }

@@ -4,7 +4,7 @@ import { Clock, Eye, MessageSquare } from "lucide-react";
 import TrendingNews from "@/components/trending-news";
 import NewsCategories from "@/components/news-categories";
 import EmailSubscription from "@/components/email";
-import axiosInstance, { NewsArticle } from "@/lib/axios";
+import axiosInstance, { NewsArticle, fallbackNewsData } from "@/lib/axios";
 
 function generateSlug(title: string) {
   return title
@@ -17,8 +17,13 @@ async function getLatestNews(): Promise<NewsArticle[]> {
   try {
     const res = await axiosInstance.get<NewsArticle[]>("/api/news");
     return res.data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error fetching news:", error);
+    // Return fallback data during build or when API is unavailable
+    if (process.env.NODE_ENV === 'production' || error.code === 'ECONNREFUSED') {
+      console.warn('Using fallback data for news');
+      return fallbackNewsData;
+    }
     return [];
   }
 }
@@ -26,8 +31,6 @@ async function getLatestNews(): Promise<NewsArticle[]> {
 export default async function Home() {
   const news = await getLatestNews();
   const latestArticle = news[0]; // Get the most recent article
-
-  console.log(latestArticle);
 
   return (
     <main className="min-h-screen bg-white">
@@ -37,7 +40,7 @@ export default async function Home() {
             <Link href={`/${latestArticle.category}/1`} prefetch={false}>
               <div className="relative h-[500px] w-full overflow-hidden rounded-lg">
                 <Image
-                  src="https://unread.today/files/007afc64-288a-4208-b9d7-3eda84011c1d/6b14a94472c91bd94f086dac96694c79.jpeg"
+                  src={latestArticle.newsImage || "https://unread.today/files/007afc64-288a-4208-b9d7-3eda84011c1d/6b14a94472c91bd94f086dac96694c79.jpeg"}
                   alt={latestArticle.title}
                   fill
                   className="object-cover"
@@ -84,7 +87,7 @@ export default async function Home() {
                   >
                     <div className="relative h-48 mb-4 overflow-hidden rounded-md">
                       <Image
-                        src="https://unread.today/files/007afc64-288a-4208-b9d7-3eda84011c1d/6b14a94472c91bd94f086dac96694c79.jpeg"
+                        src={article.newsImage || "https://unread.today/files/007afc64-288a-4208-b9d7-3eda84011c1d/6b14a94472c91bd94f086dac96694c79.jpeg"}
                         alt={article.title}
                         fill
                         className="object-cover"
