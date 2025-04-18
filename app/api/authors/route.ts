@@ -2,8 +2,14 @@ import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
   try {
-    if (!process.env.NEXT_PUBLIC_API_URL) {
-      console.error("NEXT_PUBLIC_API_URL is not defined");
+    // Determine the API URL based on environment
+    const apiUrl =
+      process.env.NODE_ENV === "development"
+        ? "http://localhost:8000" // Local development server
+        : process.env.NEXT_PUBLIC_API_URL; // Production server
+
+    if (!apiUrl) {
+      console.error("API URL is not defined");
       return NextResponse.json(
         { error: "Server configuration error" },
         { status: 500 }
@@ -12,19 +18,22 @@ export async function GET(request: Request) {
 
     // Get pagination parameters from URL
     const { searchParams } = new URL(request.url);
-    const page = searchParams.get('page') || '1';
-    const limit = searchParams.get('limit') || '10';
-    
-    console.log("Fetching authors from:", `${process.env.NEXT_PUBLIC_API_URL}/api/authors?page=${page}&limit=${limit}`);
+    const page = searchParams.get("page") || "1";
+    const limit = searchParams.get("limit") || "10";
+
+    console.log(
+      "Fetching authors from:",
+      `${apiUrl}/api/authors?page=${page}&limit=${limit}`
+    );
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/authors?page=${page}&limit=${limit}`,
+      `${apiUrl}/api/authors?page=${page}&limit=${limit}`,
       {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
         },
-        cache: 'no-store'
+        cache: "no-store",
       }
     );
 
@@ -39,18 +48,23 @@ export async function GET(request: Request) {
 
     const data = await response.json();
     console.log("Authors data received:", data);
-    
-    // Set cache headers
+
+    // Get total count from response headers
+    const totalCount = response.headers.get("X-Total-Count") || "0";
+
     return NextResponse.json(data, {
       headers: {
-        'Cache-Control': 'public, max-age=60',
-        'X-Total-Count': response.headers.get('X-Total-Count') || '0'
-      }
+        "Cache-Control": "public, max-age=60",
+        "X-Total-Count": totalCount,
+      },
     });
   } catch (error) {
     console.error("Error fetching authors:", error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to fetch authors" },
+      {
+        error:
+          error instanceof Error ? error.message : "Failed to fetch authors",
+      },
       { status: 500 }
     );
   }

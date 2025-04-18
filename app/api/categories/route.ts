@@ -2,26 +2,29 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    if (!process.env.NEXT_PUBLIC_API_URL) {
-      console.error("NEXT_PUBLIC_API_URL is not defined");
+    // Determine the API URL based on environment
+    const apiUrl =
+      process.env.NODE_ENV === "development"
+        ? "http://localhost:8000" // Local development server
+        : process.env.NEXT_PUBLIC_API_URL; // Production server
+
+    if (!apiUrl) {
+      console.error("API URL is not defined");
       return NextResponse.json(
         { error: "Server configuration error" },
         { status: 500 }
       );
     }
 
-    console.log("Fetching categories from:", `${process.env.NEXT_PUBLIC_API_URL}/api/categories`);
+    console.log("Fetching categories from:", `${apiUrl}/api/categories`);
 
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/categories`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        cache: 'no-store'
-      }
-    );
+    const response = await fetch(`${apiUrl}/api/categories`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      cache: "no-store",
+    });
 
     if (!response.ok) {
       const errorData = await response.json();
@@ -34,17 +37,19 @@ export async function GET() {
 
     const data = await response.json();
     console.log("Categories data received:", data);
-    
-    // Set cache headers
+
     return NextResponse.json(data, {
       headers: {
-        'Cache-Control': 'public, max-age=60',
-      }
+        "Cache-Control": "public, max-age=60",
+      },
     });
   } catch (error) {
     console.error("Error fetching categories:", error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Failed to fetch categories" },
+      {
+        error:
+          error instanceof Error ? error.message : "Failed to fetch categories",
+      },
       { status: 500 }
     );
   }
