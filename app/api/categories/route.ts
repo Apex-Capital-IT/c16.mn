@@ -2,12 +2,30 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
+    if (!process.env.NEXT_PUBLIC_API_URL) {
+      console.error("NEXT_PUBLIC_API_URL is not defined");
+      return NextResponse.json(
+        { error: "Server configuration error" },
+        { status: 500 }
+      );
+    }
+
+    console.log("Fetching categories from:", `${process.env.NEXT_PUBLIC_API_URL}/api/categories`);
+
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/categories`
+      `${process.env.NEXT_PUBLIC_API_URL}/api/categories`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        cache: 'no-store'
+      }
     );
 
     if (!response.ok) {
       const errorData = await response.json();
+      console.error("Error response from server:", errorData);
       return NextResponse.json(
         { error: errorData.message || "Failed to fetch categories" },
         { status: response.status }
@@ -15,11 +33,18 @@ export async function GET() {
     }
 
     const data = await response.json();
-    return NextResponse.json(data);
+    console.log("Categories data received:", data);
+    
+    // Set cache headers
+    return NextResponse.json(data, {
+      headers: {
+        'Cache-Control': 'public, max-age=60',
+      }
+    });
   } catch (error) {
     console.error("Error fetching categories:", error);
     return NextResponse.json(
-      { error: "Failed to fetch categories" },
+      { error: error instanceof Error ? error.message : "Failed to fetch categories" },
       { status: 500 }
     );
   }

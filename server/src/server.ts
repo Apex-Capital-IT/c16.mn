@@ -48,6 +48,15 @@ app.use((req, res, next) => {
   next();
 });
 
+// Health check endpoint
+app.get("/health", (req, res) => {
+  res.status(200).json({ 
+    status: "ok", 
+    timestamp: new Date().toISOString(),
+    mongodb: mongoose.connection.readyState === 1 ? "connected" : "disconnected"
+  });
+});
+
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 app.use("/api", newsRouter);
