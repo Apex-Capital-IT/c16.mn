@@ -19,9 +19,10 @@ const MONGO_URI = process.env.MONGO_URI || "";
 
 // Configure CORS to accept requests from the frontend
 const allowedOrigins = [
-  "https://a.apex.mn/",
+  "https://a.apex.mn",
   "http://localhost:3000", // For local dev
   "https://c16-mn.onrender.com", // Add your deployment domain
+  "https://c16-mn.vercel.app", // Vercel deployment domain
 ];
 app.use(
   cors({
@@ -60,7 +61,7 @@ mongoose
   .then(() => {
     console.log("MongoDB connected successfully");
     app.listen(PORT, () =>
-      console.log(`Server running on http://localhost:${PORT}`)
+      console.log(`Server running on port ${PORT}`)
     );
   })
   .catch((err) => {
