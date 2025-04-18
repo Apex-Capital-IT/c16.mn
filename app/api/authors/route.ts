@@ -2,11 +2,6 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    console.log(
-      "Fetching authors from:",
-      `${process.env.NEXT_PUBLIC_API_URL}/api/authors`
-    );
-
     if (!process.env.NEXT_PUBLIC_API_URL) {
       console.error("NEXT_PUBLIC_API_URL is not defined");
       return NextResponse.json(
@@ -15,6 +10,8 @@ export async function GET() {
       );
     }
 
+    console.log("Fetching authors from:", `${process.env.NEXT_PUBLIC_API_URL}/api/authors`);
+
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/authors`,
       {
@@ -22,6 +19,7 @@ export async function GET() {
         headers: {
           "Content-Type": "application/json",
         },
+        cache: 'no-store'
       }
     );
 
@@ -40,7 +38,7 @@ export async function GET() {
   } catch (error) {
     console.error("Error fetching authors:", error);
     return NextResponse.json(
-      { error: "Failed to fetch authors" },
+      { error: error instanceof Error ? error.message : "Failed to fetch authors" },
       { status: 500 }
     );
   }

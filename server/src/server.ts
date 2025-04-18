@@ -21,8 +21,8 @@ const MONGO_URI = process.env.MONGO_URI || "";
 const allowedOrigins = [
   "https://a.apex.mn",
   "http://localhost:3000", // For local dev
-  "https://c16-mn.onrender.com", // Add your deployment domain
-  "https://c16-mn.vercel.app", // Vercel deployment domain
+  "https://c16-mn.onrender.com", // Backend domain
+  "https://c16-mn.vercel.app", // Frontend domain
 ];
 app.use(
   cors({
