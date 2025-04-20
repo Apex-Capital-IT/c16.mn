@@ -7,7 +7,8 @@ const deleteNews = async (req, res) => {
         const { id } = req.params;
         const deletedNews = await news_model_1.NewsModel.findByIdAndDelete(id);
         if (!deletedNews) {
-            return res.status(404).json({ message: "Мэдээ олдсонгүй" });
+            res.status(404).json({ message: "Мэдээ олдсонгүй" });
+            return;
         }
         res.status(200).json({ message: "Мэдээ амжилттай устгагдлаа" });
     }

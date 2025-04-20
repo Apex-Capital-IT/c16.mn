@@ -81,19 +81,33 @@ app.use("/uploads", express_1.default.static(path_1.default.join(__dirname, "../
 app.use("/api", news_routes_1.default);
 app.use("/api", categoriesRoutes_1.default);
 app.use("/api", authorRoutes_1.default);
-console.log("MONGO_URI: ", MONGO_URI);
-mongoose_1.default
-    .connect(MONGO_URI)
-    .then(() => {
-    console.log("MongoDB connected successfully");
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-})
-    .catch((err) => {
-    console.error("MongoDB connection error:", err);
-    console.error("Error details:", {
-        name: err.name,
-        message: err.message,
-        code: err.code,
-        codeName: err.codeName,
-    });
-});
+// MongoDB Connection with retry logic
+const connectWithRetry = async () => {
+    try {
+        console.log("Attempting to connect to MongoDB...");
+        console.log("MONGO_URI:", MONGO_URI.replace(/\/\/[^:]+:[^@]+@/, '//***:***@')); // Log URI without credentials
+        await mongoose_1.default.connect(MONGO_URI, {
+            serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+            socketTimeoutMS: 45000, // Close sockets after 45s of inactivity
+        });
+        console.log("MongoDB connected successfully");
+        // Start server only after successful database connection
+        app.listen(PORT, () => {
+            console.log(`Server running on port ${PORT}`);
+        });
+    }
+    catch (err) {
+        console.error("MongoDB connection error:", err);
+        console.error("Error details:", {
+            name: err.name,
+            message: err.message,
+            code: err.code,
+            codeName: err.codeName,
+        });
+        // Retry connection after 5 seconds
+        console.log("Retrying connection in 5 seconds...");
+        setTimeout(connectWithRetry, 5000);
+    }
+};
+// Initial connection attempt
+connectWithRetry();
