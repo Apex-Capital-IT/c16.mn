@@ -19,7 +19,7 @@ const MONGO_URI = process.env.MONGO_URI || "";
 
 // Configure CORS to accept requests from the frontend
 const allowedOrigins = [
-  "https://a.apex.mn",
+  "http://localhost:3000", // Local frontend development
   "http://localhost:3002", // Local frontend development
   "http://localhost:8000", // Local backend development
   "https://c16-mn.onrender.com", // Production backend

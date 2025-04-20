@@ -7,9 +7,15 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'http://localhost:8000/api/:path*',
+        destination: process.env.NODE_ENV === 'production' 
+          ? 'https://c16-mn.onrender.com/api/:path*'
+          : 'http://localhost:8000/api/:path*',
       },
     ];
+  },
+  // Set the port for production
+  env: {
+    PORT: process.env.PORT || 3000,
   },
 };
 
