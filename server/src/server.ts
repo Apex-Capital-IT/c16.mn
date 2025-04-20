@@ -20,11 +20,11 @@ const MONGO_URI = process.env.MONGO_URI || "";
 // Configure CORS to accept requests from the frontend
 const allowedOrigins = [
   "https://a.apex.mn",
-  "http://localhost:3000",     // Local frontend development
-  "http://localhost:8000",     // Local backend development
+  "http://localhost:3002", // Local frontend development
+  "http://localhost:8000", // Local backend development
   "https://c16-mn.onrender.com", // Production backend
-  "https://c16-mn.vercel.app",   // Production frontend
-  "https://c16.mn",              // Custom domain if used
+  "https://c16-mn.vercel.app", // Production frontend
+  "https://c16.mn", // Custom domain if used
 ];
 app.use(
   cors({
@@ -33,12 +33,18 @@ app.use(
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        console.log('Blocked origin:', origin); // Log blocked origins for debugging
+        console.log("Blocked origin:", origin); // Log blocked origins for debugging
         callback(new Error("Not allowed by CORS"));
       }
     },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-    allowedHeaders: ["Content-Type", "Authorization", "Accept", "Origin", "X-Requested-With"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "Accept",
+      "Origin",
+      "X-Requested-With",
+    ],
     credentials: true,
     maxAge: 86400, // CORS preflight cache for 24 hours
   })
@@ -55,10 +61,11 @@ app.use((req, res, next) => {
 
 // Health check endpoint
 app.get("/health", (req, res) => {
-  res.status(200).json({ 
-    status: "ok", 
+  res.status(200).json({
+    status: "ok",
     timestamp: new Date().toISOString(),
-    mongodb: mongoose.connection.readyState === 1 ? "connected" : "disconnected"
+    mongodb:
+      mongoose.connection.readyState === 1 ? "connected" : "disconnected",
   });
 });
 
@@ -68,20 +75,27 @@ app.get("/test", (req, res) => {
     message: "Server is working!",
     environment: process.env.NODE_ENV || "development",
     apiUrl: process.env.NEXT_PUBLIC_API_URL,
-    allowedOrigins: allowedOrigins
+    allowedOrigins: allowedOrigins,
   });
 });
 
 // Error handling middleware
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error('Error:', err);
-  res.status(err.status || 500).json({
-    error: {
-      message: err.message || 'Internal Server Error',
-      status: err.status || 500
-    }
-  });
-});
+app.use(
+  (
+    err: any,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    console.error("Error:", err);
+    res.status(err.status || 500).json({
+      error: {
+        message: err.message || "Internal Server Error",
+        status: err.status || 500,
+      },
+    });
+  }
+);
 
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
@@ -93,15 +107,18 @@ app.use("/api", authorRouter);
 const connectWithRetry = async () => {
   try {
     console.log("Attempting to connect to MongoDB...");
-    console.log("MONGO_URI:", MONGO_URI.replace(/\/\/[^:]+:[^@]+@/, '//***:***@')); // Log URI without credentials
-    
+    console.log(
+      "MONGO_URI:",
+      MONGO_URI.replace(/\/\/[^:]+:[^@]+@/, "//***:***@")
+    ); // Log URI without credentials
+
     await mongoose.connect(MONGO_URI, {
       serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
       socketTimeoutMS: 45000, // Close sockets after 45s of inactivity
     });
-    
+
     console.log("MongoDB connected successfully");
-    
+
     // Start server only after successful database connection
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
@@ -114,7 +131,7 @@ const connectWithRetry = async () => {
       code: err.code,
       codeName: err.codeName,
     });
-    
+
     // Retry connection after 5 seconds
     console.log("Retrying connection in 5 seconds...");
     setTimeout(connectWithRetry, 5000);
