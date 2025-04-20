@@ -99,7 +99,7 @@ app.use(
 
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
-app.use("/api", newsRouter);
+app.use("/api/news", newsRouter);
 app.use("/api", categoryRouter);
 app.use("/api", authorRouter);
 
