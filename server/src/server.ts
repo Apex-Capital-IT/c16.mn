@@ -89,17 +89,24 @@ app.use("/api", newsRouter);
 app.use("/api", categoryRouter);
 app.use("/api", authorRouter);
 
-console.log("MONGO_URI: ", MONGO_URI);
-
-mongoose
-  .connect(MONGO_URI)
-  .then(() => {
+// MongoDB Connection with retry logic
+const connectWithRetry = async () => {
+  try {
+    console.log("Attempting to connect to MongoDB...");
+    console.log("MONGO_URI:", MONGO_URI.replace(/\/\/[^:]+:[^@]+@/, '//***:***@')); // Log URI without credentials
+    
+    await mongoose.connect(MONGO_URI, {
+      serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+      socketTimeoutMS: 45000, // Close sockets after 45s of inactivity
+    });
+    
     console.log("MongoDB connected successfully");
-    app.listen(PORT, () =>
-      console.log(`Server running on port ${PORT}`)
-    );
-  })
-  .catch((err) => {
+    
+    // Start server only after successful database connection
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  } catch (err: any) {
     console.error("MongoDB connection error:", err);
     console.error("Error details:", {
       name: err.name,
@@ -107,4 +114,12 @@ mongoose
       code: err.code,
       codeName: err.codeName,
     });
-  });
+    
+    // Retry connection after 5 seconds
+    console.log("Retrying connection in 5 seconds...");
+    setTimeout(connectWithRetry, 5000);
+  }
+};
+
+// Initial connection attempt
+connectWithRetry();
