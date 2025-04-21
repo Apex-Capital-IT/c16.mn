@@ -196,6 +196,16 @@ export default function CreatePostPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Validate required fields
+    if (!formData.title || !formData.content || !formData.category || !formData.authorName) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (newsImages.length === 0) {
       toast({
         title: "Error",
@@ -216,31 +226,32 @@ export default function CreatePostPage() {
       formDataToSend.append("authorName", formData.authorName);
       formDataToSend.append("banner", formData.banner.toString());
 
-      // Append news images - try a different approach
+      // Append news images - make sure each file is properly appended
       console.log("Appending news images to FormData:", newsImages.length);
-
-      // Clear any existing newsImages entries
-      for (let i = 0; i < newsImages.length; i++) {
-        formDataToSend.append("newsImages", newsImages[i]);
-      }
-
-      console.log("Submitting form data:", {
-        title: formData.title,
-        content: formData.content,
-        category: formData.category,
-        authorName: formData.authorName,
-        banner: formData.banner,
-        newsImagesCount: newsImages.length,
+      
+      // Clear any existing newsImages entries and add each file individually
+      newsImages.forEach((file, index) => {
+        console.log(`Appending file ${index}:`, file.name, file.type, file.size);
+        // Make sure to use the exact field name expected by the server
+        formDataToSend.append("newsImages", file);
       });
 
-      // Send to API
+      // Log the FormData contents for debugging
+      console.log("FormData entries:");
+      for (const pair of formDataToSend.entries()) {
+        console.log(pair[0], typeof pair[1], pair[1] instanceof File ? pair[1].name : pair[1]);
+      }
+
+      // Send to API with the correct headers
       const response = await axios.post(
-        "http://localhost:8000/api/create/news",
+        "http://localhost:8000/api/news",
         formDataToSend,
         {
           headers: {
             "Content-Type": "multipart/form-data",
           },
+          // Add withCredentials to ensure cookies are sent
+          withCredentials: true,
         }
       );
 
@@ -260,14 +271,35 @@ export default function CreatePostPage() {
       if (error.response) {
         console.error("Error response data:", error.response.data);
         console.error("Error response status:", error.response.status);
+        
+        // Show more detailed error message
+        const errorMessage = error.response.data.message || "Failed to create news post";
+        const missingFields = error.response.data.missingFields;
+        
+        let description = errorMessage;
+        if (missingFields) {
+          const missingFieldsList = Object.entries(missingFields)
+            .filter(([_, isMissing]) => isMissing)
+            .map(([field]) => field)
+            .join(", ");
+          
+          if (missingFieldsList) {
+            description = `${errorMessage}: ${missingFieldsList}`;
+          }
+        }
+        
+        toast({
+          title: "Error",
+          description,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to create news post",
+          variant: "destructive",
+        });
       }
-
-      toast({
-        title: "Error",
-        description:
-          error.response?.data?.error || "Failed to create news post",
-        variant: "destructive",
-      });
     } finally {
       setSubmitting(false);
     }

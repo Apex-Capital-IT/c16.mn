@@ -39,11 +39,45 @@ export const createNews = async (
     }
 
     // Validate files
-    if (!files || !files.newsImages || files.newsImages.length === 0) {
-      console.log("No news images uploaded");
+    if (!files) {
+      console.log("No files object in request");
       res.status(400).json({ message: "Зураг оруулах шаардлагатай" });
       return;
     }
+
+    // Check if files is an array (direct array) or an object with newsImages property
+    let newsImageFiles: Express.Multer.File[] = [];
+    
+    if (Array.isArray(files)) {
+      console.log("Files is an array with length:", files.length);
+      newsImageFiles = files;
+    } else if (files.newsImages) {
+      console.log("Files has newsImages property with length:", files.newsImages.length);
+      newsImageFiles = files.newsImages;
+    } else {
+      console.log("Files object structure:", Object.keys(files));
+      res.status(400).json({ message: "Зураг оруулах шаардлагатай" });
+      return;
+    }
+
+    if (newsImageFiles.length === 0) {
+      console.log("No news images found in files");
+      res.status(400).json({ message: "Зураг оруулах шаардлагатай" });
+      return;
+    }
+
+    console.log("Files received:", files);
+    console.log("News images count:", newsImageFiles.length);
+    
+    // Log each file for debugging
+    newsImageFiles.forEach((file, index) => {
+      console.log(`File ${index}:`, {
+        fieldname: file.fieldname,
+        originalname: file.originalname,
+        mimetype: file.mimetype,
+        size: file.size
+      });
+    });
 
     const slug = slugify(title, { lower: true, strict: true }) + "-" + Date.now();
     console.log("Generated slug:", slug);
@@ -81,8 +115,6 @@ export const createNews = async (
 
     // Upload news images
     const newsImageUrls: string[] = [];
-    const newsImageFiles = files.newsImages;
-    console.log("News image files:", newsImageFiles.length);
     
     for (const file of newsImageFiles) {
       try {

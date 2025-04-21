@@ -10,10 +10,10 @@ const DeleteNews_1 = require("../controllers/DeleteNews");
 const upload_1 = require("../middleware/upload");
 const router = express_1.default.Router();
 // Get all news
-router.get("/news", GetNews_1.getNews);
-router.route("/create/news").post(upload_1.upload.fields([
-    { name: 'newsImages', maxCount: 10 }
-]), CreateNews_1.createNews);
+router.get("/", GetNews_1.getNews);
+// Create news - add logging middleware and fix file upload
+// Make sure to use the exact field name expected by the frontend
+router.post("/", upload_1.logRequest, upload_1.upload.array("newsImages", 10), CreateNews_1.createNews);
 // Delete news
-router.delete("/news/:id", DeleteNews_1.deleteNews);
+router.delete("/:id", DeleteNews_1.deleteNews);
 exports.default = router;

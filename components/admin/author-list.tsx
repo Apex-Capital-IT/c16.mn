@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useEffect, useState } from "react";
+import { useEffect, useState, forwardRef, useImperativeHandle } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -23,7 +23,10 @@ interface Author {
 
 const fallbackAuthorData: Author[] = [];
 
-export function AuthorList() {
+export const AuthorList = forwardRef<
+  { refresh: () => void },
+  {}
+>((props, ref) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
@@ -31,55 +34,64 @@ export function AuthorList() {
   const [totalAuthors, setTotalAuthors] = useState(0);
   const [authors, setAuthors] = useState<Author[]>([]);
 
-  useEffect(() => {
-    const fetchAuthors = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+  const fetchAuthors = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-        // Use the Next.js API route with pagination
-        const res = await fetch(`/api/authors?page=${page}&limit=10`);
+      // Use the Next.js API route with pagination
+      const res = await fetch(`/api/authors?page=${page}&limit=10`);
 
-        if (!res.ok) {
-          const errorData = await res.json();
-          throw new Error(errorData.error || "Authors авахад алдаа гарлаа");
-        }
-
-        // Get total count from headers
-        const totalCount = parseInt(res.headers.get("X-Total-Count") || "0");
-        setTotalAuthors(totalCount);
-
-        // Check if there are more pages
-        setHasMore(page * 10 < totalCount);
-
-        const data = await res.json();
-
-        // If it's the first page, replace authors, otherwise append
-        if (page === 1) {
-          setAuthors(Array.isArray(data.authors) ? data.authors : []);
-        } else {
-          setAuthors((prev) => [
-            ...prev,
-            ...(Array.isArray(data.authors) ? data.authors : []),
-          ]);
-        }
-      } catch (error) {
-        console.error("Authors авахад алдаа гарлаа", error);
-        setError(
-          error instanceof Error ? error.message : "Authors авахад алдаа гарлаа"
-        );
-
-        // Use fallback data in case of error
-        if (page === 1) {
-          setAuthors(fallbackAuthorData);
-        }
-      } finally {
-        setLoading(false);
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Authors авахад алдаа гарлаа");
       }
-    };
 
+      // Get total count from headers
+      const totalCount = parseInt(res.headers.get("X-Total-Count") || "0");
+      setTotalAuthors(totalCount);
+
+      // Check if there are more pages
+      setHasMore(page * 10 < totalCount);
+
+      const data = await res.json();
+
+      // If it's the first page, replace authors, otherwise append
+      if (page === 1) {
+        setAuthors(Array.isArray(data.authors) ? data.authors : []);
+      } else {
+        setAuthors((prev) => [
+          ...prev,
+          ...(Array.isArray(data.authors) ? data.authors : []),
+        ]);
+      }
+    } catch (error) {
+      console.error("Authors авахад алдаа гарлаа", error);
+      setError(
+        error instanceof Error ? error.message : "Authors авахад алдаа гарлаа"
+      );
+
+      // Use fallback data in case of error
+      if (page === 1) {
+        setAuthors(fallbackAuthorData);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchAuthors();
   }, [page]);
+
+  const refresh = () => {
+    setPage(1);
+    fetchAuthors();
+  };
+
+  useImperativeHandle(ref, () => ({
+    refresh
+  }));
 
   const loadMore = () => {
     setPage((prev) => prev + 1);
@@ -183,4 +195,4 @@ export function AuthorList() {
       
     </div>
   );
-}
+});

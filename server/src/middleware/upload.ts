@@ -23,6 +23,7 @@ export const upload = multer({
     
     // Accept only images
     if (file.mimetype.startsWith('image/')) {
+      console.log("File accepted:", file.originalname);
       cb(null, true);
     } else {
       console.error("File rejected - not an image:", file.originalname);
@@ -30,3 +31,11 @@ export const upload = multer({
     }
   }
 });
+
+// Add a function to log the request details
+export const logRequest = (req: any, res: any, next: any) => {
+  console.log("Request headers:", req.headers);
+  console.log("Request body:", req.body);
+  console.log("Request files:", req.files);
+  next();
+};

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
-export default function AuthorForm() {
+export default function AuthorForm({ onSuccess }: { onSuccess?: () => void }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -85,6 +85,9 @@ export default function AuthorForm() {
       }
 
       toast.success("Зохиолч амжилттай үүслээ");
+      if (onSuccess) {
+        onSuccess();
+      }
       router.refresh();
       router.push("/admin/authors");
     } catch (error) {

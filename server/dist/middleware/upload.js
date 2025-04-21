@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.upload = void 0;
+exports.logRequest = exports.upload = void 0;
 const multer_1 = __importDefault(require("multer"));
 // Configure multer to use memory storage for Cloudinary uploads
 const storage = multer_1.default.memoryStorage();
@@ -25,6 +25,7 @@ exports.upload = (0, multer_1.default)({
         });
         // Accept only images
         if (file.mimetype.startsWith('image/')) {
+            console.log("File accepted:", file.originalname);
             cb(null, true);
         }
         else {
@@ -33,3 +34,11 @@ exports.upload = (0, multer_1.default)({
         }
     }
 });
+// Add a function to log the request details
+const logRequest = (req, res, next) => {
+    console.log("Request headers:", req.headers);
+    console.log("Request body:", req.body);
+    console.log("Request files:", req.files);
+    next();
+};
+exports.logRequest = logRequest;

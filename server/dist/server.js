@@ -20,8 +20,8 @@ const MONGO_URI = process.env.MONGO_URI || "";
 // ensureDirectories();
 // Configure CORS to accept requests from the frontend
 const allowedOrigins = [
-    "https://a.apex.mn",
     "http://localhost:3000", // Local frontend development
+    "http://localhost:3002", // Local frontend development
     "http://localhost:8000", // Local backend development
     "https://c16-mn.onrender.com", // Production backend
     "https://c16-mn.vercel.app", // Production frontend
@@ -34,12 +34,18 @@ app.use((0, cors_1.default)({
             callback(null, true);
         }
         else {
-            console.log('Blocked origin:', origin); // Log blocked origins for debugging
+            console.log("Blocked origin:", origin); // Log blocked origins for debugging
             callback(new Error("Not allowed by CORS"));
         }
     },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-    allowedHeaders: ["Content-Type", "Authorization", "Accept", "Origin", "X-Requested-With"],
+    allowedHeaders: [
+        "Content-Type",
+        "Authorization",
+        "Accept",
+        "Origin",
+        "X-Requested-With",
+    ],
     credentials: true,
     maxAge: 86400, // CORS preflight cache for 24 hours
 }));
@@ -55,7 +61,7 @@ app.get("/health", (req, res) => {
     res.status(200).json({
         status: "ok",
         timestamp: new Date().toISOString(),
-        mongodb: mongoose_1.default.connection.readyState === 1 ? "connected" : "disconnected"
+        mongodb: mongoose_1.default.connection.readyState === 1 ? "connected" : "disconnected",
     });
 });
 // Test endpoint
@@ -64,28 +70,28 @@ app.get("/test", (req, res) => {
         message: "Server is working!",
         environment: process.env.NODE_ENV || "development",
         apiUrl: process.env.NEXT_PUBLIC_API_URL,
-        allowedOrigins: allowedOrigins
+        allowedOrigins: allowedOrigins,
     });
 });
 // Error handling middleware
 app.use((err, req, res, next) => {
-    console.error('Error:', err);
+    console.error("Error:", err);
     res.status(err.status || 500).json({
         error: {
-            message: err.message || 'Internal Server Error',
-            status: err.status || 500
-        }
+            message: err.message || "Internal Server Error",
+            status: err.status || 500,
+        },
     });
 });
 app.use("/uploads", express_1.default.static(path_1.default.join(__dirname, "../uploads")));
-app.use("/api", news_routes_1.default);
+app.use("/api/news", news_routes_1.default);
 app.use("/api", categoriesRoutes_1.default);
 app.use("/api", authorRoutes_1.default);
 // MongoDB Connection with retry logic
 const connectWithRetry = async () => {
     try {
         console.log("Attempting to connect to MongoDB...");
-        console.log("MONGO_URI:", MONGO_URI.replace(/\/\/[^:]+:[^@]+@/, '//***:***@')); // Log URI without credentials
+        console.log("MONGO_URI:", MONGO_URI.replace(/\/\/[^:]+:[^@]+@/, "//***:***@")); // Log URI without credentials
         await mongoose_1.default.connect(MONGO_URI, {
             serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
             socketTimeoutMS: 45000, // Close sockets after 45s of inactivity

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import {
@@ -17,6 +17,14 @@ import { AuthorList } from "@/components/admin/author-list";
 
 export default function AuthorsPage() {
   const [open, setOpen] = useState(false);
+  const authorListRef = useRef<{ refresh: () => void }>(null);
+
+  const handleAuthorCreated = () => {
+    if (authorListRef.current) {
+      authorListRef.current.refresh();
+    }
+    setOpen(false);
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -38,13 +46,13 @@ export default function AuthorsPage() {
                   Зохиолчийн мэдээллийг оруулна уу
                 </DialogDescription>
               </DialogHeader>
-              <AuthorForm />
+              <AuthorForm onSuccess={handleAuthorCreated} />
             </DialogContent>
           </Dialog>
         }
       />
 
-      <AuthorList />
+      <AuthorList ref={authorListRef} />
     </div>
   );
 }
