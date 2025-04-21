@@ -9,9 +9,8 @@ const router = express.Router();
 // Get all news
 router.get("/", getNews as RequestHandler);
 
-router
-  .route("/create")
-  .post(upload.fields([{ name: "newsImages", maxCount: 10 }]), createNews);
+// Create news
+router.post("/", upload.single("image"), createNews as RequestHandler);
 
 // Delete news
 router.delete("/:id", deleteNews as RequestHandler);

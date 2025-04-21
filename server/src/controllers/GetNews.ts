@@ -29,7 +29,7 @@ export const getNews = async (_req: Request, res: Response): Promise<void> => {
   } catch (error) {
     console.error("Error fetching news:", error);
     res.status(500).json({ 
-      message: "Мэдээг татахад алдаа гарлаа", 
+      message: "Error fetching news", 
       error: error instanceof Error ? error.message : "Unknown error"
     });
   }

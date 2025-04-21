@@ -4,7 +4,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import axiosInstance from "@/lib/axios";
+import axios from "axios";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "https://c16-mn.onrender.com";
+const axiosInstance = axios.create({
+  baseURL: API_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 
 interface NewsFormData {
   title: string;

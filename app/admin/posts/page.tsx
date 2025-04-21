@@ -94,13 +94,13 @@ export default function PostsPage() {
   return (
     <div className="flex flex-col gap-6">
       <DashboardHeader
-        title="Нийтлэл"
-        description="Мэдээний нийтлэлийг удирдах"
+        title="Posts"
+        description="Manage news posts"
         action={
           <Link href="/admin/posts/create">
             <Button>
               <PlusCircle className="mr-2 h-4 w-4" />
-              Мэдээ үүсгэх
+              Create Post
             </Button>
           </Link>
         }
@@ -110,25 +110,25 @@ export default function PostsPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Гарчиг</TableHead>
-              <TableHead>Ангилал</TableHead>
-              <TableHead>Нийтлэгч</TableHead>
-              <TableHead>Баннер</TableHead>
-              <TableHead>Огноо</TableHead>
-              <TableHead className="text-right">Үйлдлүүд</TableHead>
+              <TableHead>Title</TableHead>
+              <TableHead>Category</TableHead>
+              <TableHead>Author</TableHead>
+              <TableHead>Banner</TableHead>
+              <TableHead>Date</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-4">
-                  Нийтлэлүүд ачаалж байна...
+                  Loading posts...
                 </TableCell>
               </TableRow>
             ) : posts.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-4">
-                  Нийтлэл олдсонгүй
+                  No posts found
                 </TableCell>
               </TableRow>
             ) : (
