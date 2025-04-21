@@ -81,6 +81,7 @@ const axiosInstance = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true, // Enable credentials for CORS
 });
 
 // Add a response interceptor to handle errors
@@ -95,6 +96,20 @@ axiosInstance.interceptors.response.use(
       console.warn("Using fallback data during build process");
       return Promise.resolve({ data: fallbackNewsData });
     }
+
+    // Log the error for debugging
+    console.error("API Error:", {
+      url: error.config?.url,
+      method: error.config?.method,
+      status: error.response?.status,
+      message: error.message,
+    });
+
+    // Handle specific error cases
+    if (error.response?.status === 508) {
+      console.error("Loop detected in API request. Check your API configuration.");
+    }
+
     return Promise.reject(error);
   }
 );
