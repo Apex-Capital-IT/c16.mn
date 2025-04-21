@@ -29,9 +29,11 @@ export const fallbackNewsData: NewsArticle[] = [
     title: "Sample News Article",
     description: "This is a sample news article for build time.",
     category: "General",
-    newsImage: "https://unread.today/files/007afc64-288a-4208-b9d7-3eda84011c1d/6b14a94472c91bd94f086dac96694c79.jpeg",
+    newsImage:
+      "https://unread.today/files/007afc64-288a-4208-b9d7-3eda84011c1d/6b14a94472c91bd94f086dac96694c79.jpeg",
     authorName: "Admin",
-    authorImage: "https://unread.today/files/007afc64-288a-4208-b9d7-3eda84011c1d/6b14a94472c91bd94f086dac96694c79.jpeg",
+    authorImage:
+      "https://unread.today/files/007afc64-288a-4208-b9d7-3eda84011c1d/6b14a94472c91bd94f086dac96694c79.jpeg",
     publishedDate: new Date().toISOString(),
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -41,13 +43,15 @@ export const fallbackNewsData: NewsArticle[] = [
     title: "Another Sample News Article",
     description: "This is another sample news article for build time.",
     category: "Technology",
-    newsImage: "https://unread.today/files/007afc64-288a-4208-b9d7-3eda84011c1d/6b14a94472c91bd94f086dac96694c79.jpeg",
+    newsImage:
+      "https://unread.today/files/007afc64-288a-4208-b9d7-3eda84011c1d/6b14a94472c91bd94f086dac96694c79.jpeg",
     authorName: "Admin",
-    authorImage: "https://unread.today/files/007afc64-288a-4208-b9d7-3eda84011c1d/6b14a94472c91bd94f086dac96694c79.jpeg",
+    authorImage:
+      "https://unread.today/files/007afc64-288a-4208-b9d7-3eda84011c1d/6b14a94472c91bd94f086dac96694c79.jpeg",
     publishedDate: new Date().toISOString(),
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-  }
+  },
 ];
 
 // Sample fallback data for authors
@@ -55,25 +59,27 @@ export const fallbackAuthorData: Author[] = [
   {
     _id: "fallback-author-1",
     authorName: "Admin",
-    authorImage: "https://unread.today/files/007afc64-288a-4208-b9d7-3eda84011c1d/6b14a94472c91bd94f086dac96694c79.jpeg",
+    authorImage:
+      "https://unread.today/files/007afc64-288a-4208-b9d7-3eda84011c1d/6b14a94472c91bd94f086dac96694c79.jpeg",
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
     _id: "fallback-author-2",
     authorName: "John Doe",
-    authorImage: "https://unread.today/files/007afc64-288a-4208-b9d7-3eda84011c1d/6b14a94472c91bd94f086dac96694c79.jpeg",
+    authorImage:
+      "https://unread.today/files/007afc64-288a-4208-b9d7-3eda84011c1d/6b14a94472c91bd94f086dac96694c79.jpeg",
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-  }
+  },
 ];
 
 // Create axios instance with default config
 const axiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://c16-mn.onrender.com',
-  timeout: 10000, // 10 seconds timeout
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "https://c16-mn.onrender.com",
+  timeout: 40000, // 40 seconds timeout
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
@@ -82,8 +88,11 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     // During build time, return fallback data instead of throwing an error
-    if (process.env.NODE_ENV === 'production' && process.env.NEXT_PHASE === 'phase-production-build') {
-      console.warn('Using fallback data during build process');
+    if (
+      process.env.NODE_ENV === "production" &&
+      process.env.NEXT_PHASE === "phase-production-build"
+    ) {
+      console.warn("Using fallback data during build process");
       return Promise.resolve({ data: fallbackNewsData });
     }
     return Promise.reject(error);
