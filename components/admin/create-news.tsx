@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import axiosInstance from "@/lib/axios";
 
 interface NewsFormData {
   title: string;
@@ -13,6 +14,12 @@ interface NewsFormData {
   authorId?: string;
   authorName: string;
   authorImage: string;
+}
+
+interface Author {
+  _id: string;
+  name: string;
+  image: string;
 }
 
 export default function CreateNews() {
@@ -25,15 +32,14 @@ export default function CreateNews() {
     authorImage: "",
   });
 
-  const [authors, setAuthors] = useState<any[]>([]);
+  const [authors, setAuthors] = useState<Author[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchAuthors = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/authors`);
-        const data = await response.json();
-        setAuthors(data);
+        const response = await axiosInstance.get<Author[]>("/api/authors");
+        setAuthors(response.data);
       } catch (error) {
         toast.error("Failed to fetch authors");
         console.error("Error fetching authors:", error);
@@ -48,20 +54,7 @@ export default function CreateNews() {
     setIsLoading(true);
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/create/news`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to create news");
-      }
+      const response = await axiosInstance.post("/api/create/news", formData);
 
       toast.success("News created successfully!");
       setFormData({
@@ -135,8 +128,8 @@ export default function CreateNews() {
       setFormData((prev) => ({
         ...prev,
         authorId: selectedAuthor._id,
-        authorName: selectedAuthor.authorName,
-        authorImage: selectedAuthor.authorImage,
+        authorName: selectedAuthor.name,
+        authorImage: selectedAuthor.image,
       }));
     }
   };
