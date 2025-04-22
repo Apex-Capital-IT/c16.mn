@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL || "https://c16-mn.onrender.com";
 
 interface NewsArticle {
   _id: string;
@@ -38,7 +39,9 @@ export const fallbackNewsData: NewsArticle[] = [
     content: "Дэлгэрэнгүй агуулга...",
     category: "Эдийн засгийн мэдээ",
     categoryName: "Эдийн засгийн мэдээ",
-    newsImages: ["https://unread.today/files/007afc64-288a-4208-b9d7-3eda84011c1d/6b14a94472c91bd94f086dac96694c79.jpeg"],
+    newsImages: [
+      "https://unread.today/files/007afc64-288a-4208-b9d7-3eda84011c1d/6b14a94472c91bd94f086dac96694c79.jpeg",
+    ],
     authorName: "Б.Болд",
     authorImage: "/authors/author1.jpg",
     banner: true,
@@ -46,8 +49,8 @@ export const fallbackNewsData: NewsArticle[] = [
     publishedDate: new Date().toISOString(),
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    views: 0
-  }
+    views: 0,
+  },
 ];
 
 // Create axios instance with base URL

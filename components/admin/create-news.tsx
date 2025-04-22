@@ -6,7 +6,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import axios from "axios";
 
-const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+const API_URL =
+  process.env.NEXT_PUBLIC_BACKEND_URL || "https://c16-mn.onrender.com";
 const axiosInstance = axios.create({
   baseURL: API_URL,
   headers: {
@@ -157,7 +158,8 @@ export default function CreateNews() {
         <div>
           <label
             htmlFor="title"
-            className="block text-lg font-medium mb-2 text-gray-700">
+            className="block text-lg font-medium mb-2 text-gray-700"
+          >
             Title
           </label>
           <Input
@@ -174,7 +176,8 @@ export default function CreateNews() {
         <div>
           <label
             htmlFor="content"
-            className="block text-lg font-medium mb-2 text-gray-700">
+            className="block text-lg font-medium mb-2 text-gray-700"
+          >
             Content
           </label>
           <Textarea
@@ -191,7 +194,8 @@ export default function CreateNews() {
         <div>
           <label
             htmlFor="newsImage"
-            className="block text-lg font-medium mb-2 text-gray-700">
+            className="block text-lg font-medium mb-2 text-gray-700"
+          >
             News Image URL
           </label>
           <input
@@ -206,7 +210,8 @@ export default function CreateNews() {
         <div>
           <label
             htmlFor="category"
-            className="block text-lg font-medium mb-2 text-gray-700">
+            className="block text-lg font-medium mb-2 text-gray-700"
+          >
             Category
           </label>
           <Input
@@ -223,7 +228,8 @@ export default function CreateNews() {
         <div>
           <label
             htmlFor="authorId"
-            className="block text-lg font-medium mb-2 text-gray-700">
+            className="block text-lg font-medium mb-2 text-gray-700"
+          >
             Select Author
           </label>
           <select
@@ -232,7 +238,8 @@ export default function CreateNews() {
             value={formData.authorId || ""}
             onChange={handleAuthorChange}
             className="w-full p-4 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
-            required>
+            required
+          >
             <option value="">Select Author</option>
             {/* {authors.map((author) => (
               <option key={author._id} value={author._id}>
@@ -245,7 +252,8 @@ export default function CreateNews() {
         <Button
           type="submit"
           disabled={isLoading}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-600">
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-600"
+        >
           {isLoading ? "Creating..." : "Create News"}
         </Button>
       </form>

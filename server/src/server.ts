@@ -18,14 +18,7 @@ const MONGO_URI = process.env.MONGO_URI || "";
 // ensureDirectories();
 
 // Configure CORS to accept requests from the frontend
-const allowedOrigins = [
-  "http://localhost:3000", // Local frontend development
-  "http://localhost:3002", // Local frontend development
-  "http://localhost:8000", // Local backend development
-  "https://c16-mn.onrender.com", // Production backend
-  "https://c16-mn.vercel.app", // Production frontend
-  "https://c16.mn", // Custom domain if used
-];
+const allowedOrigins = ["*"];
 app.use(
   cors({
     origin: (origin, callback) => {

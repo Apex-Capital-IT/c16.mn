@@ -197,7 +197,12 @@ export default function CreatePostPage() {
     e.preventDefault();
 
     // Validate required fields
-    if (!formData.title || !formData.content || !formData.category || !formData.authorName) {
+    if (
+      !formData.title ||
+      !formData.content ||
+      !formData.category ||
+      !formData.authorName
+    ) {
       toast({
         title: "Error",
         description: "Please fill in all required fields",
@@ -228,10 +233,15 @@ export default function CreatePostPage() {
 
       // Append news images - make sure each file is properly appended
       console.log("Appending news images to FormData:", newsImages.length);
-      
+
       // Clear any existing newsImages entries and add each file individually
       newsImages.forEach((file, index) => {
-        console.log(`Appending file ${index}:`, file.name, file.type, file.size);
+        console.log(
+          `Appending file ${index}:`,
+          file.name,
+          file.type,
+          file.size
+        );
         // Make sure to use the exact field name expected by the server
         formDataToSend.append("newsImages", file);
       });
@@ -239,12 +249,16 @@ export default function CreatePostPage() {
       // Log the FormData contents for debugging
       console.log("FormData entries:");
       for (const pair of formDataToSend.entries()) {
-        console.log(pair[0], typeof pair[1], pair[1] instanceof File ? pair[1].name : pair[1]);
+        console.log(
+          pair[0],
+          typeof pair[1],
+          pair[1] instanceof File ? pair[1].name : pair[1]
+        );
       }
 
       // Send to API with the correct headers
       const response = await axios.post(
-        "http://localhost:8000/api/news",
+        "https://c16-mn.onrender.com/api/news",
         formDataToSend,
         {
           headers: {
@@ -271,23 +285,24 @@ export default function CreatePostPage() {
       if (error.response) {
         console.error("Error response data:", error.response.data);
         console.error("Error response status:", error.response.status);
-        
+
         // Show more detailed error message
-        const errorMessage = error.response.data.message || "Failed to create news post";
+        const errorMessage =
+          error.response.data.message || "Failed to create news post";
         const missingFields = error.response.data.missingFields;
-        
+
         let description = errorMessage;
         if (missingFields) {
           const missingFieldsList = Object.entries(missingFields)
             .filter(([_, isMissing]) => isMissing)
             .map(([field]) => field)
             .join(", ");
-          
+
           if (missingFieldsList) {
             description = `${errorMessage}: ${missingFieldsList}`;
           }
         }
-        
+
         toast({
           title: "Error",
           description,
@@ -363,7 +378,8 @@ export default function CreatePostPage() {
                     value={formData.category}
                     onValueChange={(value) =>
                       handleSelectChange("category", value)
-                    }>
+                    }
+                  >
                     <SelectTrigger id="category">
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
@@ -383,7 +399,8 @@ export default function CreatePostPage() {
                     value={formData.authorName}
                     onValueChange={(value) =>
                       handleSelectChange("authorName", value)
-                    }>
+                    }
+                  >
                     <SelectTrigger id="authorName">
                       <SelectValue placeholder="Select author" />
                     </SelectTrigger>
@@ -451,7 +468,8 @@ export default function CreatePostPage() {
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  onClick={() => removeNewsImage(index)}>
+                                  onClick={() => removeNewsImage(index)}
+                                >
                                   <Trash2 className="h-4 w-4" />
                                   <span className="sr-only">
                                     Зургийг арилгах

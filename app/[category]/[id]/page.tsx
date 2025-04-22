@@ -7,7 +7,7 @@ import Link from "next/link";
 async function getNewsByCategory(category: string): Promise<NewsArticle[]> {
   try {
     const response = await axios.get<NewsArticle[]>(
-      "http://localhost:8000/api/news",
+      "https://c16-mn.onrender.com/api/news",
       {
         headers: {
           "Cache-Control": "no-cache",

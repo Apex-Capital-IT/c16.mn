@@ -10,7 +10,7 @@ const nextConfig = {
         destination:
           process.env.NODE_ENV === "production"
             ? "https://c16-mn.onrender.com/api/:path*"
-            : "http://localhost:8000/api/:path*",
+            : "https://c16-mn.onrender.com/api/:path*",
       },
     ];
   },

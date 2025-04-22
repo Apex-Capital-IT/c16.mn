@@ -7,7 +7,7 @@ import { NewsArticle } from "@/lib/axios";
 async function getNewsByCategory(category: string): Promise<NewsArticle[]> {
   try {
     const response = await axios.get<NewsArticle[]>(
-      "http://localhost:8000/api/news",
+      "https://c16-mn.onrender.com/api/news",
       {
         headers: {
           "Cache-Control": "no-cache",
@@ -72,7 +72,10 @@ export default async function CategoryPage({ params }: Props) {
               key={article._id}
               className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
             >
-              <Link href={`/${resolvedParams.category}/${index + 1}`} prefetch={false}>
+              <Link
+                href={`/${resolvedParams.category}/${index + 1}`}
+                prefetch={false}
+              >
                 <div className="relative h-48 w-full">
                   <Image
                     src={

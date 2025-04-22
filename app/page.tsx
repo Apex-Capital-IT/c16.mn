@@ -16,7 +16,7 @@ function generateSlug(title: string) {
 async function getLatestNews(): Promise<NewsArticle[]> {
   try {
     const response = await axios.get<NewsArticle[]>(
-      "http://localhost:8000/api/news",
+      "https://c16-mn.onrender.com/api/news",
       {
         headers: {
           "Cache-Control": "no-cache",

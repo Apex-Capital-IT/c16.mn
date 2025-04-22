@@ -6,16 +6,24 @@ import { NewsArticle } from "@/lib/axios";
 
 async function getNewsByCategory(category: string): Promise<NewsArticle[]> {
   try {
-    const response = await axios.get<NewsArticle[]>("http://localhost:8000/api/news", {
-      headers: {
-        "Cache-Control": "no-cache",
-        Pragma: "no-cache",
-      },
-    });
+    const response = await axios.get<NewsArticle[]>(
+      "https://c16-mn.onrender.com/api/news",
+      {
+        headers: {
+          "Cache-Control": "no-cache",
+          Pragma: "no-cache",
+        },
+      }
+    );
     // Filter by category and sort by date (newest first)
     return response.data
-      .filter(article => article.category.toLowerCase() === category.toLowerCase())
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      .filter(
+        (article) => article.category.toLowerCase() === category.toLowerCase()
+      )
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
   } catch (error) {
     console.error("Error fetching news:", error);
     return [];
@@ -23,11 +31,14 @@ async function getNewsByCategory(category: string): Promise<NewsArticle[]> {
 }
 
 // Function to get the correct index for an article (oldest = 1)
-function getArticleIndex(articles: NewsArticle[], article: NewsArticle): number {
-  const sortedArticles = [...articles].sort((a, b) => 
-    new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+function getArticleIndex(
+  articles: NewsArticle[],
+  article: NewsArticle
+): number {
+  const sortedArticles = [...articles].sort(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
   );
-  return sortedArticles.findIndex(a => a._id === article._id) + 1;
+  return sortedArticles.findIndex((a) => a._id === article._id) + 1;
 }
 
 type Props = {
@@ -45,8 +56,13 @@ export default async function CategoryPage({ params }: Props) {
     return (
       <div className="min-h-screen bg-white">
         <div className="container mx-auto px-4 py-8">
-          <h1 className="text-2xl font-bold mb-4">No articles found in {resolvedParams.category}</h1>
-          <Link href="/" className="text-blue-600 hover:underline mt-4 inline-block">
+          <h1 className="text-2xl font-bold mb-4">
+            No articles found in {resolvedParams.category}
+          </h1>
+          <Link
+            href="/"
+            className="text-blue-600 hover:underline mt-4 inline-block"
+          >
             Return to home
           </Link>
         </div>
@@ -57,12 +73,23 @@ export default async function CategoryPage({ params }: Props) {
   return (
     <main className="min-h-screen bg-white">
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-8 capitalize">{resolvedParams.category} News</h1>
-        
+        <h1 className="text-3xl font-bold mb-8 capitalize">
+          {resolvedParams.category} News
+        </h1>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {articles.map((article: NewsArticle) => (
-            <div key={article._id} className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-              <Link href={`/${resolvedParams.category}/${getArticleIndex(articles, article)}`} prefetch={false}>
+            <div
+              key={article._id}
+              className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+            >
+              <Link
+                href={`/${resolvedParams.category}/${getArticleIndex(
+                  articles,
+                  article
+                )}`}
+                prefetch={false}
+              >
                 <div className="relative h-48 w-full">
                   <Image
                     src={
@@ -108,4 +135,4 @@ export default async function CategoryPage({ params }: Props) {
       </div>
     </main>
   );
-} 
+}
