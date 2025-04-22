@@ -24,24 +24,23 @@ export default async function TrendingNews() {
   const news = await getTrendingNews();
 
   return (
-    <div className="trending-news bg-gray-50 rounded-lg p-6">
-      <h2 className="text-2xl font-bold mb-6">Top Stories</h2>
-
-      <div className="space-y-6 max-h-[600px] overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400">
+    <div className="lg:col-span-2">
+      <h2 className="text-2xl font-bold mb-6">Latest News</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {news.map((article: NewsArticle) => (
-          <div
-            key={article._id}
-            className="border-l-4 border-black pl-4 py-1 hover:bg-white transition-colors">
-            <div className="inline-block px-2 py-1 text-xs font-medium rounded-full mb-2 bg-red-100 text-red-800">
-              {article.category}
-            </div>
-            <h3 className="font-medium hover:text-red-600 transition-colors mb-2">
-              {article.title}
-            </h3>
-            <div className="flex items-center text-xs text-gray-500">
-              <Eye size={14} className="mr-1" />
-              <span>{article.authorName}</span>
-            </div>
+          <div key={article._id} className="border-b pb-6">
+            <Link
+              href={`/${article.category}/${article._id}`}
+              prefetch={false}
+            >
+              <h3 className="font-semibold text-lg mb-2 hover:text-red-600 transition-colors">
+                {article.title}
+              </h3>
+              <div className="flex items-center text-xs text-gray-500">
+                <Eye size={14} className="mr-1" />
+                <span>By {article.authorName}</span>
+              </div>
+            </Link>
           </div>
         ))}
       </div>

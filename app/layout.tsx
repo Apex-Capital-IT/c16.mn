@@ -11,7 +11,6 @@ export const metadata = {
   title: "c16 - Latest Breaking News",
   description:
     "Get the latest breaking news and top stories from around the world",
-  generator: "v0.dev",
 };
 
 export default function RootLayout({
@@ -29,9 +28,9 @@ export default function RootLayout({
           disableTransitionOnChange
         > */}
         <div className="flex flex-col min-h-screen">
-          {/* <Header /> */}
+          <Header />
           <div className="flex-grow">{children}</div>
-          {/* <Footer /> */}
+          <Footer />
         </div>
         {/* </ThemeProvider> */}
       </body>

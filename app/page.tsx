@@ -2,9 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { Clock, Eye, MessageSquare } from "lucide-react";
 import TrendingNews from "@/components/trending-news";
-import NewsCategories from "@/components/news-categories";
 import EmailSubscription from "@/components/email";
-import axiosInstance, { NewsArticle, fallbackNewsData } from "@/lib/axios";
+import axios from "axios";
+import { NewsArticle } from "@/lib/axios";
 
 function generateSlug(title: string) {
   return title
@@ -15,39 +15,62 @@ function generateSlug(title: string) {
 
 async function getLatestNews(): Promise<NewsArticle[]> {
   try {
-    const res = await axiosInstance.get<NewsArticle[]>("/api/news");
-    return res.data;
-  } catch (error: any) {
+    const response = await axios.get<NewsArticle[]>(
+      "http://localhost:8000/api/news",
+      {
+        headers: {
+          "Cache-Control": "no-cache",
+          Pragma: "no-cache",
+        },
+      }
+    );
+    return response.data || [];
+  } catch (error) {
     console.error("Error fetching news:", error);
-    // Return fallback data during build or when API is unavailable
-    if (
-      process.env.NODE_ENV === "production" ||
-      error.code === "ECONNREFUSED"
-    ) {
-      console.warn("Using fallback data for news");
-      return fallbackNewsData;
-    }
     return [];
   }
 }
 
 export default async function Home() {
   const news = await getLatestNews();
-  const latestArticle = news[0]; // Get the most recent article
+  // Filter for banner articles and get the most recent one
+  const bannerArticles = news.filter((article) => article.banner);
+  const latestBannerArticle = bannerArticles[0];
+  // Get all non-banner articles for the grid
+  const nonBannerArticles = news.filter((article) => !article.banner);
+
+  // Calculate the correct index for the latest banner article
+  const getArticleIndex = (article: NewsArticle) => {
+    if (!article) return 1;
+    const categoryArticles = news
+      .filter(
+        (a) => a.category.toLowerCase() === article.category.toLowerCase()
+      )
+      .sort(
+        (a, b) =>
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      );
+    return categoryArticles.findIndex((a) => a._id === article._id) + 1;
+  };
 
   return (
     <main className="min-h-screen bg-white">
       <div className="container mx-auto px-4 py-8">
-        {latestArticle && (
+        {latestBannerArticle && (
           <div className="mb-12">
-            <Link href={`/${latestArticle.category}/1`} prefetch={false}>
+            <Link
+              href={`/${latestBannerArticle.category}/${getArticleIndex(
+                latestBannerArticle
+              )}`}
+              prefetch={false}
+            >
               <div className="relative h-[500px] w-full overflow-hidden rounded-lg">
                 <Image
                   src={
-                    latestArticle.newsImage ||
+                    latestBannerArticle.authorImage ||
                     "https://unread.today/files/007afc64-288a-4208-b9d7-3eda84011c1d/6b14a94472c91bd94f086dac96694c79.jpeg"
                   }
-                  alt={latestArticle.title}
+                  alt={latestBannerArticle.title}
                   fill
                   className="object-cover"
                   priority
@@ -56,22 +79,30 @@ export default async function Home() {
                 <div className="absolute bottom-0 left-0 p-6 text-white">
                   <div className="mb-2">
                     <span className="bg-red-600 text-white text-xs px-2 py-1 rounded uppercase font-semibold">
-                      {latestArticle.category}
+                      {latestBannerArticle.category}
                     </span>
                   </div>
                   <h1 className="text-3xl md:text-4xl font-bold mb-3">
-                    {latestArticle.title}
+                    {latestBannerArticle.title}
                   </h1>
                   <p className="text-gray-200 mb-4 max-w-2xl">
-                    {latestArticle.description}
+                    {latestBannerArticle.description}
                   </p>
                   <div className="flex items-center text-sm">
                     <span className="mr-4">
-                      {new Date(
-                        latestArticle.publishedDate
-                      ).toLocaleDateString()}
+                      {new Date(latestBannerArticle.createdAt).toLocaleString(
+                        "en-US",
+                        {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          second: "2-digit",
+                        }
+                      )}
                     </span>
-                    <span>By {latestArticle.authorName}</span>
+                    <span>By {latestBannerArticle.authorName}</span>
                   </div>
                 </div>
               </div>
@@ -85,15 +116,16 @@ export default async function Home() {
           <div className="lg:col-span-2">
             <h2 className="text-2xl font-bold mb-6">Latest News</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {news.map((article: NewsArticle, index: number) => (
+              {nonBannerArticles.map((article: NewsArticle) => (
                 <div key={article._id} className="border-b pb-6">
                   <Link
-                    href={`/${article.category}/${index + 1}`}
-                    prefetch={false}>
+                    href={`/${article.category}/${getArticleIndex(article)}`}
+                    prefetch={false}
+                  >
                     <div className="relative h-48 mb-4 overflow-hidden rounded-md">
                       <Image
                         src={
-                          article.newsImage ||
+                          article.authorImage ||
                           "https://unread.today/files/007afc64-288a-4208-b9d7-3eda84011c1d/6b14a94472c91bd94f086dac96694c79.jpeg"
                         }
                         alt={article.title}
@@ -110,7 +142,14 @@ export default async function Home() {
                     <div className="flex items-center text-xs text-gray-500">
                       <Clock size={14} className="mr-1" />
                       <span className="mr-4">
-                        {new Date(article.publishedDate).toLocaleDateString()}
+                        {new Date(article.createdAt).toLocaleString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          second: "2-digit",
+                        })}
                       </span>
                       <span>By {article.authorName}</span>
                     </div>
@@ -119,11 +158,36 @@ export default async function Home() {
               ))}
             </div>
           </div>
+          <div className="flex flex-col">
+            <h2 className="text-2xl font-bold mb-6">Popular news</h2>
 
-          <div className="lg:col-span-1">
-            <TrendingNews />
-            <div className="mt-8">
-              <NewsCategories />
+            <div className="flex flex-col justify-center gap-6">
+              {nonBannerArticles.map((article: NewsArticle) => (
+                <div key={article._id} className="border-b pb-6">
+                  <Link
+                    href={`/${article.category}/${getArticleIndex(article)}`}
+                    prefetch={false}
+                  >
+                    <div className="relative h-40 mb-4 overflow-hidden rounded-md">
+                      <Image
+                        src={
+                          article.newsImages[0] ||
+                          "https://unread.today/files/007afc64-288a-4208-b9d7-3eda84011c1d/6b14a94472c91bd94f086dac96694c79.jpeg"
+                        }
+                        alt={article.title}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <h3 className="font-semibold text-lg mb-2 hover:text-red-600 transition-colors">
+                      {article.title}
+                    </h3>
+                    <p className="text-gray-600 text-sm mb-4">
+                      {article.content}
+                    </p>
+                  </Link>
+                </div>
+              ))}
             </div>
           </div>
         </div>

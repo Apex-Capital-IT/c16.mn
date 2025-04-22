@@ -1,18 +1,48 @@
 import Link from "next/link";
 import axiosInstance, { NewsArticle, fallbackNewsData } from "@/lib/axios";
 
-async function getCategories(): Promise<string[]> {
+interface CategoryCount {
+  name: string;
+  count: number;
+}
+
+async function getCategories(): Promise<CategoryCount[]> {
   try {
-    const res = await axiosInstance.get<NewsArticle[]>('/api/news');
-    // Get unique categories from news
-    const categories = [...new Set(res.data.map(article => article.category))];
+    const res = await axiosInstance.get<NewsArticle[]>("/api/news");
+    // Count articles per category
+    const categoryCounts = res.data.reduce(
+      (acc: { [key: string]: number }, article) => {
+        acc[article.category] = (acc[article.category] || 0) + 1;
+        return acc;
+      },
+      {}
+    );
+
+    // Convert to array and sort by count
+    const categories = Object.entries(categoryCounts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count);
+
     return categories;
   } catch (error: any) {
-    console.error('Error fetching categories:', error);
+    console.error("Error fetching categories:", error);
     // Return fallback categories during build or when API is unavailable
-    if (process.env.NODE_ENV === 'production' || error.code === 'ECONNREFUSED') {
-      console.warn('Using fallback categories');
-      return [...new Set(fallbackNewsData.map(article => article.category))];
+    if (
+      process.env.NODE_ENV === "production" ||
+      error.code === "ECONNREFUSED"
+    ) {
+      console.warn("Using fallback categories");
+      const fallbackCounts = fallbackNewsData.reduce(
+        (acc: { [key: string]: number }, article) => {
+          acc[article.category] = (acc[article.category] || 0) + 1;
+          return acc;
+        },
+        {}
+      );
+
+      return Object.entries(fallbackCounts)
+        .map(([name, count]) => ({ name, count }))
+        .sort((a, b) => b.count - a.count);
     }
     return [];
   }
@@ -27,11 +57,16 @@ export default async function NewsCategories() {
       <div className="space-y-2">
         {categories.map((category) => (
           <Link
-            key={category}
-            href={`/category/${category.toLowerCase().replace(/\s+/g, '-')}`}
-            className="block py-2 hover:text-red-600 transition-colors"
+            key={category.name}
+            href={`/category/${category.name
+              .toLowerCase()
+              .replace(/\s+/g, "-")}`}
+            className="block py-2 hover:text-red-600 transition-colors flex justify-between items-center"
           >
-            {category}
+            <span>{category.name}</span>
+            <span className="bg-gray-100 text-gray-600 text-sm px-2 py-1 rounded-full">
+              {category.count}
+            </span>
           </Link>
         ))}
       </div>
