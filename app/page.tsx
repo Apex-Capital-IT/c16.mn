@@ -6,6 +6,9 @@ import EmailSubscription from "@/components/email";
 import axios from "axios";
 import { NewsArticle } from "@/lib/axios";
 
+// Disable caching for this page
+export const revalidate = 0;
+
 function generateSlug(title: string) {
   return title
     .toLowerCase()
@@ -24,12 +27,10 @@ async function getLatestNews(): Promise<NewsArticle[]> {
         },
       }
     );
-    // Sort by date (newest first) and ensure we have data
-    return (response.data || [])
-      .sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
+    return (response.data || []).sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
   } catch (error) {
     console.error("Error fetching news:", error);
     return [];
@@ -38,8 +39,7 @@ async function getLatestNews(): Promise<NewsArticle[]> {
 
 export default async function Home() {
   const news = await getLatestNews();
-  
-  // Add error handling for empty news array
+
   if (!news || news.length === 0) {
     return (
       <main className="min-h-screen bg-white">
@@ -51,12 +51,10 @@ export default async function Home() {
     );
   }
 
-  // Get all articles for the grid, not just non-banner articles
   const allArticles = news;
   const bannerArticles = news.filter((article) => article.banner);
   const latestBannerArticle = bannerArticles[0];
 
-  // Calculate the correct index for the latest banner article
   const getArticleIndex = (article: NewsArticle) => {
     if (!article) return 1;
     const categoryArticles = news
@@ -79,7 +77,8 @@ export default async function Home() {
               href={`/${latestBannerArticle.category}/${getArticleIndex(
                 latestBannerArticle
               )}`}
-              prefetch={false}>
+              prefetch={false}
+            >
               <div className="relative h-[500px] w-full overflow-hidden rounded-lg">
                 <Image
                   src={
@@ -136,7 +135,8 @@ export default async function Home() {
                 <div key={article._id} className="border-b pb-6">
                   <Link
                     href={`/${article.category}/${getArticleIndex(article)}`}
-                    prefetch={false}>
+                    prefetch={false}
+                  >
                     <div className="relative h-40 mb-4 overflow-hidden rounded-md">
                       <Image
                         src={
@@ -166,7 +166,8 @@ export default async function Home() {
                 <div key={article._id} className="border-b pb-6">
                   <Link
                     href={`/${article.category}/${getArticleIndex(article)}`}
-                    prefetch={false}>
+                    prefetch={false}
+                  >
                     <div className="relative h-40 mb-4 overflow-hidden rounded-md">
                       <Image
                         src={
