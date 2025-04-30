@@ -3,6 +3,7 @@
 import type React from "react";
 import { useState, useEffect } from "react";
 import { Mail, Check, AlertCircle } from "lucide-react";
+import Image from "next/image";
 
 export default function EmailSubscription() {
   const [email, setEmail] = useState("");
@@ -67,7 +68,7 @@ export default function EmailSubscription() {
         <div className="flex flex-col md:flex-row text-black items-center justify-between">
           <div className="flex items-center mb-4 text-black md:mb-0">
             <div className="text-black mr-8">
-              <h2 className="text-2xl text-black font-bold mb-1">c16.mn</h2>
+              <Image width={55} height={35} src={"/Logo.png"} />
               <p className="text-sm text-black">
                 Имэйл хаягаа бичээд шинээр орж буй нийтлэлийг
                 <br />
