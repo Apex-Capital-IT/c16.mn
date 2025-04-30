@@ -24,7 +24,12 @@ async function getLatestNews(): Promise<NewsArticle[]> {
         },
       }
     );
-    return response.data || [];
+    // Sort by date (newest first) and ensure we have data
+    return (response.data || [])
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
   } catch (error) {
     console.error("Error fetching news:", error);
     return [];
@@ -33,6 +38,18 @@ async function getLatestNews(): Promise<NewsArticle[]> {
 
 export default async function Home() {
   const news = await getLatestNews();
+  
+  // Add error handling for empty news array
+  if (!news || news.length === 0) {
+    return (
+      <main className="min-h-screen bg-white">
+        <div className="container mx-auto px-4 py-8">
+          <h1 className="text-2xl font-bold mb-4">No articles found</h1>
+          <p className="text-gray-600">Please try again later.</p>
+        </div>
+      </main>
+    );
+  }
   // Filter for banner articles and get the most recent one
   const bannerArticles = news.filter((article) => article.banner);
   const latestBannerArticle = bannerArticles[0];

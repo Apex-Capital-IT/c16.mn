@@ -12,6 +12,24 @@ export const metadata = {
   title: "c16 - Latest Breaking News",
   description:
     "Get the latest breaking news and top stories from around the world",
+  icons: {
+    icon: "/favicon1.ico",
+    shortcut: "/favicon.ico",
+    apple: "/favicon.ico",
+  },
+  openGraph: {
+    title: "c16 - Latest Breaking News",
+    description:
+      "Get the latest breaking news and top stories from around the world",
+    images: [
+      {
+        url: "/favicon.ico",
+        width: 32,
+        height: 32,
+        alt: "c16 Logo",
+      },
+    ],
+  },
 };
 
 export default function RootLayout({
