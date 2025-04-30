@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { FileText, Home, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { LayoutDashboard, Users, Tag, Settings, Menu } from "lucide-react";
+import { LayoutDashboard, Users, Tag, Menu } from "lucide-react";
 import { useState } from "react";
 
 interface SidebarNavProps extends React.HTMLAttributes<HTMLDivElement> {}
@@ -35,6 +35,11 @@ export function Sidebar({ className }: SidebarNavProps) {
       title: "Categories",
       href: "/admin/categories",
       icon: Tag,
+    },
+    {
+      title: "Banner",
+      href: "/admin/banners",
+      icon: FileText,
     },
   ];
 
@@ -85,12 +90,12 @@ export function Sidebar({ className }: SidebarNavProps) {
             ))}
           </nav>
         </ScrollArea>
-        <div className="mt-auto border-t p-4">
+        {/* <div className="mt-auto border-t p-4">
           <Button variant="outline" className={cn("w-full", !isOpen && "p-2")}>
             <LogOut className="h-5 w-5" />
             {isOpen && <span className="ml-2">Logout</span>}
           </Button>
-        </div>
+        </div> */}
       </div>
     </>
   );

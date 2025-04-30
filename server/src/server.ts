@@ -5,7 +5,9 @@ import dotenv from "dotenv";
 import newsRouter from "./routes/news.routes";
 import categoryRouter from "./routes/categoriesRoutes";
 import authorRouter from "./routes/authorRoutes";
+import bannerRouter from "./routes/banner.routes";
 import path from "path";
+import multer from "multer";
 // import { ensureDirectories } from "./utils/ensureDirectories";
 
 dotenv.config();
@@ -80,6 +82,28 @@ app.get("/test", (req, res) => {
   });
 });
 
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, path.join(__dirname, "../uploads"));
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  },
+});
+
+const upload = multer({ storage: storage });
+
+// File upload endpoint
+app.post("/api/upload", upload.single("file"), (req, res) => {
+  if (!req.file) {
+    res.status(400).json({ error: "No file uploaded" });
+    return;
+  }
+  res.json({ url: `/uploads/${req.file.filename}` });
+});
+
 // Error handling middleware
 app.use(
   (
@@ -103,6 +127,7 @@ app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 app.use("/api/news", newsRouter);
 app.use("/api", categoryRouter);
 app.use("/api", authorRouter);
+app.use("/api/banners", bannerRouter);
 
 // MongoDB Connection with retry logic
 const connectWithRetry = async () => {

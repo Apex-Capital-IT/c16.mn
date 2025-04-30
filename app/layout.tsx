@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "react-hot-toast";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -32,6 +33,7 @@ export default function RootLayout({
           <div className="flex-grow">{children}</div>
           <Footer />
         </div>
+        <Toaster position="top-right" />
         {/* </ThemeProvider> */}
       </body>
     </html>
