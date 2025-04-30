@@ -13,7 +13,7 @@ export const metadata = {
   description:
     "Get the latest breaking news and top stories from around the world",
   icons: {
-    icon: "/favicon1.ico",
+    icon: "/favicon.ico",
     shortcut: "/favicon.ico",
     apple: "/favicon.ico",
   },
