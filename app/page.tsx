@@ -50,11 +50,11 @@ export default async function Home() {
       </main>
     );
   }
-  // Filter for banner articles and get the most recent one
+
+  // Get all articles for the grid, not just non-banner articles
+  const allArticles = news;
   const bannerArticles = news.filter((article) => article.banner);
   const latestBannerArticle = bannerArticles[0];
-  // Get all non-banner articles for the grid
-  const nonBannerArticles = news.filter((article) => !article.banner);
 
   // Calculate the correct index for the latest banner article
   const getArticleIndex = (article: NewsArticle) => {
@@ -83,7 +83,7 @@ export default async function Home() {
               <div className="relative h-[500px] w-full overflow-hidden rounded-lg">
                 <Image
                   src={
-                    latestBannerArticle.authorImage ||
+                    latestBannerArticle.newsImages?.[0] ||
                     "https://unread.today/files/007afc64-288a-4208-b9d7-3eda84011c1d/6b14a94472c91bd94f086dac96694c79.jpeg"
                   }
                   alt={latestBannerArticle.title}
@@ -131,49 +131,8 @@ export default async function Home() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <h2 className="text-2xl font-bold mb-6">Latest News</h2>
-            {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {nonBannerArticles.map((article: NewsArticle) => (
-                <div key={article._id} className="border-b pb-6">
-                  <Link
-                    href={`/${article.category}/${getArticleIndex(article)}`}
-                    prefetch={false}>
-                    <div className="relative h-48 mb-4 overflow-hidden rounded-md">
-                      <Image
-                        src={
-                          article.authorImage ||
-                          "https://unread.today/files/007afc64-288a-4208-b9d7-3eda84011c1d/6b14a94472c91bd94f086dac96694c79.jpeg"
-                        }
-                        alt={article.title}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <h3 className="font-semibold text-lg mb-2 hover:text-red-600 transition-colors">
-                      {article.title}
-                    </h3>
-                    <p className="text-gray-600 text-sm mb-4">
-                      {article.description}
-                    </p>
-                    <div className="flex items-center text-xs text-gray-500">
-                      <Clock size={14} className="mr-1" />
-                      <span className="mr-4">
-                        {new Date(article.createdAt).toLocaleString("en-US", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          second: "2-digit",
-                        })}
-                      </span>
-                      <span>By {article.authorName}</span>
-                    </div>
-                  </Link>
-                </div>
-              ))}
-            </div> */}
             <div className="grid grid-cols-2 justify-center gap-6">
-              {nonBannerArticles.map((article: NewsArticle) => (
+              {allArticles.map((article: NewsArticle) => (
                 <div key={article._id} className="border-b pb-6">
                   <Link
                     href={`/${article.category}/${getArticleIndex(article)}`}
@@ -181,7 +140,7 @@ export default async function Home() {
                     <div className="relative h-40 mb-4 overflow-hidden rounded-md">
                       <Image
                         src={
-                          article.newsImages[0] ||
+                          article.newsImages?.[0] ||
                           "https://unread.today/files/007afc64-288a-4208-b9d7-3eda84011c1d/6b14a94472c91bd94f086dac96694c79.jpeg"
                         }
                         alt={article.title}
@@ -202,9 +161,8 @@ export default async function Home() {
           </div>
           <div className="flex flex-col">
             <h2 className="text-2xl font-bold mb-6">Popular news</h2>
-
             <div className="flex flex-col justify-center gap-6">
-              {nonBannerArticles.map((article: NewsArticle) => (
+              {allArticles.map((article: NewsArticle) => (
                 <div key={article._id} className="border-b pb-6">
                   <Link
                     href={`/${article.category}/${getArticleIndex(article)}`}
@@ -212,7 +170,7 @@ export default async function Home() {
                     <div className="relative h-40 mb-4 overflow-hidden rounded-md">
                       <Image
                         src={
-                          article.newsImages[0] ||
+                          article.newsImages?.[0] ||
                           "https://unread.today/files/007afc64-288a-4208-b9d7-3eda84011c1d/6b14a94472c91bd94f086dac96694c79.jpeg"
                         }
                         alt={article.title}
