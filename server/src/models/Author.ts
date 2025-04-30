@@ -4,6 +4,7 @@ export type AuthorModelType = {
   _id: Types.ObjectId;
   authorName: string;
   authorImage?: string;
+  socialMedia?: string;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -12,6 +13,7 @@ const AuthorSchema = new Schema<AuthorModelType>(
   {
     authorName: { type: String, required: true, unique: true },
     authorImage: { type: String },
+    socialMedia: { type: String },
   },
   { timestamps: { createdAt: "createdAt", updatedAt: "updatedAt" } }
 );

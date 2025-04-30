@@ -16,7 +16,7 @@ export const getAllAuthors = async (
     // Optimize query with pagination and select only needed fields
     const authors = await AuthorModel.find()
       .sort({ createdAt: -1 }) // Sort by newest first
-      .select('authorName authorImage createdAt') // Only select needed fields
+      .select('authorName authorImage socialMedia createdAt') // Only select needed fields
       .skip(skip)
       .limit(limit)
       .lean(); // Use lean() for better performance

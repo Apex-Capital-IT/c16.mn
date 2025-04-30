@@ -16,7 +16,7 @@ export const createAuthor = async (
     } : "No file",
   });
 
-  const { authorName } = req.body;
+  const { authorName, socialMedia } = req.body;
   const file = req.file;
 
   try {
@@ -71,6 +71,7 @@ export const createAuthor = async (
     const newAuthor = new AuthorModel({
       authorName: authorName.trim(),
       authorImage: imageUrl,
+      socialMedia: socialMedia?.trim(),
     });
 
     const savedAuthor = await newAuthor.save();

@@ -18,6 +18,7 @@ interface Author {
   _id: string;
   authorName: string;
   authorImage?: string;
+  socialMedia?: string;
   createdAt: string;
 }
 
@@ -105,6 +106,7 @@ export const AuthorList = forwardRef<
             <TableRow>
               <TableHead>Зураг</TableHead>
               <TableHead>Нэр</TableHead>
+              <TableHead>Social хаяг</TableHead>
               <TableHead>Үүсгэсэн огноо</TableHead>
               <TableHead>Үйлдэл</TableHead>
             </TableRow>
@@ -117,6 +119,9 @@ export const AuthorList = forwardRef<
                 </TableCell>
                 <TableCell>
                   <Skeleton className="h-4 w-24" />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className="h-4 w-20" />
                 </TableCell>
                 <TableCell>
                   <Skeleton className="h-4 w-20" />
@@ -144,6 +149,7 @@ export const AuthorList = forwardRef<
             <TableRow>
               <TableHead>Зураг</TableHead>
               <TableHead>Нэр</TableHead>
+              <TableHead>Social хаяг</TableHead>
               <TableHead>Үүсгэсэн огноо</TableHead>
               <TableHead>Үйлдэл</TableHead>
             </TableRow>
@@ -151,7 +157,7 @@ export const AuthorList = forwardRef<
           <TableBody>
             {authors.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center">
+                <TableCell colSpan={5} className="text-center">
                   Зохиолч олдсонгүй
                 </TableCell>
               </TableRow>
@@ -171,6 +177,18 @@ export const AuthorList = forwardRef<
                     )}
                   </TableCell>
                   <TableCell>{author.authorName}</TableCell>
+                  <TableCell>
+                    {author.socialMedia && (
+                      <a 
+                        href={author.socialMedia} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline"
+                      >
+                        {author.socialMedia}
+                      </a>
+                    )}
+                  </TableCell>
                   <TableCell>
                     {new Date(author.createdAt).toLocaleDateString()}
                   </TableCell>
