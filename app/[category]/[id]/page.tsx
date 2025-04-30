@@ -14,7 +14,8 @@ async function getAuthorByName(authorName: string) {
 
     if (res.ok && Array.isArray(data.authors) && data.authors.length > 0) {
       const author = data.authors.find(
-        (author) => author.authorName.toLowerCase() === authorName.toLowerCase()
+        (author: any) =>
+          author.authorName.toLowerCase() === authorName.toLowerCase()
       );
       if (author) {
         return author;
