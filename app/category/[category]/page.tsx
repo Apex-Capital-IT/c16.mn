@@ -107,7 +107,7 @@ export default async function CategoryPage({ params }: Props) {
                       {article.category}
                     </span>
                   </div>
-                  <h2 className="text-xl font-semibold mb-2 hover:text-red-600 transition-colors">
+                  <h2 className="text-xl uppercase h-[50px] overflow-hidden font-semibold mb-2 hover:text-red-600 transition-colors">
                     {article.title}
                   </h2>
                   <p className="text-gray-600 text-sm mb-4 line-clamp-2">
@@ -120,9 +120,6 @@ export default async function CategoryPage({ params }: Props) {
                         year: "numeric",
                         month: "long",
                         day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        second: "2-digit",
                       })}
                     </span>
                     <span>By {article.authorName}</span>

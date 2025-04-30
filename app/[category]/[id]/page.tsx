@@ -1,9 +1,33 @@
 import Image from "next/image";
-import { Clock, Eye, MessageSquare } from "lucide-react";
+import { Clock, FacebookIcon, YoutubeIcon, InstagramIcon } from "lucide-react";
 import axios from "axios";
 import { NewsArticle } from "@/lib/axios";
 import Link from "next/link";
 
+// Fetch author details by author name
+async function getAuthorByName(authorName: string) {
+  try {
+    const res = await fetch(
+      `https://c16-mn.onrender.com/api/authors?name=${authorName}`
+    );
+    const data = await res.json();
+
+    if (res.ok && Array.isArray(data.authors) && data.authors.length > 0) {
+      const author = data.authors.find(
+        (author) => author.authorName.toLowerCase() === authorName.toLowerCase()
+      );
+      if (author) {
+        return author;
+      }
+    }
+
+    return null;
+  } catch (error) {
+    return null;
+  }
+}
+
+// Fetch news articles based on category
 async function getNewsByCategory(category: string): Promise<NewsArticle[]> {
   try {
     const response = await axios.get<NewsArticle[]>(
@@ -15,7 +39,6 @@ async function getNewsByCategory(category: string): Promise<NewsArticle[]> {
         },
       }
     );
-    // Filter by category and sort by date (oldest first)
     return response.data
       .filter(
         (article) => article.category.toLowerCase() === category.toLowerCase()
@@ -25,7 +48,6 @@ async function getNewsByCategory(category: string): Promise<NewsArticle[]> {
           new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
       );
   } catch (error) {
-    console.error("Error fetching news:", error);
     return [];
   }
 }
@@ -41,8 +63,10 @@ type Props = {
 export default async function CategoryPage({ params }: Props) {
   const resolvedParams = await params;
   const articles = await getNewsByCategory(resolvedParams.category);
-  const articleIndex = parseInt(resolvedParams.id) - 1; // Convert 1-based index to 0-based
+  const articleIndex = parseInt(resolvedParams.id) - 1;
   const article = articles[articleIndex];
+
+  const author = await getAuthorByName(article.authorName);
 
   if (!article) {
     return (
@@ -67,14 +91,13 @@ export default async function CategoryPage({ params }: Props) {
     <main className="min-h-screen bg-white">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
-          {/* Article Header */}
           <div className="mb-8">
             <div className="mb-4">
               <span className="bg-red-600 text-white text-xs px-2 py-1 rounded uppercase font-semibold">
                 {article.category}
               </span>
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold mb-4">
+            <h1 className="text-3xl md:text-4xl uppercase font-bold mb-4">
               {article.title}
             </h1>
             <div className="flex items-center text-sm text-gray-500 mb-4">
@@ -83,10 +106,34 @@ export default async function CategoryPage({ params }: Props) {
                 {new Date(article.createdAt).toLocaleDateString()}
               </span>
               <span>By {article.authorName}</span>
+              {author && author.socialMedia ? (
+                <div className="ml-4 flex items-center space-x-2">
+                  <a
+                    href={author.socialMedia}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline flex items-center space-x-1"
+                  >
+                    {author.socialMedia.includes("instagram") && (
+                      <InstagramIcon className="w-4 h-4" />
+                    )}
+                    {author.socialMedia.includes("facebook") && (
+                      <FacebookIcon className="w-4 h-4" />
+                    )}
+                    {author.socialMedia.includes("youtube") && (
+                      <YoutubeIcon className="w-4 h-4" />
+                    )}
+                    <span>Social Media</span>
+                  </a>
+                </div>
+              ) : (
+                <span className="ml-4 text-gray-500">
+                  No social media available
+                </span>
+              )}
             </div>
           </div>
 
-          {/* Article Image */}
           <div className="relative h-[400px] w-full mb-8 overflow-hidden rounded-lg">
             <Image
               src={
@@ -100,7 +147,6 @@ export default async function CategoryPage({ params }: Props) {
             />
           </div>
 
-          {/* Article Content */}
           <div className="prose max-w-none">
             <p className="text-lg text-gray-700 mb-6">{article.description}</p>
             <div className="text-gray-800 whitespace-pre-line">
@@ -108,7 +154,6 @@ export default async function CategoryPage({ params }: Props) {
             </div>
           </div>
 
-          {/* Navigation */}
           <div className="mt-12 flex justify-between items-center border-t pt-6">
             {articleIndex > 0 && (
               <Link

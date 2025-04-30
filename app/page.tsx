@@ -97,9 +97,10 @@ export default async function Home() {
                       {latestBannerArticle.category}
                     </span>
                   </div>
-                  <h1 className="text-3xl md:text-4xl font-bold mb-3">
+                  <h1 className="text-3xl md:text-4xl font-bold mb-3 uppercase">
                     {latestBannerArticle.title}
                   </h1>
+
                   <p className="text-gray-200 mb-4 max-w-2xl">
                     {latestBannerArticle.description}
                   </p>
@@ -111,9 +112,6 @@ export default async function Home() {
                           year: "numeric",
                           month: "long",
                           day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          second: "2-digit",
                         }
                       )}
                     </span>
@@ -148,10 +146,10 @@ export default async function Home() {
                         className="object-cover"
                       />
                     </div>
-                    <h3 className="font-semibold text-lg mb-2 hover:text-red-600 transition-colors">
+                    <h3 className="font-semibold h-[55px] overflow-hidden text-lg mb-2 hover:text-red-600 uppercase transition-colors">
                       {article.title}
                     </h3>
-                    <p className="text-gray-600 text-sm mb-4">
+                    <p className="text-gray-600 h-fit max-h-[40px] overflow-hidden text-sm mb-4">
                       {article.content}
                     </p>
                   </Link>
@@ -179,10 +177,10 @@ export default async function Home() {
                         className="object-cover"
                       />
                     </div>
-                    <h3 className="font-semibold text-lg mb-2 hover:text-red-600 transition-colors">
+                    <h3 className="font-semibold h-[55px] overflow-hidden text-lg mb-2 hover:text-red-600 transition-colors uppercase">
                       {article.title}
                     </h3>
-                    <p className="text-gray-600 text-sm mb-4">
+                    <p className="text-gray-600 h-fit max-h-[100px] overflow-hidden text-sm mb-4">
                       {article.content}
                     </p>
                   </Link>
