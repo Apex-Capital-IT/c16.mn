@@ -13,7 +13,7 @@ const createAuthor = async (req, res) => {
             size: req.file.size,
         } : "No file",
     });
-    const { authorName } = req.body;
+    const { authorName, socialMedia } = req.body;
     const file = req.file;
     try {
         // Validate input
@@ -62,6 +62,7 @@ const createAuthor = async (req, res) => {
         const newAuthor = new Author_1.AuthorModel({
             authorName: authorName.trim(),
             authorImage: imageUrl,
+            socialMedia: socialMedia?.trim(),
         });
         const savedAuthor = await newAuthor.save();
         console.log("Author saved successfully:", savedAuthor);

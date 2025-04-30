@@ -10,7 +10,9 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const news_routes_1 = __importDefault(require("./routes/news.routes"));
 const categoriesRoutes_1 = __importDefault(require("./routes/categoriesRoutes"));
 const authorRoutes_1 = __importDefault(require("./routes/authorRoutes"));
+const banner_routes_1 = __importDefault(require("./routes/banner.routes"));
 const path_1 = __importDefault(require("path"));
+const multer_1 = __importDefault(require("multer"));
 // import { ensureDirectories } from "./utils/ensureDirectories";
 dotenv_1.default.config();
 const app = (0, express_1.default)();
@@ -25,11 +27,12 @@ const allowedOrigins = [
     "http://localhost:8000", // Local backend development
     "https://c16-mn.onrender.com", // Production backend
     "https://c16-mn.vercel.app", // Production frontend
-    "https://c16.mn", // Custom domain if used
+    "https://c16.mn",
+    "https://www.c16.mn", // Custom domain if used
 ];
 app.use((0, cors_1.default)({
     origin: (origin, callback) => {
-        // Allow requests with no origin (like mobile apps or curl requests)
+        // Allow requests with no origin (like mobile apps or curl requests)  
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
         }
@@ -73,6 +76,25 @@ app.get("/test", (req, res) => {
         allowedOrigins: allowedOrigins,
     });
 });
+// Configure multer for file uploads
+const storage = multer_1.default.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, path_1.default.join(__dirname, "../uploads"));
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+        cb(null, uniqueSuffix + path_1.default.extname(file.originalname));
+    },
+});
+const upload = (0, multer_1.default)({ storage: storage });
+// File upload endpoint
+app.post("/api/upload", upload.single("file"), (req, res) => {
+    if (!req.file) {
+        res.status(400).json({ error: "No file uploaded" });
+        return;
+    }
+    res.json({ url: `/uploads/${req.file.filename}` });
+});
 // Error handling middleware
 app.use((err, req, res, next) => {
     console.error("Error:", err);
@@ -87,6 +109,7 @@ app.use("/uploads", express_1.default.static(path_1.default.join(__dirname, "../
 app.use("/api/news", news_routes_1.default);
 app.use("/api", categoriesRoutes_1.default);
 app.use("/api", authorRoutes_1.default);
+app.use("/api/banners", banner_routes_1.default);
 // MongoDB Connection with retry logic
 const connectWithRetry = async () => {
     try {
