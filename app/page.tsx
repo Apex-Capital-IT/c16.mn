@@ -62,8 +62,7 @@ export default async function Home() {
               href={`/${latestBannerArticle.category}/${getArticleIndex(
                 latestBannerArticle
               )}`}
-              prefetch={false}
-            >
+              prefetch={false}>
               <div className="relative h-[500px] w-full overflow-hidden rounded-lg">
                 <Image
                   src={
@@ -115,13 +114,12 @@ export default async function Home() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <h2 className="text-2xl font-bold mb-6">Latest News</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {nonBannerArticles.map((article: NewsArticle) => (
                 <div key={article._id} className="border-b pb-6">
                   <Link
                     href={`/${article.category}/${getArticleIndex(article)}`}
-                    prefetch={false}
-                  >
+                    prefetch={false}>
                     <div className="relative h-48 mb-4 overflow-hidden rounded-md">
                       <Image
                         src={
@@ -156,6 +154,33 @@ export default async function Home() {
                   </Link>
                 </div>
               ))}
+            </div> */}
+            <div className="grid grid-cols-2 justify-center gap-6">
+              {nonBannerArticles.map((article: NewsArticle) => (
+                <div key={article._id} className="border-b pb-6">
+                  <Link
+                    href={`/${article.category}/${getArticleIndex(article)}`}
+                    prefetch={false}>
+                    <div className="relative h-40 mb-4 overflow-hidden rounded-md">
+                      <Image
+                        src={
+                          article.newsImages[0] ||
+                          "https://unread.today/files/007afc64-288a-4208-b9d7-3eda84011c1d/6b14a94472c91bd94f086dac96694c79.jpeg"
+                        }
+                        alt={article.title}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <h3 className="font-semibold text-lg mb-2 hover:text-red-600 transition-colors">
+                      {article.title}
+                    </h3>
+                    <p className="text-gray-600 text-sm mb-4">
+                      {article.content}
+                    </p>
+                  </Link>
+                </div>
+              ))}
             </div>
           </div>
           <div className="flex flex-col">
@@ -166,8 +191,7 @@ export default async function Home() {
                 <div key={article._id} className="border-b pb-6">
                   <Link
                     href={`/${article.category}/${getArticleIndex(article)}`}
-                    prefetch={false}
-                  >
+                    prefetch={false}>
                     <div className="relative h-40 mb-4 overflow-hidden rounded-md">
                       <Image
                         src={
