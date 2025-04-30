@@ -36,11 +36,11 @@ export function Sidebar({ className }: SidebarNavProps) {
       href: "/admin/categories",
       icon: Tag,
     },
-    {
-      title: "Banner",
-      href: "/admin/banners",
-      icon: FileText,
-    },
+    // {
+    //   title: "Banner",
+    //   href: "/admin/banners",
+    //   icon: FileText,
+    // },
   ];
 
   return (
