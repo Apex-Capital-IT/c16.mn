@@ -21,7 +21,6 @@ async function getLatestNews(): Promise<NewsArticle[]> {
     const response = await axios.get<NewsArticle[]>(
       "https://c16-mn.onrender.com/api/news",
       {
-        timeout: 8000, // 8 секунд л хүлээнэ
         headers: {
           "Cache-Control": "no-cache",
           Pragma: "no-cache",
