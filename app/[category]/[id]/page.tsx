@@ -118,7 +118,7 @@ export default async function CategoryPage({ params }: any) {
                     alt={author.authorName}
                     width={50}
                     height={50}
-                    className="rounded-full object-cover"
+                    className="rounded-full w-[50px] h-[50px] object-cover"
                   />
                   <span className="text-base font-bold text-gray-800">
                     {author.authorName}
