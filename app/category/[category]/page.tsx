@@ -1,9 +1,11 @@
+// ene category oor orj bga medeelel
 import Image from "next/image";
 import Link from "next/link";
-import { Clock } from "lucide-react";
+import { Clock, FacebookIcon, YoutubeIcon, InstagramIcon } from "lucide-react";
 import axios from "axios";
 import { NewsArticle } from "@/lib/axios";
 
+// Fetch articles by category
 async function getNewsByCategory(category: string): Promise<NewsArticle[]> {
   try {
     const response = await axios.get<NewsArticle[]>(
@@ -15,22 +17,89 @@ async function getNewsByCategory(category: string): Promise<NewsArticle[]> {
         },
       }
     );
-    // Filter by category and sort by date (newest first)
     return response.data
+      .map((article) => ({
+        ...article,
+        normalizedCategory: [
+          "politics",
+          "economy",
+          "video",
+          "bloggers",
+        ].includes(article.category.toLowerCase())
+          ? article.category.toLowerCase()
+          : "other",
+      }))
       .filter(
-        (article) => article.category.toLowerCase() === category.toLowerCase()
+        (article) =>
+          article.normalizedCategory.toLowerCase() === category.toLowerCase()
       )
       .sort(
         (a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
   } catch (error) {
-    console.error("Error fetching news:", error);
     return [];
   }
 }
 
-// Function to get the correct index for an article (oldest = 1)
+// Fetch all authors with article stats
+async function getAllAuthorsWithStats() {
+  try {
+    const [authorRes, articleRes] = await Promise.all([
+      axios.get<{ authors: any[] }>("https://c16-mn.onrender.com/api/authors"),
+      axios.get<NewsArticle[]>("https://c16-mn.onrender.com/api/news"),
+    ]);
+
+    const authors = authorRes.data.authors || [];
+    const articles = articleRes.data || [];
+
+    return authors.map((author: any) => {
+      const authorArticles = articles.filter(
+        (a: any) =>
+          a.authorName.toLowerCase() === author.authorName.toLowerCase()
+      );
+      const latestPost = authorArticles.length
+        ? new Date(
+            authorArticles.reduce((latest: any, curr: any) =>
+              new Date(curr.createdAt) > new Date(latest.createdAt)
+                ? curr
+                : latest
+            ).createdAt
+          ).toLocaleDateString("mn-MN")
+        : "—";
+      return {
+        ...author,
+        postCount: authorArticles.length,
+        latestPost,
+      };
+    });
+  } catch {
+    return [];
+  }
+}
+
+// Get all articles by author
+async function getArticlesByAuthor(authorName: string): Promise<NewsArticle[]> {
+  try {
+    const response = await axios.get<NewsArticle[]>(
+      "https://c16-mn.onrender.com/api/news",
+      {
+        headers: {
+          "Cache-Control": "no-cache",
+          Pragma: "no-cache",
+        },
+      }
+    );
+    return response.data.filter(
+      (article: NewsArticle) =>
+        article.authorName.toLowerCase() === authorName.toLowerCase()
+    );
+  } catch {
+    return [];
+  }
+}
+
+// Get article index (for linking)
 function getArticleIndex(
   articles: NewsArticle[],
   article: NewsArticle
@@ -41,23 +110,125 @@ function getArticleIndex(
   return sortedArticles.findIndex((a) => a._id === article._id) + 1;
 }
 
-type Props = {
-  params: Promise<{
+// Route component
+export default async function CategoryPage({ params }: any) {
+  const { category, authorName } = params as {
     category: string;
-  }>;
-  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
-};
+    authorName?: string;
+  };
 
-export default async function CategoryPage({ params }: Props) {
-  const resolvedParams = await params;
-  const articles = await getNewsByCategory(resolvedParams.category);
+  const VALID_CATEGORIES = ["politics", "economy", "video", "bloggers"];
+  const resolvedCategory = VALID_CATEGORIES.includes(category.toLowerCase())
+    ? category.toLowerCase()
+    : "other";
+
+  if (resolvedCategory === "bloggers" && authorName) {
+    const articles = await getArticlesByAuthor(authorName);
+
+    return (
+      <main className="min-h-screen bg-white">
+        <div className="container mx-auto px-4 py-8">
+          <h1 className="text-3xl font-bold mb-8">{authorName} - нийтлэлүүд</h1>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {articles.map((article: NewsArticle) => (
+              <div
+                key={article._id}
+                className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+              >
+                <Link
+                  href={`/${resolvedCategory}/${getArticleIndex(
+                    articles,
+                    article
+                  )}`}
+                  prefetch={false}
+                >
+                  <div className="relative h-48 w-full">
+                    <Image
+                      src={article.newsImages?.[0] || "/images/placeholder.jpg"}
+                      alt={article.title}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="p-4">
+                    <h2 className="text-lg font-semibold mb-1">
+                      {article.title}
+                    </h2>
+                    <p className="text-sm text-gray-600 line-clamp-2">
+                      {article.description}
+                    </p>
+                    <div className="text-xs text-gray-500 mt-2 flex items-center">
+                      <Clock className="w-3 h-3 mr-1" />
+                      {new Date(article.createdAt).toLocaleDateString()}
+                    </div>
+                  </div>
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (resolvedCategory === "bloggers") {
+    const authors = await getAllAuthorsWithStats();
+
+    return (
+      <main className="min-h-screen bg-white py-12">
+        <div className="container mx-auto px-4">
+          <h1 className="text-4xl font-bold text-gray-800 mb-10 text-center">
+            Зохиолчид
+          </h1>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+            {authors.map((author: any) => (
+              <Link
+                key={author._id}
+                href={`/category/bloggers/${encodeURIComponent(
+                  author.authorName
+                )}`}
+                className="group block transition-transform hover:scale-[1.02]"
+              >
+                <div className="rounded-2xl border border-gray-200 bg-white shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden">
+                  <div className="p-6">
+                    <div className="flex items-center space-x-4 mb-4">
+                      <Image
+                        src={author.authorImage || "/images/default-avatar.png"}
+                        alt={author.authorName}
+                        width={56}
+                        height={56}
+                        className="rounded-full w-[56px] h-[56px] object-cover border shadow-md"
+                      />
+                      <div>
+                        <h2 className="text-xl font-semibold text-gray-900">
+                          {author.authorName}
+                        </h2>
+                        <p className="text-sm text-gray-500">
+                          {author.postCount || 0} нийтлэл • Сүүлд:{" "}
+                          <span className="text-gray-700 font-medium">
+                            {author.latestPost || "—"}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  const articles = await getNewsByCategory(resolvedCategory);
 
   if (articles.length === 0) {
     return (
       <div className="min-h-screen bg-white">
         <div className="container mx-auto px-4 py-8">
           <h1 className="text-2xl font-bold mb-4">
-            No articles found in {resolvedParams.category}
+            No articles found in {resolvedCategory}
           </h1>
           <Link
             href="/"
@@ -74,9 +245,10 @@ export default async function CategoryPage({ params }: Props) {
     <main className="min-h-screen bg-white">
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-8 capitalize">
-          {resolvedParams.category} News
+          {resolvedCategory === "other"
+            ? "Other News"
+            : `${resolvedCategory} News`}
         </h1>
-
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {articles.map((article: NewsArticle) => (
             <div
@@ -84,7 +256,7 @@ export default async function CategoryPage({ params }: Props) {
               className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
             >
               <Link
-                href={`/${resolvedParams.category}/${getArticleIndex(
+                href={`/${resolvedCategory}/${getArticleIndex(
                   articles,
                   article
                 )}`}
@@ -92,10 +264,7 @@ export default async function CategoryPage({ params }: Props) {
               >
                 <div className="relative h-48 w-full">
                   <Image
-                    src={
-                      article.newsImages?.[0] ||
-                      "https://unread.today/files/007afc64-288a-4208-b9d7-3eda84011c1d/6b14a94472c91bd94f086dac96694c79.jpeg"
-                    }
+                    src={article.newsImages?.[0] || "/images/placeholder.jpg"}
                     alt={article.title}
                     fill
                     className="object-cover"
