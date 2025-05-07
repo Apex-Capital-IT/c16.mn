@@ -49,13 +49,15 @@ export default function PostsPage() {
   const fetchPosts = async () => {
     try {
       setLoading(true);
-      const response = await axios.get<Post[]>("/api/news", {
+      const response = await axios.get<{ status: string; data: Post[]; count: number }>("/api/news", {
         headers: {
           "Cache-Control": "no-cache",
           Pragma: "no-cache",
         },
       });
-      setPosts(response.data || []);
+      console.log('API Response:', response.data); // Debug log
+      // Access the data property from the response
+      setPosts(Array.isArray(response.data.data) ? response.data.data : []);
     } catch (error) {
       console.error("Error fetching posts:", error);
       toast({

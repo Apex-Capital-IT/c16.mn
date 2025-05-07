@@ -70,7 +70,7 @@ interface AuthorOption {
 
 // Configure axios with base URL and default settings
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "https://c16-mn.onrender.com",
   timeout: 10000, // 10 seconds timeout
   headers: {
     "Content-Type": "application/json",
