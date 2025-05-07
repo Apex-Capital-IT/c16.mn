@@ -51,11 +51,11 @@ async function getAllAuthorsWithStats() {
   try {
     const [authorRes, articleRes] = await Promise.all([
       axios.get<{ authors: any[] }>("https://c16-mn.onrender.com/api/authors"),
-      axios.get<NewsArticle[]>("https://c16-mn.onrender.com/api/news"),
+      axios.get<{ status: string; data: NewsArticle[]; count: number }>("https://c16-mn.onrender.com/api/news"),
     ]);
 
     const authors = authorRes.data.authors || [];
-    const articles = articleRes.data || [];
+    const articles = articleRes.data.status === "success" ? articleRes.data.data : [];
 
     return authors.map((author: any) => {
       const authorArticles = articles.filter(
@@ -85,7 +85,7 @@ async function getAllAuthorsWithStats() {
 // Get all articles by author
 async function getArticlesByAuthor(authorName: string): Promise<NewsArticle[]> {
   try {
-    const response = await axios.get<NewsArticle[]>(
+    const response = await axios.get<{ status: string; data: NewsArticle[]; count: number }>(
       "https://c16-mn.onrender.com/api/news",
       {
         headers: {
@@ -94,10 +94,14 @@ async function getArticlesByAuthor(authorName: string): Promise<NewsArticle[]> {
         },
       }
     );
-    return response.data.filter(
-      (article: NewsArticle) =>
-        article.authorName.toLowerCase() === authorName.toLowerCase()
-    );
+
+    if (response.data.status === "success" && Array.isArray(response.data.data)) {
+      return response.data.data.filter(
+        (article: NewsArticle) =>
+          article.authorName.toLowerCase() === decodeURIComponent(authorName).toLowerCase()
+      );
+    }
+    return [];
   } catch {
     return [];
   }
