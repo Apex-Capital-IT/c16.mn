@@ -61,8 +61,7 @@ export default async function NewsCategories() {
             href={`/category/${category.name
               .toLowerCase()
               .replace(/\s+/g, "-")}`}
-            className="block py-2 hover:text-red-600 transition-colors flex justify-between items-center"
-          >
+            className="block py-2 hover:text-red-600 transition-colors justify-between items-center">
             <span>{category.name}</span>
             <span className="bg-gray-100 text-gray-600 text-sm px-2 py-1 rounded-full">
               {category.count}

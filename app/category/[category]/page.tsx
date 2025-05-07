@@ -8,7 +8,7 @@ import { NewsArticle } from "@/lib/axios";
 // Fetch articles by category
 async function getNewsByCategory(category: string): Promise<NewsArticle[]> {
   try {
-    const response = await axios.get<NewsArticle[]>(
+    const response = await axios.get<{ status: string; data: NewsArticle[]; count: number }>(
       "https://c16-mn.onrender.com/api/news",
       {
         headers: {
@@ -17,26 +17,30 @@ async function getNewsByCategory(category: string): Promise<NewsArticle[]> {
         },
       }
     );
-    return response.data
-      .map((article) => ({
-        ...article,
-        normalizedCategory: [
-          "politics",
-          "economy",
-          "video",
-          "bloggers",
-        ].includes(article.category.toLowerCase())
-          ? article.category.toLowerCase()
-          : "other",
-      }))
-      .filter(
-        (article) =>
-          article.normalizedCategory.toLowerCase() === category.toLowerCase()
-      )
-      .sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
+
+    if (response.data.status === "success" && Array.isArray(response.data.data)) {
+      return response.data.data
+        .map((article) => ({
+          ...article,
+          normalizedCategory: [
+            "politics",
+            "economy",
+            "video",
+            "bloggers",
+          ].includes(article.category.toLowerCase())
+            ? article.category.toLowerCase()
+            : "other",
+        }))
+        .filter(
+          (article) =>
+            article.normalizedCategory.toLowerCase() === category.toLowerCase()
+        )
+        .sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+    }
+    return [];
   } catch (error) {
     return [];
   }
