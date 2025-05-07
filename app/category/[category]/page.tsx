@@ -8,6 +8,7 @@ import { NewsArticle } from "@/lib/axios";
 // Fetch articles by category
 async function getNewsByCategory(category: string): Promise<NewsArticle[]> {
   try {
+    console.log('Fetching news for category:', category);
     const response = await axios.get<{ status: string; data: NewsArticle[]; count: number }>(
       "https://c16-mn.onrender.com/api/news",
       {
@@ -18,8 +19,10 @@ async function getNewsByCategory(category: string): Promise<NewsArticle[]> {
       }
     );
 
+    console.log('API Response:', response.data);
+
     if (response.data.status === "success" && Array.isArray(response.data.data)) {
-      return response.data.data
+      const filteredArticles = response.data.data
         .map((article) => ({
           ...article,
           normalizedCategory: [
@@ -39,9 +42,14 @@ async function getNewsByCategory(category: string): Promise<NewsArticle[]> {
           (a, b) =>
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
+
+      console.log('Filtered articles:', filteredArticles);
+      return filteredArticles;
     }
+    console.log('No valid data in response');
     return [];
   } catch (error) {
+    console.error('Error fetching news:', error);
     return [];
   }
 }
@@ -96,13 +104,18 @@ async function getArticlesByAuthor(authorName: string): Promise<NewsArticle[]> {
     );
 
     if (response.data.status === "success" && Array.isArray(response.data.data)) {
-      return response.data.data.filter(
-        (article: NewsArticle) =>
-          article.authorName.toLowerCase() === decodeURIComponent(authorName).toLowerCase()
-      );
+      const decodedAuthorName = decodeURIComponent(authorName).trim();
+      return response.data.data
+        .filter((article: NewsArticle) => 
+          article.authorName?.trim() === decodedAuthorName
+        )
+        .sort((a, b) => 
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
     }
     return [];
-  } catch {
+  } catch (error) {
+    console.error('Error fetching articles:', error);
     return [];
   }
 }

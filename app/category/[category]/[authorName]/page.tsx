@@ -8,7 +8,7 @@ import { NewsArticle } from "@/lib/axios";
 // Fetch articles by author
 async function getArticlesByAuthor(authorName: string): Promise<NewsArticle[]> {
   try {
-    const res = await axios.get<NewsArticle[]>(
+    const res = await axios.get<{ status: string; data: NewsArticle[]; count: number }>(
       "https://c16-mn.onrender.com/api/news",
       {
         headers: {
@@ -17,12 +17,20 @@ async function getArticlesByAuthor(authorName: string): Promise<NewsArticle[]> {
         },
       }
     );
-    return res.data.filter(
-      (article: NewsArticle) =>
-        article.authorName?.trim().toLowerCase() ===
-        decodeURIComponent(authorName).trim().toLowerCase()
-    );
-  } catch {
+
+    if (res.data.status === "success" && Array.isArray(res.data.data)) {
+      const decodedAuthorName = decodeURIComponent(authorName).trim();
+      return res.data.data
+        .filter((article: NewsArticle) => 
+          article.authorName?.trim() === decodedAuthorName
+        )
+        .sort((a, b) => 
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+    }
+    return [];
+  } catch (error) {
+    console.error('Error fetching articles:', error);
     return [];
   }
 }
@@ -49,10 +57,19 @@ async function getAuthorInfo(authorName: string) {
   }
 }
 
-export default async function AuthorPage({ params }: any) {
-  const { authorName } = params as { authorName: string };
-  const articles = await getArticlesByAuthor(params.authorName);
-  const author = await getAuthorInfo(params.authorName);
+interface PageParams {
+  params: Promise<{
+    category: string;
+    authorName: string;
+  }>;
+}
+
+export default async function AuthorPage({ params }: PageParams) {
+  const resolvedParams = await params;
+  const { category, authorName } = resolvedParams;
+ 
+  const articles = await getArticlesByAuthor(authorName);
+  const author = await getAuthorInfo(authorName);
 
   return (
     <main className="min-h-screen bg-white">
@@ -80,8 +97,7 @@ export default async function AuthorPage({ params }: any) {
                     href={author.socialMedia}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center text-blue-600 text-sm font-medium hover:underline"
-                  >
+                    className="inline-flex items-center text-blue-600 text-sm font-medium hover:underline">
                     {author.socialMedia.includes("instagram") && (
                       <InstagramIcon className="w-4 h-4 mr-1" />
                     )}
@@ -106,7 +122,7 @@ export default async function AuthorPage({ params }: any) {
         {/* Article List */}
         <section className="md:w-3/4">
           <h1 className="text-3xl font-bold mb-8">
-            {decodeURIComponent(params.authorName)} - нийтлэлүүд
+            {decodeURIComponent(authorName)} - нийтлэлүүд
           </h1>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
             {articles.map((article) => (
@@ -115,8 +131,7 @@ export default async function AuthorPage({ params }: any) {
                 href={`/${article.category}/${
                   articles.findIndex((a) => a._id === article._id) + 1
                 }`}
-                className="block border rounded-lg shadow-sm hover:shadow-md transition overflow-hidden"
-              >
+                className="block border rounded-lg shadow-sm hover:shadow-md transition overflow-hidden">
                 <div className="relative h-48 w-full">
                   <Image
                     src={
@@ -133,7 +148,7 @@ export default async function AuthorPage({ params }: any) {
                   <p className="text-sm text-gray-600 line-clamp-2">
                     {article.description}
                   </p>
-                  <div className="text-xs text-gray-500 mt-2 flex items-center">
+                  <div className="flex items-center text-sm text-gray-500 mt-2">
                     <Clock className="w-3 h-3 mr-1" />
                     {new Date(article.createdAt).toLocaleDateString()}
                   </div>
