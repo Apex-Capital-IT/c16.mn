@@ -92,7 +92,7 @@ export default function Header() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <Link href="/" className="flex items-center">
-            <Image alt="" width={75} height={75} src={"/Logo.png"} />
+            <Image alt="C16 Logo" width={75} height={75} src={"/Logo.png"} priority className="w-auto" />
           </Link>
           <nav className="hidden md:flex space-x-6">
             {categories.map((category, index) => (

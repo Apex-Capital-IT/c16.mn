@@ -11,10 +11,6 @@ const slugify_1 = __importDefault(require("slugify"));
 const cloudinary_1 = require("../utils/cloudinary");
 const createNews = async (req, res) => {
     try {
-        console.log("CreateNews controller called");
-        console.log("Request body:", req.body);
-        console.log("Request files:", req.files);
-        console.log("Request headers:", req.headers);
         const { title, content, category, authorName, banner } = req.body;
         const files = req.files;
         // Validate required fields
@@ -23,7 +19,7 @@ const createNews = async (req, res) => {
                 title: !title,
                 content: !content,
                 category: !category,
-                authorName: !authorName
+                authorName: !authorName,
             });
             res.status(400).json({
                 message: "Шаардлагатай талбарууд дутуу байна",
@@ -31,8 +27,8 @@ const createNews = async (req, res) => {
                     title: !title,
                     content: !content,
                     category: !category,
-                    authorName: !authorName
-                }
+                    authorName: !authorName,
+                },
             });
             return;
         }
@@ -70,11 +66,11 @@ const createNews = async (req, res) => {
                 fieldname: file.fieldname,
                 originalname: file.originalname,
                 mimetype: file.mimetype,
-                size: file.size
+                size: file.size,
             });
         });
         const slug = (0, slugify_1.default)(title, { lower: true, strict: true }) + "-" + Date.now();
-        console.log("Generated slug:", slug);
+        // console.log("Generated slug:", slug);
         // Handle category
         let categoryData;
         if (category) {
@@ -101,15 +97,15 @@ const createNews = async (req, res) => {
             res.status(400).json({ message: "Зохиогч олдсонгүй" });
             return;
         }
-        console.log("Author found:", author);
+        // console.log("Author found:", author);
         let authorImageUrl = author.authorImage;
-        console.log("Using author image:", authorImageUrl);
+        // console.log("Using author image:", authorImageUrl);
         // Upload news images
         const newsImageUrls = [];
         for (const file of newsImageFiles) {
             try {
                 console.log("Uploading news image to Cloudinary:", file.originalname);
-                const result = await (0, cloudinary_1.uploadToCloudinary)(file.buffer, 'news');
+                const result = await (0, cloudinary_1.uploadToCloudinary)(file.buffer, "news");
                 newsImageUrls.push(result.secure_url);
                 console.log("News image uploaded successfully:", result.secure_url);
             }
@@ -119,16 +115,16 @@ const createNews = async (req, res) => {
             }
         }
         // Creating a new news entry
-        console.log("Creating new news entry with data:", {
-            title,
-            content,
-            authorName,
-            authorImage: authorImageUrl,
-            category: categoryData ? categoryData.categoryName : category,
-            newsImages: newsImageUrls,
-            banner: banner || false,
-            slug,
-        });
+        // console.log("Creating new news entry with data:", {
+        //   title,
+        //   content,
+        //   authorName,
+        //   authorImage: authorImageUrl,
+        //   category: categoryData ? categoryData.categoryName : category,
+        //   newsImages: newsImageUrls,
+        //   banner: banner || false,
+        //   slug,
+        // });
         const news = new news_model_1.NewsModel({
             title,
             content,
@@ -140,7 +136,7 @@ const createNews = async (req, res) => {
             slug,
         });
         await news.save();
-        console.log("News created successfully:", news._id);
+        // console.log("News created successfully:", news._id);
         res.status(201).json({
             message: "Мэдээ амжилттай үүслээ",
             news: {
@@ -148,15 +144,15 @@ const createNews = async (req, res) => {
                 title: news.title,
                 slug: news.slug,
                 authorName: news.authorName,
-                category: news.category
-            }
+                category: news.category,
+            },
         });
     }
     catch (error) {
         console.error("Error creating news:", error);
         res.status(500).json({
             message: "Мэдээ үүсгэхэд алдаа гарлаа",
-            error: error instanceof Error ? error.message : 'Unknown error'
+            error: error instanceof Error ? error.message : "Unknown error",
         });
     }
 };

@@ -118,11 +118,12 @@ export default function AuthorForm({ onSuccess }: { onSuccess?: () => void }) {
         throw new Error(data.error || "Зохиолч үүсгэхэд алдаа гарлаа");
       }
 
-      toast.success("Зохиолч амжилттай үүслээ");
+      // Refresh list immediately after successful API call
       if (onSuccess) {
         onSuccess();
       }
-      router.refresh();
+      
+      toast.success("Зохиолч амжилттай үүслээ");
       router.push("/admin/authors");
     } catch (error) {
       console.error("Error creating author:", error);

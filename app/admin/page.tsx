@@ -68,12 +68,12 @@ function StatsCard({
 export default function AdminDashboard() {
   const router = useRouter();
 
-  useEffect(() => {
-    const token = localStorage.getItem("admin_access_token");
-    if (!token) {
-      router.replace("/key");
-    }
-  }, [router]);
+  // useEffect(() => {
+  //   const token = localStorage.getItem("admin_access_token");
+  //   if (!token) {
+  //     router.replace("/key");
+  //   }
+  // }, [router]);
 
   return (
     <Suspense fallback={<AdminDashboardLoading />}>

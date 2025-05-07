@@ -29,6 +29,7 @@ const allowedOrigins = [
   "https://c16.mn",
   "https://www.c16.mn", // Custom domain if used
 ];
+
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -56,9 +57,10 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Log incoming requests for debugging
+// Add request logging middleware
 app.use((req, res, next) => {
-  console.log(`${req.method} ${req.url}`);
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  console.log('Headers:', req.headers);
   next();
 });
 

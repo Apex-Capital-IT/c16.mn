@@ -55,7 +55,6 @@ export default function PostsPage() {
           Pragma: "no-cache",
         },
       });
-      console.log("Fetched posts:", response.data);
       setPosts(response.data || []);
     } catch (error) {
       console.error("Error fetching posts:", error);
@@ -207,18 +206,12 @@ export default function PostsPage() {
                   {/* Actions */}
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
-                      {/* <Button variant="ghost" size="icon" asChild>
-                        <Link href={`/admin/posts/preview/${post.slug}`}>
-                          <Eye className="h-4 w-4" />
-                          <span className="sr-only">Preview</span>
-                        </Link>
-                      </Button>
                       <Button variant="ghost" size="icon" asChild>
                         <Link href={`/admin/posts/edit/${post._id}`}>
                           <Pencil className="h-4 w-4" />
                           <span className="sr-only">Edit</span>
                         </Link>
-                      </Button> */}
+                      </Button>
                       <Button
                         variant="ghost"
                         size="icon"

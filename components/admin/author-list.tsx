@@ -87,7 +87,8 @@ export const AuthorList = forwardRef<
 
   const refresh = () => {
     setPage(1);
-    fetchAuthors();
+    setAuthors([]); // Clear existing authors immediately
+    fetchAuthors(); // Start fetching new data
   };
 
   useImperativeHandle(ref, () => ({

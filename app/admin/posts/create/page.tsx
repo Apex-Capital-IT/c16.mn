@@ -169,11 +169,11 @@ export default function CreatePostPage() {
   const handleNewsImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
-      console.log("News images selected:", files.length);
-      console.log(
-        "News images details:",
-        files.map((f) => ({ name: f.name, size: f.size, type: f.type }))
-      );
+      // console.log("News images selected:", files.length);
+      // console.log(
+      //   "News images details:",
+      //   files.map((f) => ({ name: f.name, size: f.size, type: f.type }))
+      // );
 
       setNewsImages((prev) => [...prev, ...files]);
 
@@ -232,22 +232,15 @@ export default function CreatePostPage() {
       formDataToSend.append("banner", formData.banner.toString());
 
       // Append news images - make sure each file is properly appended
-      console.log("Appending news images to FormData:", newsImages.length);
 
       // Clear any existing newsImages entries and add each file individually
-      newsImages.forEach((file, index) => {
-        console.log(
-          `Appending file ${index}:`,
-          file.name,
-          file.type,
-          file.size
-        );
+      newsImages.forEach((file) => {
         // Make sure to use the exact field name expected by the server
         formDataToSend.append("newsImages", file);
       });
 
       // Log the FormData contents for debugging
-      console.log("FormData entries:");
+      // console.log("FormData entries:");
       for (const pair of formDataToSend.entries()) {
         console.log(
           pair[0],
@@ -378,8 +371,7 @@ export default function CreatePostPage() {
                     value={formData.category}
                     onValueChange={(value) =>
                       handleSelectChange("category", value)
-                    }
-                  >
+                    }>
                     <SelectTrigger id="category">
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
@@ -399,8 +391,7 @@ export default function CreatePostPage() {
                     value={formData.authorName}
                     onValueChange={(value) =>
                       handleSelectChange("authorName", value)
-                    }
-                  >
+                    }>
                     <SelectTrigger id="authorName">
                       <SelectValue placeholder="Select author" />
                     </SelectTrigger>
@@ -468,8 +459,7 @@ export default function CreatePostPage() {
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  onClick={() => removeNewsImage(index)}
-                                >
+                                  onClick={() => removeNewsImage(index)}>
                                   <Trash2 className="h-4 w-4" />
                                   <span className="sr-only">
                                     Зургийг арилгах

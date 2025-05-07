@@ -10,11 +10,6 @@ export const createNews = async (
   res: Response
 ): Promise<void> => {
   try {
-    console.log("CreateNews controller called");
-    console.log("Request body:", req.body);
-    console.log("Request files:", req.files);
-    console.log("Request headers:", req.headers);
-    
     const { title, content, category, authorName, banner } = req.body;
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
@@ -24,16 +19,16 @@ export const createNews = async (
         title: !title,
         content: !content,
         category: !category,
-        authorName: !authorName
+        authorName: !authorName,
       });
-      res.status(400).json({ 
+      res.status(400).json({
         message: "Шаардлагатай талбарууд дутуу байна",
         missingFields: {
           title: !title,
           content: !content,
           category: !category,
-          authorName: !authorName
-        }
+          authorName: !authorName,
+        },
       });
       return;
     }
@@ -47,12 +42,15 @@ export const createNews = async (
 
     // Check if files is an array (direct array) or an object with newsImages property
     let newsImageFiles: Express.Multer.File[] = [];
-    
+
     if (Array.isArray(files)) {
       console.log("Files is an array with length:", files.length);
       newsImageFiles = files;
     } else if (files.newsImages) {
-      console.log("Files has newsImages property with length:", files.newsImages.length);
+      console.log(
+        "Files has newsImages property with length:",
+        files.newsImages.length
+      );
       newsImageFiles = files.newsImages;
     } else {
       console.log("Files object structure:", Object.keys(files));
@@ -68,19 +66,20 @@ export const createNews = async (
 
     console.log("Files received:", files);
     console.log("News images count:", newsImageFiles.length);
-    
+
     // Log each file for debugging
     newsImageFiles.forEach((file, index) => {
       console.log(`File ${index}:`, {
         fieldname: file.fieldname,
         originalname: file.originalname,
         mimetype: file.mimetype,
-        size: file.size
+        size: file.size,
       });
     });
 
-    const slug = slugify(title, { lower: true, strict: true }) + "-" + Date.now();
-    console.log("Generated slug:", slug);
+    const slug =
+      slugify(title, { lower: true, strict: true }) + "-" + Date.now();
+    // console.log("Generated slug:", slug);
 
     // Handle category
     let categoryData;
@@ -108,20 +107,23 @@ export const createNews = async (
       res.status(400).json({ message: "Зохиогч олдсонгүй" });
       return;
     }
-    console.log("Author found:", author);
+    // console.log("Author found:", author);
 
     let authorImageUrl = author.authorImage;
-    console.log("Using author image:", authorImageUrl);
+    // console.log("Using author image:", authorImageUrl);
 
     // Upload news images
     const newsImageUrls: string[] = [];
-    
+
     for (const file of newsImageFiles) {
       try {
         console.log("Uploading news image to Cloudinary:", file.originalname);
-        const result = await uploadToCloudinary(file.buffer, 'news');
+        const result = await uploadToCloudinary(file.buffer, "news");
         newsImageUrls.push((result as any).secure_url);
-        console.log("News image uploaded successfully:", (result as any).secure_url);
+        console.log(
+          "News image uploaded successfully:",
+          (result as any).secure_url
+        );
       } catch (uploadError) {
         console.error("Error uploading news image to Cloudinary:", uploadError);
         // Continue with other images even if one fails
@@ -129,17 +131,17 @@ export const createNews = async (
     }
 
     // Creating a new news entry
-    console.log("Creating new news entry with data:", {
-      title,
-      content,
-      authorName,
-      authorImage: authorImageUrl,
-      category: categoryData ? categoryData.categoryName : category,
-      newsImages: newsImageUrls,
-      banner: banner || false,
-      slug,
-    });
-    
+    // console.log("Creating new news entry with data:", {
+    //   title,
+    //   content,
+    //   authorName,
+    //   authorImage: authorImageUrl,
+    //   category: categoryData ? categoryData.categoryName : category,
+    //   newsImages: newsImageUrls,
+    //   banner: banner || false,
+    //   slug,
+    // });
+
     const news = new NewsModel({
       title,
       content,
@@ -152,23 +154,23 @@ export const createNews = async (
     });
 
     await news.save();
-    console.log("News created successfully:", news._id);
+    // console.log("News created successfully:", news._id);
 
-    res.status(201).json({ 
-      message: "Мэдээ амжилттай үүслээ", 
+    res.status(201).json({
+      message: "Мэдээ амжилттай үүслээ",
       news: {
         _id: news._id,
         title: news.title,
         slug: news.slug,
         authorName: news.authorName,
-        category: news.category
-      }
+        category: news.category,
+      },
     });
   } catch (error) {
     console.error("Error creating news:", error);
-    res.status(500).json({ 
-      message: "Мэдээ үүсгэхэд алдаа гарлаа", 
-      error: error instanceof Error ? error.message : 'Unknown error'
+    res.status(500).json({
+      message: "Мэдээ үүсгэхэд алдаа гарлаа",
+      error: error instanceof Error ? error.message : "Unknown error",
     });
   }
 };

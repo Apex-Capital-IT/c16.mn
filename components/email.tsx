@@ -68,7 +68,7 @@ export default function EmailSubscription() {
         <div className="flex flex-col md:flex-row text-black items-center justify-between">
           <div className="flex items-center mb-4 text-black md:mb-0">
             <div className="text-black mr-8">
-              <Image alt="" width={55} height={35} src={"/Logo.png"} />
+              <Image alt="C16 Logo" width={55} height={35} src={"/Logo.png"} className="w-auto" />
               <p className="text-sm text-black">
                 Имэйл хаягаа бичээд шинээр орж буй нийтлэлийг
                 <br />
