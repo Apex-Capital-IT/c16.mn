@@ -110,12 +110,17 @@ function getArticleIndex(
   return sortedArticles.findIndex((a) => a._id === article._id) + 1;
 }
 
-// Route component
-export default async function CategoryPage({ params }: any) {
-  const { category, authorName } = params as {
+interface PageParams {
+  params: Promise<{
     category: string;
     authorName?: string;
-  };
+  }>;
+}
+
+// Route component
+export default async function CategoryPage({ params }: PageParams) {
+  const resolvedParams = await params;
+  const { category, authorName } = resolvedParams;
 
   const VALID_CATEGORIES = ["politics", "economy", "video", "bloggers"];
   const resolvedCategory = VALID_CATEGORIES.includes(category.toLowerCase())

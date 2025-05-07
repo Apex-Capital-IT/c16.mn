@@ -32,7 +32,7 @@ async function getAuthorByName(authorName: string) {
 
 async function getNewsByCategory(category: string): Promise<NewsArticle[]> {
   try {
-    const response = await axios.get<NewsArticle[]>(
+    const response = await axios.get<{ status: string; data: NewsArticle[]; count: number }>(
       "https://c16-mn.onrender.com/api/news",
       {
         headers: {
@@ -41,19 +41,23 @@ async function getNewsByCategory(category: string): Promise<NewsArticle[]> {
         },
       }
     );
-    return response.data
-      .filter((article) => {
-        const actualCategory = article.category.toLowerCase();
-        if (VALID_CATEGORIES.includes(category.toLowerCase())) {
-          return actualCategory === category.toLowerCase();
-        } else {
-          return !VALID_CATEGORIES.includes(actualCategory);
-        }
-      })
-      .sort(
-        (a, b) =>
-          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-      );
+
+    if (response.data.status === "success" && Array.isArray(response.data.data)) {
+      return response.data.data
+        .filter((article) => {
+          const actualCategory = article.category.toLowerCase();
+          if (VALID_CATEGORIES.includes(category.toLowerCase())) {
+            return actualCategory === category.toLowerCase();
+          } else {
+            return !VALID_CATEGORIES.includes(actualCategory);
+          }
+        })
+        .sort(
+          (a, b) =>
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        );
+    }
+    return [];
   } catch {
     return [];
   }
@@ -61,13 +65,15 @@ async function getNewsByCategory(category: string): Promise<NewsArticle[]> {
 
 // ✅ FIX: explicit typing only for `params`
 interface PageParams {
-  params: {
+  params: Promise<{
     category: string;
     id: string;
-  };
+  }>;
 }
-export default async function CategoryPage({ params }: any) {
-  const { category, id } = params as { category: string; id: string };
+
+export default async function CategoryPage({ params }: PageParams) {
+  const resolvedParams = await params;
+  const { category, id } = resolvedParams;
 
   const articles = await getNewsByCategory(category);
   const articleIndex = parseInt(id) - 1;

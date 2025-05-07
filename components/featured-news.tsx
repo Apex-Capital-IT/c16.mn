@@ -8,6 +8,7 @@ export default function FeaturedNews() {
           src="/placeholder.svg?height=800&width=1200"
           alt="Featured news"
           fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
           className="object-cover"
           priority
         />

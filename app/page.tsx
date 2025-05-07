@@ -18,7 +18,7 @@ function generateSlug(title: string) {
 
 async function getLatestNews(): Promise<NewsArticle[]> {
   try {
-    const response = await axios.get<NewsArticle[]>(
+    const response = await axios.get<{ status: string; data: NewsArticle[]; count: number }>(
       "https://c16-mn.onrender.com/api/news",
       {
         headers: {
@@ -28,10 +28,13 @@ async function getLatestNews(): Promise<NewsArticle[]> {
       }
     );
 
-    return (response.data || []).sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
+    if (response.data.status === "success" && Array.isArray(response.data.data)) {
+      return response.data.data.sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+    }
+    return [];
   } catch (error) {
     console.error("Error fetching news:", error);
     return [];
@@ -88,6 +91,7 @@ export default async function Home() {
                   }
                   alt={latestBannerArticle.title}
                   fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
                   className="object-cover"
                   priority
                 />
@@ -144,6 +148,7 @@ export default async function Home() {
                         }
                         alt={article.title}
                         fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         className="object-cover"
                       />
                     </div>
@@ -175,6 +180,7 @@ export default async function Home() {
                         }
                         alt={article.title}
                         fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         className="object-cover"
                       />
                     </div>
