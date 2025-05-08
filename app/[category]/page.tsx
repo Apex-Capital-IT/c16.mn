@@ -6,19 +6,25 @@ import { NewsArticle } from "@/lib/axios";
 
 async function getNewsByCategory(category: string): Promise<NewsArticle[]> {
   try {
-    const response = await axios.get<{ status: string; data: NewsArticle[]; count: number }>(
-      "https://c16-mn.onrender.com/api/news",
-      {
-        headers: {
-          "Cache-Control": "no-cache",
-          Pragma: "no-cache",
-        },
-      }
-    );
+    const response = await axios.get<{
+      status: string;
+      data: NewsArticle[];
+      count: number;
+    }>("https://c16-mn.onrender.com/api/news", {
+      headers: {
+        "Cache-Control": "no-cache",
+        Pragma: "no-cache",
+      },
+    });
 
-    if (response.data.status === "success" && Array.isArray(response.data.data)) {
+    if (
+      response.data.status === "success" &&
+      Array.isArray(response.data.data)
+    ) {
       return response.data.data
-        .filter((article) => article.category.toLowerCase() === category.toLowerCase())
+        .filter(
+          (article) => article.category.toLowerCase() === category.toLowerCase()
+        )
         .sort(
           (a, b) =>
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
