@@ -13,13 +13,13 @@ export const emailSender = async (
       port: 465,
       secure: true,
       auth: {
-        user: "uzkhuthef@gmail.com",
-        pass: "fbvelrxjtwijqrsi", // Note: In production, use environment variables
+        user: "Rationaleideas@gmail.com",
+        pass: "zwsaumfwryvwgdez", // Note: In production, use environment variables
       },
     });
 
     const options = {
-      from: "uzkhuthef@gmail.com",
+      from: "Rationaleideas@gmail.com",
       to: sendEmail,
       subject: subject,
       html: html,
