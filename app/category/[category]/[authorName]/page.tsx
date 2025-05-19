@@ -55,7 +55,7 @@ async function getArticlesByCategory(category: string): Promise<NewsArticle[]> {
       const normalizedCat = normalizeCategory(category);
       return res.data.data
         .filter(
-          (article: NewsArticle) => 
+          (article: NewsArticle) =>
             normalizeCategory(article.category) === normalizedCat
         )
         .sort(
@@ -86,7 +86,7 @@ async function getAllArticles(): Promise<NewsArticle[]> {
 
     if (res.data.status === "success" && Array.isArray(res.data.data)) {
       return res.data.data.sort(
-        (a, b) => 
+        (a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
     }
@@ -100,15 +100,21 @@ async function getAllArticles(): Promise<NewsArticle[]> {
 // Normalize category names for URLs
 function normalizeCategory(category: string): string {
   const categoryLower = category.toLowerCase();
-  if (categoryLower === 'бусад') return 'other';
-  if (['politics', 'economy', 'video', 'bloggers', 'other'].includes(categoryLower)) {
+  if (categoryLower === "бусад") return "other";
+  if (
+    ["politics", "economy", "video", "bloggers", "other"].includes(
+      categoryLower
+    )
+  ) {
     return categoryLower;
   }
   return category;
 }
 
 // Fetch all articles directly from the API
-async function getAllCategoryArticles(categoryName: string): Promise<NewsArticle[]> {
+async function getAllCategoryArticles(
+  categoryName: string
+): Promise<NewsArticle[]> {
   try {
     // Direct API call to get fresh data
     const res = await axios.get<{
@@ -124,13 +130,19 @@ async function getAllCategoryArticles(categoryName: string): Promise<NewsArticle
 
     if (res.data.status === "success" && Array.isArray(res.data.data)) {
       const normalizedRequestedCategory = normalizeCategory(categoryName);
-      
+
       // Filter articles by normalized category and sort by date (newest first)
       return res.data.data
-        .filter(article => normalizeCategory(article.category) === normalizedRequestedCategory)
-        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        .filter(
+          (article) =>
+            normalizeCategory(article.category) === normalizedRequestedCategory
+        )
+        .sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
     }
-    
+
     return [];
   } catch (error) {
     console.error("Error fetching category articles:", error);
@@ -139,28 +151,36 @@ async function getAllCategoryArticles(categoryName: string): Promise<NewsArticle
 }
 
 // Get index of article in its category
-async function getCategoryPositionForArticle(article: NewsArticle): Promise<number> {
+async function getCategoryPositionForArticle(
+  article: NewsArticle
+): Promise<number> {
   try {
     // Get all articles in this article's category, freshly from the API
     const categoryArticles = await getAllCategoryArticles(article.category);
-    
+
     // Debug info
-    console.log(`Found ${categoryArticles.length} articles in category ${normalizeCategory(article.category)}`);
-    
+    console.log(
+      `Found ${
+        categoryArticles.length
+      } articles in category ${normalizeCategory(article.category)}`
+    );
+
     if (categoryArticles.length > 0) {
       // Find the index of our article in the category-specific list (which is already sorted by newest first)
-      const position = categoryArticles.findIndex(a => a._id === article._id);
-      
+      const position = categoryArticles.findIndex((a) => a._id === article._id);
+
       // Since articles are sorted newest first, index 0 is the newest article
       // Convert to position where newest = total count, oldest = 1
       if (position >= 0) {
         // Calculate position: (total count) - (zero-based index)
         const actualPosition = categoryArticles.length - position;
-        console.log(`Article ${article._id} found at index ${position}, calculated position: ${actualPosition}`);
+        console.log(
+          `Article ${article._id} found at index ${position}, calculated position: ${actualPosition}`
+        );
         return actualPosition;
       }
     }
-    
+
     // Default to 1 if not found
     return 1;
   } catch (error) {
@@ -205,7 +225,7 @@ export default async function AuthorPage({ params }: PageParams) {
   // Fetch the author's articles
   const articles = await getArticlesByAuthor(authorName);
   const author = await getAuthorInfo(authorName);
-  
+
   // For each article, determine its category position
   const articlePositions = await Promise.all(
     articles.map(async (article) => {
@@ -240,8 +260,7 @@ export default async function AuthorPage({ params }: PageParams) {
                     href={author.socialMedia}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center text-blue-600 text-sm font-medium hover:underline"
-                  >
+                    className="inline-flex items-center text-blue-600 text-sm font-medium hover:underline">
                     {author.socialMedia.includes("instagram") && (
                       <InstagramIcon className="w-4 h-4 mr-1" />
                     )}
@@ -258,7 +277,7 @@ export default async function AuthorPage({ params }: PageParams) {
                 )}
               </div>
             ) : (
-              <p className="text-sm text-gray-500">Зохиолч олдсонгүй</p>
+              <p className="text-sm text-gray-500">Зохиолч олдсонгүйiii</p>
             )}
           </div>
         </aside>
@@ -279,8 +298,7 @@ export default async function AuthorPage({ params }: PageParams) {
                 <Link
                   key={article._id}
                   href={`/${normalizeCategory(article.category)}/${position}`}
-                  className="block border rounded-lg shadow-sm hover:shadow-md transition overflow-hidden"
-                >
+                  className="block border rounded-lg shadow-sm hover:shadow-md transition overflow-hidden">
                   <div className="relative h-48 w-full">
                     <Image
                       src={

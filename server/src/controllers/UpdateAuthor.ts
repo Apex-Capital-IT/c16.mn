@@ -63,7 +63,7 @@ export const updateAuthor = async (
       console.log("Author not found:", id);
       res.status(404).json({
         status: "error",
-        message: "Зохиолч олдсонгүй",
+        message: "Зохиолч олдсонгүй!",
         error: "Not Found",
       });
       return;

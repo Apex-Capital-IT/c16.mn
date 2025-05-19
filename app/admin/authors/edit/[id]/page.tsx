@@ -217,9 +217,9 @@ export default function EditAuthorPage() {
         `/api/authors/${params.id}`,
         {
           headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          }
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
         }
       );
 
@@ -231,20 +231,32 @@ export default function EditAuthorPage() {
       }
     } catch (err: unknown) {
       console.error("Error deleting author:", err);
-      if (err && typeof err === 'object' && 'isAxiosError' in err && err.isAxiosError) {
-        const axiosError = err as { response?: { status: number; data?: { message?: string } } };
-        
+      if (
+        err &&
+        typeof err === "object" &&
+        "isAxiosError" in err &&
+        err.isAxiosError
+      ) {
+        const axiosError = err as {
+          response?: { status: number; data?: { message?: string } };
+        };
+
         // Handle different error cases
         if (axiosError.response?.status === 404) {
-          toast.error("Зохиолч олдсонгүй");
+          toast.error("Зохиолч олдсонгүй!");
         } else if (axiosError.response?.status === 403) {
           toast.error("Энэ үйлдлийг хийх эрх байхгүй байна");
         } else if (axiosError.response?.status === 400) {
-          toast.error(axiosError.response.data?.message || "Зохиолчтой холбоотой мэдээ байгаа учраас устгах боломжгүй");
+          toast.error(
+            axiosError.response.data?.message ||
+              "Зохиолчтой холбоотой мэдээ байгаа учраас устгах боломжгүй"
+          );
         } else if (!axiosError.response) {
           toast.error("Сервертэй холбогдоход алдаа гарлаа");
         } else {
-          toast.error(axiosError.response.data?.message || "Зохиолч устгахад алдаа гарлаа");
+          toast.error(
+            axiosError.response.data?.message || "Зохиолч устгахад алдаа гарлаа"
+          );
         }
       } else {
         toast.error("Зохиолч устгахад алдаа гарлаа");

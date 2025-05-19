@@ -43,7 +43,7 @@ export const getAuthorById = async (
       console.log("Author not found:", id);
       res.status(404).json({
         status: "error",
-        message: "Зохиолч олдсонгүй",
+        message: "Зохиолч олдсонгүй!",
         error: "Not Found",
       });
       return;
@@ -99,7 +99,7 @@ export const getAllAuthors = async (
     if (!authors.length) {
       res.status(200).json({
         status: "success",
-        message: "Зохиолч олдсонгүй",
+        message: "Зохиолч олдсонгүй!",
         data: [],
         pagination: {
           page,
