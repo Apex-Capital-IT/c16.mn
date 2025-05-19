@@ -119,6 +119,7 @@ export default function EditPostPage({
   const [previewNewsImages, setPreviewNewsImages] = useState<string[]>([]);
   const [existingNewsImages, setExistingNewsImages] = useState<string[]>([]);
   const [selectedAuthor, setSelectedAuthor] = useState<string>("");
+  const [existingAuthorImage, setExistingAuthorImage] = useState<string>("");
 
   useEffect(() => {
     const initializeData = async () => {
@@ -144,7 +145,6 @@ export default function EditPostPage({
 
       try {
         setLoading(true);
-        // console.log("Fetching data for post ID:", postId);
 
         // Fetch post data, categories and authors
         const [postRes, categoriesRes, authorsRes] = await Promise.all([
@@ -158,8 +158,6 @@ export default function EditPostPage({
         if (!post) {
           throw new Error("Post not found");
         }
-
-        // console.log("Received post data:", post);
 
         setFormData({
           title: post.title,
@@ -178,7 +176,6 @@ export default function EditPostPage({
               url.startsWith("http://res.cloudinary.com"))
         );
 
-        // console.log("Valid existing images:", validImages);
         setExistingNewsImages(validImages);
 
         // Process categories data
@@ -206,6 +203,7 @@ export default function EditPostPage({
         );
         if (author) {
           setSelectedAuthor(author.authorName);
+          setExistingAuthorImage(author.authorImage);
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -308,6 +306,16 @@ export default function EditPostPage({
       formDataToSend.append("authorName", formData.authorName);
       formDataToSend.append("banner", formData.banner.toString());
 
+      // Handle existing author image
+      if (existingAuthorImage) {
+        formDataToSend.append("existingAuthorImage", existingAuthorImage);
+      }
+
+      // Handle author image upload
+      if (authorImage) {
+        formDataToSend.append("authorImage", authorImage);
+      }
+
       // Handle existing images - only include valid Cloudinary URLs
       if (existingNewsImages.length > 0) {
         const validExistingImages = existingNewsImages.filter(
@@ -332,16 +340,6 @@ export default function EditPostPage({
       newsImages.forEach((file) => {
         formDataToSend.append("newsImages", file);
       });
-
-      // console.log("Submitting form data:", {
-      //   title: formData.title,
-      //   content: formData.content,
-      //   category: formData.category,
-      //   authorName: formData.authorName,
-      //   banner: formData.banner,
-      //   existingImages: existingNewsImages,
-      //   newImages: newsImages.length,
-      // });
 
       const response = await api.put<ApiResponse<Post>>(
         `/api/news/${postId}`,
@@ -476,6 +474,84 @@ export default function EditPostPage({
                     onCheckedChange={handleCheckboxChange}
                   />
                   <Label htmlFor="banner">Set as banner post</Label>
+                </div>
+
+                <div className="grid gap-3">
+                  <Label htmlFor="authorImage">Author Image</Label>
+                  <Input
+                    id="authorImage"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAuthorImageChange}
+                  />
+                  {(authorImage || existingAuthorImage) && (
+                    <div className="mt-4">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Preview</TableHead>
+                            <TableHead>Image URL</TableHead>
+                            <TableHead>Size</TableHead>
+                            <TableHead>Type</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {existingAuthorImage && (
+                            <TableRow>
+                              <TableCell>
+                                <img
+                                  src={existingAuthorImage}
+                                  alt="Author image"
+                                  className="w-20 h-20 object-cover rounded"
+                                />
+                              </TableCell>
+                              <TableCell className="max-w-xs truncate">
+                                {existingAuthorImage}
+                              </TableCell>
+                              <TableCell>-</TableCell>
+                              <TableCell>Existing</TableCell>
+                              <TableCell className="text-right">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => setExistingAuthorImage("")}
+                                  type="button">
+                                  <Trash2 className="h-4 w-4" />
+                                  <span className="sr-only">Remove image</span>
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          )}
+                          {authorImage && (
+                            <TableRow>
+                              <TableCell>
+                                <img
+                                  src={URL.createObjectURL(authorImage)}
+                                  alt="New author image"
+                                  className="w-20 h-20 object-cover rounded"
+                                />
+                              </TableCell>
+                              <TableCell>{authorImage.name}</TableCell>
+                              <TableCell>
+                                {(authorImage.size / 1024).toFixed(2)} KB
+                              </TableCell>
+                              <TableCell>{authorImage.type}</TableCell>
+                              <TableCell className="text-right">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => setAuthorImage(null)}>
+                                  <Trash2 className="h-4 w-4" />
+                                  <span className="sr-only">Remove image</span>
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
                 </div>
 
                 <div className="grid gap-3">

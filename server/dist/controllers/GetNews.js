@@ -44,7 +44,6 @@ const getNews = async (_req, res) => {
 };
 exports.getNews = getNews;
 const getNewsById = async (req, res) => {
-    console.log("sdf");
     try {
         const { id } = req.params;
         console.log(`Attempting to fetch news with ID: ${id}`);

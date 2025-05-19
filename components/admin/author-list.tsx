@@ -12,7 +12,51 @@ import { useEffect, useState, forwardRef, useImperativeHandle } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Pencil } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import axios from "axios";
+
+interface ApiResponse<T> {
+  status: "success" | "error";
+  data: T;
+  message?: string;
+  error?: string;
+}
+
+// Configure axios with base URL and default settings
+const api = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
+  timeout: 10000,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+// Add response interceptor for better error handling
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    console.error("API Error:", error);
+    if (error.code === "ECONNABORTED") {
+      throw new Error("Request timeout. Please try again.");
+    }
+    if (!error.response) {
+      throw new Error("Network error. Please check your connection.");
+    }
+    throw error;
+  }
+);
 
 interface Author {
   _id: string;
@@ -28,19 +72,21 @@ export const AuthorList = forwardRef<
   { refresh: () => void },
   {}
 >((props, ref) => {
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [totalAuthors, setTotalAuthors] = useState(0);
   const [authors, setAuthors] = useState<Author[]>([]);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [authorToDelete, setAuthorToDelete] = useState<Author | null>(null);
 
   const fetchAuthors = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      // Use the Next.js API route with pagination
       const res = await fetch(`/api/authors?page=${page}&limit=10`);
 
       if (!res.ok) {
@@ -48,16 +94,12 @@ export const AuthorList = forwardRef<
         throw new Error(errorData.error || "Authors авахад алдаа гарлаа");
       }
 
-      // Get total count from headers
       const totalCount = parseInt(res.headers.get("X-Total-Count") || "0");
       setTotalAuthors(totalCount);
-
-      // Check if there are more pages
       setHasMore(page * 10 < totalCount);
 
       const data = await res.json();
 
-      // If it's the first page, replace authors, otherwise append
       if (page === 1) {
         setAuthors(Array.isArray(data.authors) ? data.authors : []);
       } else {
@@ -72,7 +114,6 @@ export const AuthorList = forwardRef<
         error instanceof Error ? error.message : "Authors авахад алдаа гарлаа"
       );
 
-      // Use fallback data in case of error
       if (page === 1) {
         setAuthors(fallbackAuthorData);
       }
@@ -87,8 +128,8 @@ export const AuthorList = forwardRef<
 
   const refresh = () => {
     setPage(1);
-    setAuthors([]); // Clear existing authors immediately
-    fetchAuthors(); // Start fetching new data
+    setAuthors([]);
+    fetchAuthors();
   };
 
   useImperativeHandle(ref, () => ({
@@ -97,6 +138,60 @@ export const AuthorList = forwardRef<
 
   const loadMore = () => {
     setPage((prev) => prev + 1);
+  };
+
+  const handleEdit = (author: Author) => {
+    router.push(`/admin/authors/edit/${author._id}`);
+  };
+
+  const handleDeleteClick = (author: Author) => {
+    setAuthorToDelete(author);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!authorToDelete) return;
+
+    try {
+      const response = await api.delete<ApiResponse<void>>(
+        `/api/authors/${authorToDelete._id}`,
+        {
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (response.data.status === "success") {
+        toast.success(response.data.message || "Зохиолч амжилттай устгагдлаа");
+        refresh();
+      } else {
+        toast.error(response.data.message || "Зохиолч устгахад алдаа гарлаа");
+      }
+    } catch (err: unknown) {
+      console.error('Error deleting author:', err);
+      if (err && typeof err === 'object' && 'isAxiosError' in err && err.isAxiosError) {
+        const axiosError = err as { response?: { status: number; data?: { message?: string } } };
+        
+        if (axiosError.response?.status === 404) {
+          toast.error("Зохиолч олдсонгүй");
+        } else if (axiosError.response?.status === 403) {
+          toast.error("Энэ үйлдлийг хийх эрх байхгүй байна");
+        } else if (axiosError.response?.status === 400) {
+          toast.error(axiosError.response.data?.message || "Зохиолчтой холбоотой мэдээ байгаа учраас устгах боломжгүй");
+        } else if (!axiosError.response) {
+          toast.error("Сервертэй холбогдоход алдаа гарлаа");
+        } else {
+          toast.error(axiosError.response.data?.message || "Зохиолч устгахад алдаа гарлаа");
+        }
+      } else {
+        toast.error("Зохиолч устгахад алдаа гарлаа");
+      }
+    } finally {
+      setDeleteDialogOpen(false);
+      setAuthorToDelete(null);
+    }
   };
 
   if (loading && page === 1) {
@@ -194,7 +289,23 @@ export const AuthorList = forwardRef<
                     {new Date(author.createdAt).toLocaleDateString()}
                   </TableCell>
                   <TableCell>
-                    {/* Edit button removed */}
+                    <div className="flex gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleEdit(author)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDeleteClick(author)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
@@ -211,7 +322,26 @@ export const AuthorList = forwardRef<
         </div>
       )}
 
-      
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Зохиолч устгах</AlertDialogTitle>
+            <AlertDialogDescription>
+              Та "{authorToDelete?.authorName}" гэсэн зохиолчийг устгахдаа итгэлтэй байна уу?
+              Энэ үйлдлийг буцаах боломжгүй.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Болих</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Устгах
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 });
