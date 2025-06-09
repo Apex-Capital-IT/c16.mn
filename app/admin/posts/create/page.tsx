@@ -73,7 +73,7 @@ export default function CreatePostPage() {
         // Fetch categories and authors from the API
         const [categoriesRes, authorsRes] = await Promise.all([
           axios.get<{ categories: any[] }>("/api/categories"),
-          axios.get<{ authors: any[] }>("/api/authors"),
+          axios.get<{ data: any[] }>("/api/authors"),
         ]);
 
         // Process categories data
@@ -85,8 +85,19 @@ export default function CreatePostPage() {
           }))
         );
 
-        // Process authors data
-        const authorsData = authorsRes.data.authors || [];
+        // Process authors data with better error handling
+        const authorsData = authorsRes.data.data || [];
+        console.log("Fetched authors data:", authorsData); // Debug log
+        
+        if (authorsData.length === 0) {
+          console.warn("No authors data received from API");
+          toast({
+            title: "Warning",
+            description: "No authors found. Please add some authors first.",
+            variant: "destructive",
+          });
+        }
+
         setAuthors(
           authorsData.map((author: any) => ({
             id: author._id,
@@ -98,7 +109,7 @@ export default function CreatePostPage() {
         console.error("Error fetching data:", error);
         toast({
           title: "Error",
-          description: "Failed to load data",
+          description: "Failed to load data. Please try again later.",
           variant: "destructive",
         });
 
@@ -393,14 +404,20 @@ export default function CreatePostPage() {
                       handleSelectChange("authorName", value)
                     }>
                     <SelectTrigger id="authorName">
-                      <SelectValue placeholder="Select author" />
+                      <SelectValue placeholder="Нийтлэгчийг сонгоно уу" />
                     </SelectTrigger>
                     <SelectContent>
-                      {authors.map((author) => (
-                        <SelectItem key={author.id} value={author.name}>
-                          {author.name}
+                      {authors && authors.length > 0 ? (
+                        authors.map((author) => (
+                          <SelectItem key={author.id} value={author.name}>
+                            {author.name}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="no-authors" disabled>
+                          Нийтлэгч олдсонгүй
                         </SelectItem>
-                      ))}
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
