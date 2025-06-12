@@ -32,17 +32,21 @@ async function getAuthorByName(authorName: string) {
 
 async function getNewsByCategory(category: string): Promise<NewsArticle[]> {
   try {
-    const response = await axios.get<{ status: string; data: NewsArticle[]; count: number }>(
-      "https://c16-mn.onrender.com/api/news",
-      {
-        headers: {
-          "Cache-Control": "no-cache",
-          Pragma: "no-cache",
-        },
-      }
-    );
+    const response = await axios.get<{
+      status: string;
+      data: NewsArticle[];
+      count: number;
+    }>("https://c16-mn.onrender.com/api/news", {
+      headers: {
+        "Cache-Control": "no-cache",
+        Pragma: "no-cache",
+      },
+    });
 
-    if (response.data.status === "success" && Array.isArray(response.data.data)) {
+    if (
+      response.data.status === "success" &&
+      Array.isArray(response.data.data)
+    ) {
       return response.data.data
         .filter((article) => {
           const actualCategory = article.category.toLowerCase();
@@ -112,21 +116,21 @@ export default async function CategoryPage({ params }: PageParams) {
               Нийтлэлч
             </h2>
             {author ? (
-              <div className="bg-gray-50 p-4 rounded-xl shadow-sm border">
+              <div className="bg-gray-50 rounded-xl shadow-sm border">
                 <Link
                   href={`/category/bloggers/${encodeURIComponent(
                     author.authorName
                   )}`}
-                  className="flex items-center justify-center gap-3 hover:text-blue-600 transition"
+                  className="flex flex-col items-center justify-center gap-3 hover:text-blue-600 transition"
                 >
                   <Image
                     src={author.authorImage || "/images/default-avatar.png"}
                     alt={author.authorName}
-                    width={50}
-                    height={50}
-                    className="rounded-full w-[50px] h-[50px] object-cover"
+                    width={260}
+                    height={260}
+                    className="w-[310px] h-[300px] object-cover"
                   />
-                  <span className="text-base font-bold text-gray-800">
+                  <span className="text-base font-bold text-gray-800 mt-2">
                     {author.authorName}
                   </span>
                 </Link>
