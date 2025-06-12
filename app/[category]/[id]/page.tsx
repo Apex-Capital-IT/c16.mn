@@ -18,8 +18,8 @@ async function getAuthorByName(authorName: string) {
       `https://c16-mn.onrender.com/api/authors?name=${authorName}`
     );
     const data = await res.json();
-    if (res.ok && Array.isArray(data.authors)) {
-      return data.authors.find(
+    if (res.ok && Array.isArray(data.data)) {
+      return data.data.find(
         (author: any) =>
           author.authorName.toLowerCase() === authorName.toLowerCase()
       );
