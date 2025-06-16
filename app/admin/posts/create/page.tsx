@@ -73,7 +73,7 @@ export default function CreatePostPage() {
         // Fetch categories and authors from the API
         const [categoriesRes, authorsRes] = await Promise.all([
           axios.get<{ categories: any[] }>("/api/categories"),
-          axios.get<{ authors: any[] }>("/api/authors"),
+          axios.get<{ data: any[] }>("/api/authors"),
         ]);
 
         // Process categories data
@@ -86,12 +86,13 @@ export default function CreatePostPage() {
         );
 
         // Process authors data
-        const authorsData = authorsRes.data.authors || [];
+        const authorsData = authorsRes.data.data || [];
+        console.log("Authors data:", authorsData); // Debug log
         setAuthors(
           authorsData.map((author: any) => ({
             id: author._id,
             name: author.authorName,
-            image: author.authorImage,
+            image: author.authorImage || "https://via.placeholder.com/150",
           }))
         );
       } catch (error) {
@@ -393,14 +394,27 @@ export default function CreatePostPage() {
                       handleSelectChange("authorName", value)
                     }>
                     <SelectTrigger id="authorName">
-                      <SelectValue placeholder="Select author" />
+                      <SelectValue placeholder="Нийтлэгчийг сонгоно уу" />
                     </SelectTrigger>
                     <SelectContent>
-                      {authors.map((author) => (
-                        <SelectItem key={author.id} value={author.name}>
-                          {author.name}
+                      {authors && authors.length > 0 ? (
+                        authors.map((author) => (
+                          <SelectItem key={author.id} value={author.name}>
+                            <div className="flex items-center gap-2">
+                              <img
+                                src={author.image}
+                                alt={author.name}
+                                className="w-6 h-6 rounded-full object-cover"
+                              />
+                              {author.name}
+                            </div>
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="no-authors" disabled>
+                          Нийтлэгч олдсонгүй
                         </SelectItem>
-                      ))}
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
