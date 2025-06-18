@@ -74,6 +74,7 @@ export default function CreatePostPage() {
         const [categoriesRes, authorsRes] = await Promise.all([
           axios.get<{ categories: any[] }>("/api/categories"),
           axios.get<{ data: any[] }>("/api/authors"),
+          axios.get<{ data: any[] }>("/api/authors"),
         ]);
 
         // Process categories data
@@ -88,7 +89,7 @@ export default function CreatePostPage() {
         // Process authors data with better error handling
         const authorsData = authorsRes.data.data || [];
         console.log("Fetched authors data:", authorsData); // Debug log
-        
+
         if (authorsData.length === 0) {
           console.warn("No authors data received from API");
           toast({
@@ -102,7 +103,7 @@ export default function CreatePostPage() {
           authorsData.map((author: any) => ({
             id: author._id,
             name: author.authorName,
-            image: author.authorImage,
+            image: author.authorImage || "https://via.placeholder.com/150",
           }))
         );
       } catch (error) {
@@ -382,7 +383,8 @@ export default function CreatePostPage() {
                     value={formData.category}
                     onValueChange={(value) =>
                       handleSelectChange("category", value)
-                    }>
+                    }
+                  >
                     <SelectTrigger id="category">
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
@@ -402,8 +404,10 @@ export default function CreatePostPage() {
                     value={formData.authorName}
                     onValueChange={(value) =>
                       handleSelectChange("authorName", value)
-                    }>
+                    }
+                  >
                     <SelectTrigger id="authorName">
+                      <SelectValue placeholder="Нийтлэгчийг сонгоно уу" />
                       <SelectValue placeholder="Нийтлэгчийг сонгоно уу" />
                     </SelectTrigger>
                     <SelectContent>
@@ -476,7 +480,8 @@ export default function CreatePostPage() {
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  onClick={() => removeNewsImage(index)}>
+                                  onClick={() => removeNewsImage(index)}
+                                >
                                   <Trash2 className="h-4 w-4" />
                                   <span className="sr-only">
                                     Зургийг арилгах

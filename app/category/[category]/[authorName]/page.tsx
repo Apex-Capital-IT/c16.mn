@@ -5,7 +5,7 @@ import axios from "axios";
 import { NewsArticle } from "@/lib/axios";
 
 // Fetch articles by author
-async function getArticlesByAuthor(authorName: string): Promise<NewsArticle[]> {
+async function getArticlesByAuthor(authorId: string): Promise<NewsArticle[]> {
   try {
     const res = await axios.get<{
       status: string;
@@ -19,11 +19,10 @@ async function getArticlesByAuthor(authorName: string): Promise<NewsArticle[]> {
     });
 
     if (res.data.status === "success" && Array.isArray(res.data.data)) {
-      const decodedAuthorName = decodeURIComponent(authorName).trim();
       return res.data.data
         .filter(
           (article: NewsArticle) =>
-            article.authorName?.trim() === decodedAuthorName
+            article.authorId === authorId
         )
         .sort(
           (a, b) =>
@@ -190,7 +189,7 @@ async function getCategoryPositionForArticle(
 }
 
 // Fetch author info
-async function getAuthorInfo(authorName: string) {
+async function getAuthorInfo(authorId: string) {
   try {
     const res = await axios.get<{ authors: any[] }>(
       "https://c16-mn.onrender.com/api/authors",
@@ -202,9 +201,7 @@ async function getAuthorInfo(authorName: string) {
       }
     );
     return res.data.authors.find(
-      (author: any) =>
-        author.authorName?.trim().toLowerCase() ===
-        decodeURIComponent(authorName).trim().toLowerCase()
+      (author: any) => author._id === authorId
     );
   } catch {
     return null;
@@ -222,7 +219,7 @@ export default async function AuthorPage({ params }: PageParams) {
   const resolvedParams = await params;
   const { category, authorName } = resolvedParams;
 
-  // Fetch the author's articles
+  // Fetch the author's articles using ID
   const articles = await getArticlesByAuthor(authorName);
   const author = await getAuthorInfo(authorName);
 
@@ -235,96 +232,133 @@ export default async function AuthorPage({ params }: PageParams) {
   );
 
   return (
-    <main className="min-h-screen bg-white">
-      <div className="container mx-auto px-4 py-8 flex flex-col md:flex-row gap-8">
-        {/* Sidebar */}
-        <aside className="md:w-1/4 border-r border-gray-200 pr-6 hidden md:block">
-          <div className="sticky top-20">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              Зохиолч
-            </h2>
-            {author ? (
-              <div className="bg-gray-50 p-4 rounded-xl shadow-sm border border-gray-200 text-center">
-                <Image
-                  src={author.authorImage || "/images/default-avatar.png"}
-                  alt={author.authorName}
-                  width={50}
-                  height={50}
-                  className="rounded-full w-[50px] h-[50px] mx-auto mb-3 object-cover"
-                />
-                <p className="text-base font-bold text-gray-800 mb-2">
-                  {author.authorName}
-                </p>
-                {author.socialMedia ? (
-                  <a
-                    href={author.socialMedia}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center text-blue-600 text-sm font-medium hover:underline">
-                    {author.socialMedia.includes("instagram") && (
-                      <InstagramIcon className="w-4 h-4 mr-1" />
-                    )}
-                    {author.socialMedia.includes("facebook") && (
-                      <FacebookIcon className="w-4 h-4 mr-1" />
-                    )}
-                    {author.socialMedia.includes("youtube") && (
-                      <YoutubeIcon className="w-4 h-4 mr-1" />
-                    )}
-                    Social
-                  </a>
-                ) : (
-                  <p className="text-sm text-gray-500">Холбоос байхгүй</p>
-                )}
-              </div>
-            ) : (
-              <p className="text-sm text-gray-500">Зохиолч олдсонгүйiii</p>
-            )}
-          </div>
-        </aside>
-
-        {/* Article List */}
-        <section className="md:w-3/4">
-          <h1 className="text-3xl font-bold mb-8">
-            {decodeURIComponent(authorName)} - нийтлэлүүд
-          </h1>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-            {articlePositions.map(({ article, position }) => {
-              // Debug logging
-              console.log(
-                `Article: ${article.title}, Category: ${article.category}, ID: ${article._id}, Position: ${position}`
-              );
-
-              return (
-                <Link
-                  key={article._id}
-                  href={`/${normalizeCategory(article.category)}/${position}`}
-                  className="block border rounded-lg shadow-sm hover:shadow-md transition overflow-hidden">
-                  <div className="relative h-48 w-full">
-                    <Image
-                      src={
-                        article.newsImages?.[0] ||
-                        "https://unread.today/files/007afc64-288a-4208-b9d7-3eda84011c1d/6b14a94472c91bd94f086dac96694c79.jpeg"
-                      }
-                      alt={article.title}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="p-4">
-                    <h2 className="text-lg font-semibold">{article.title}</h2>
-                    <p className="text-sm text-gray-600 line-clamp-2">
-                      {article.description}
-                    </p>
-                    <div className="flex items-center text-sm text-gray-500 mt-2">
-                      <Clock className="w-3 h-3 mr-1" />
-                      {new Date(article.createdAt).toLocaleDateString()}
+    <main className="min-h-screen bg-white py-12">
+      <div className="container mx-auto px-4">
+        <div className="flex flex-col md:flex-row gap-8">
+          {/* Author Profile Card */}
+          <div className="md:w-1/4">
+            <div className="sticky top-20">
+              {author ? (
+                <div className="rounded-2xl border border-gray-200 bg-white shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden">
+                  <div className="p-6">
+                    <div className="flex flex-col items-center space-y-4">
+                      <Image
+                        src={author.authorImage || "/images/default-avatar.png"}
+                        alt={author.authorName}
+                        width={120}
+                        height={120}
+                        className="rounded-full w-[120px] h-[120px] object-cover border shadow-md"
+                      />
+                      <div className="text-center">
+                        <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+                          {author.authorName}
+                        </h2>
+                        {author.socialMedia ? (
+                          <a
+                            href={author.socialMedia}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center text-blue-600 text-sm font-medium hover:underline">
+                            {author.socialMedia.includes("instagram") && (
+                              <>
+                                <InstagramIcon className="w-4 h-4 mr-1" />
+                                Instagram
+                              </>
+                            )}
+                            {author.socialMedia.includes("facebook") && (
+                              <>
+                                <FacebookIcon className="w-4 h-4 mr-1" />
+                                Facebook
+                              </>
+                            )}
+                            {author.socialMedia.includes("youtube") && (
+                              <>
+                                <YoutubeIcon className="w-4 h-4 mr-1" />
+                                YouTube
+                              </>
+                            )}
+                          </a>
+                        ) : (
+                          <p className="text-sm text-gray-500">Холбоос байхгүй</p>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </Link>
-              );
-            })}
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-gray-200 bg-white shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden">
+                  <div className="p-6">
+                    <div className="flex flex-col items-center space-y-4">
+                      <div className="w-[120px] h-[120px] bg-gray-200 rounded-full flex items-center justify-center">
+                        <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                      </div>
+                      <div className="text-center">
+                        <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+                          Зохиолч олдсонгүй
+                        </h2>
+                        <p className="text-sm text-gray-500">ID: {authorName}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-        </section>
+
+          {/* Articles Grid */}
+          <div className="md:w-3/4">
+            <h1 className="text-4xl font-bold text-gray-800 mb-10">
+              {author ? author.authorName : "Зохиолч"} - нийтлэлүүд
+            </h1>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {articlePositions.map(({ article, position }) => (
+                <div
+                  key={article._id}
+                  className="border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <Link
+                    href={`/${normalizeCategory(article.category)}/${position}`}
+                    prefetch={false}
+                  >
+                    <div className="relative h-48 w-full">
+                      <Image
+                        src={article.newsImages?.[0] || "/images/placeholder.jpg"}
+                        alt={article.title}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="p-4">
+                      <div className="mb-2">
+                        <span className="bg-red-600 text-white text-xs px-2 py-1 rounded uppercase font-semibold">
+                          {article.category}
+                        </span>
+                      </div>
+                      <h2 className="text-xl uppercase h-[50px] overflow-hidden font-semibold mb-2 hover:text-red-600 transition-colors">
+                        {article.title}
+                      </h2>
+                      <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                        {article.description}
+                      </p>
+                      <div className="flex items-center text-xs text-gray-500">
+                        <Clock size={14} className="mr-1" />
+                        <span>
+                          {new Date(article.createdAt).toLocaleString("en-US", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })}
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   );

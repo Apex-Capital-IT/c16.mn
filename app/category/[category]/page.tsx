@@ -58,17 +58,17 @@ async function getNewsByCategory(category: string): Promise<NewsArticle[]> {
 async function getAllAuthorsWithStats() {
   try {
     const [authorRes, articleRes] = await Promise.all([
-      axios.get<{ authors: any[] }>("https://c16-mn.onrender.com/api/authors"),
+      axios.get<{ status: string; data: any[] }>("https://c16-mn.onrender.com/api/authors"),
       axios.get<{ status: string; data: NewsArticle[]; count: number }>("https://c16-mn.onrender.com/api/news"),
     ]);
 
-    const authors = authorRes.data.authors || [];
+    const authors = authorRes.data.data || [];
     const articles = articleRes.data.status === "success" ? articleRes.data.data : [];
 
     return authors.map((author: any) => {
       const authorArticles = articles.filter(
         (a: any) =>
-          a.authorName.toLowerCase() === author.authorName.toLowerCase()
+          a.authorName?.toLowerCase() === author.authorName?.toLowerCase()
       );
       const latestPost = authorArticles.length
         ? new Date(
@@ -85,7 +85,8 @@ async function getAllAuthorsWithStats() {
         latestPost,
       };
     });
-  } catch {
+  } catch (error) {
+    console.error('Error fetching authors:', error);
     return [];
   }
 }

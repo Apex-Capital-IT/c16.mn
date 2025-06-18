@@ -12,6 +12,7 @@ interface NewsArticle {
   categoryName: string;
   newsImages: string[];
   authorName: string;
+  authorId: string;
   authorImage: string;
   banner: boolean;
   slug: string;
@@ -43,6 +44,7 @@ export const fallbackNewsData: NewsArticle[] = [
       "https://unread.today/files/007afc64-288a-4208-b9d7-3eda84011c1d/6b14a94472c91bd94f086dac96694c79.jpeg",
     ],
     authorName: "Б.Болд",
+    authorId: "1",
     authorImage: "/authors/author1.jpg",
     banner: true,
     slug: "mongol-ulsyn-ediin-zasgiin-tolov-baidal",
