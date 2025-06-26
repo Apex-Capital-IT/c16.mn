@@ -74,6 +74,7 @@ export default function CreatePostPage() {
         const [categoriesRes, authorsRes] = await Promise.all([
           axios.get<{ categories: any[] }>("/api/categories"),
           axios.get<{ data: any[] }>("/api/authors"),
+          axios.get<{ data: any[] }>("/api/authors"),
         ]);
 
         const categoriesData = categoriesRes.data.categories || [];
@@ -84,8 +85,9 @@ export default function CreatePostPage() {
           }))
         );
 
+        // Process authors data
         const authorsData = authorsRes.data.data || [];
-        console.log("Authors data:", authorsData); 
+        console.log("Authors data:", authorsData); // Debug log
         setAuthors(
           authorsData.map((author: any) => ({
             id: author._id,
@@ -97,7 +99,7 @@ export default function CreatePostPage() {
         console.error("Error fetching data:", error);
         toast({
           title: "Error",
-          description: "Failed to load data",
+          description: "Failed to load data. Please try again later.",
           variant: "destructive",
         });
 
@@ -336,7 +338,8 @@ export default function CreatePostPage() {
                     value={formData.category}
                     onValueChange={(value) =>
                       handleSelectChange("category", value)
-                    }>
+                    }
+                  >
                     <SelectTrigger id="category">
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
@@ -356,22 +359,17 @@ export default function CreatePostPage() {
                     value={formData.authorName}
                     onValueChange={(value) =>
                       handleSelectChange("authorName", value)
-                    }>
+                    }
+                  >
                     <SelectTrigger id="authorName">
+                      <SelectValue placeholder="Нийтлэгчийг сонгоно уу" />
                       <SelectValue placeholder="Нийтлэгчийг сонгоно уу" />
                     </SelectTrigger>
                     <SelectContent>
                       {authors && authors.length > 0 ? (
                         authors.map((author) => (
                           <SelectItem key={author.id} value={author.name}>
-                            <div className="flex items-center gap-2">
-                              <img
-                                src={author.image}
-                                alt={author.name}
-                                className="w-6 h-6 rounded-full object-cover"
-                              />
-                              {author.name}
-                            </div>
+                            {author.name}
                           </SelectItem>
                         ))
                       ) : (
@@ -437,7 +435,8 @@ export default function CreatePostPage() {
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  onClick={() => removeNewsImage(index)}>
+                                  onClick={() => removeNewsImage(index)}
+                                >
                                   <Trash2 className="h-4 w-4" />
                                   <span className="sr-only">
                                     Зургийг арилгах
