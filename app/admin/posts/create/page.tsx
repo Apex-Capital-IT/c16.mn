@@ -76,7 +76,6 @@ export default function CreatePostPage() {
           axios.get<{ data: any[] }>("/api/authors"),
         ]);
 
-        // Process categories data
         const categoriesData = categoriesRes.data.categories || [];
         setCategories(
           categoriesData.map((cat: any) => ({
@@ -85,9 +84,8 @@ export default function CreatePostPage() {
           }))
         );
 
-        // Process authors data
         const authorsData = authorsRes.data.data || [];
-        console.log("Authors data:", authorsData); // Debug log
+        console.log("Authors data:", authorsData); 
         setAuthors(
           authorsData.map((author: any) => ({
             id: author._id,
@@ -103,7 +101,6 @@ export default function CreatePostPage() {
           variant: "destructive",
         });
 
-        // For demo purposes, set some sample data
         setCategories([
           { id: "1", name: "Development" },
           { id: "2", name: "React" },
@@ -153,32 +150,12 @@ export default function CreatePostPage() {
     }
   };
 
-  const handleAuthorImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setAuthorImage(file);
-
-      // Create preview URL
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewAuthorImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   const handleNewsImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
-      // console.log("News images selected:", files.length);
-      // console.log(
-      //   "News images details:",
-      //   files.map((f) => ({ name: f.name, size: f.size, type: f.type }))
-      // );
 
       setNewsImages((prev) => [...prev, ...files]);
 
-      // Create preview URLs
       files.forEach((file) => {
         const reader = new FileReader();
         reader.onloadend = () => {
@@ -197,7 +174,6 @@ export default function CreatePostPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate required fields
     if (
       !formData.title ||
       !formData.content ||
@@ -224,7 +200,6 @@ export default function CreatePostPage() {
     try {
       setSubmitting(true);
 
-      // Create FormData object for file upload
       const formDataToSend = new FormData();
       formDataToSend.append("title", formData.title);
       formDataToSend.append("content", formData.content);
@@ -232,16 +207,10 @@ export default function CreatePostPage() {
       formDataToSend.append("authorName", formData.authorName);
       formDataToSend.append("banner", formData.banner.toString());
 
-      // Append news images - make sure each file is properly appended
-
-      // Clear any existing newsImages entries and add each file individually
       newsImages.forEach((file) => {
-        // Make sure to use the exact field name expected by the server
         formDataToSend.append("newsImages", file);
       });
 
-      // Log the FormData contents for debugging
-      // console.log("FormData entries:");
       for (const pair of formDataToSend.entries()) {
         console.log(
           pair[0],
@@ -250,7 +219,6 @@ export default function CreatePostPage() {
         );
       }
 
-      // Send to API with the correct headers
       const response = await axios.post(
         "https://c16-mn.onrender.com/api/news",
         formDataToSend,
@@ -258,7 +226,6 @@ export default function CreatePostPage() {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-          // Add withCredentials to ensure cookies are sent
           withCredentials: true,
         }
       );
@@ -270,17 +237,14 @@ export default function CreatePostPage() {
         description: "News post created successfully",
       });
 
-      // Redirect to posts list
       router.push("/admin/posts");
     } catch (error: any) {
       console.error("Error creating news post:", error);
 
-      // Log more detailed error information
       if (error.response) {
         console.error("Error response data:", error.response.data);
         console.error("Error response status:", error.response.status);
 
-        // Show more detailed error message
         const errorMessage =
           error.response.data.message || "Failed to create news post";
         const missingFields = error.response.data.missingFields;

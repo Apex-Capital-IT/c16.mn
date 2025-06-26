@@ -1,7 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { Suspense } from "react";
 import { DashboardHeader } from "@/components/admin/dashboard-header";
 import { Overview } from "@/components/admin/overview";
@@ -66,15 +64,6 @@ function StatsCard({
 }
 
 export default function AdminDashboard() {
-  const router = useRouter();
-
-  // useEffect(() => {
-  //   const token = localStorage.getItem("admin_access_token");
-  //   if (!token) {
-  //     router.replace("/key");
-  //   }
-  // }, [router]);
-
   return (
     <Suspense fallback={<AdminDashboardLoading />}>
       <div className="flex flex-col gap-8 p-6 bg-background">

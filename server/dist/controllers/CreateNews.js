@@ -13,7 +13,6 @@ const createNews = async (req, res) => {
     try {
         const { title, content, category, authorName, banner } = req.body;
         const files = req.files;
-        // Validate required fields
         if (!title || !content || !category || !authorName) {
             console.log("Missing required fields:", {
                 title: !title,
@@ -32,13 +31,11 @@ const createNews = async (req, res) => {
             });
             return;
         }
-        // Validate files
         if (!files) {
             console.log("No files object in request");
             res.status(400).json({ message: "Зураг оруулах шаардлагатай" });
             return;
         }
-        // Check if files is an array (direct array) or an object with newsImages property
         let newsImageFiles = [];
         if (Array.isArray(files)) {
             console.log("Files is an array with length:", files.length);
@@ -60,7 +57,6 @@ const createNews = async (req, res) => {
         }
         console.log("Files received:", files);
         console.log("News images count:", newsImageFiles.length);
-        // Log each file for debugging
         newsImageFiles.forEach((file, index) => {
             console.log(`File ${index}:`, {
                 fieldname: file.fieldname,
@@ -70,8 +66,6 @@ const createNews = async (req, res) => {
             });
         });
         const slug = (0, slugify_1.default)(title, { lower: true, strict: true }) + "-" + Date.now();
-        // console.log("Generated slug:", slug);
-        // Handle category
         let categoryData;
         if (category) {
             console.log("Looking for category:", category);
@@ -89,7 +83,6 @@ const createNews = async (req, res) => {
                 console.log("Existing category found:", categoryData);
             }
         }
-        // Find the author to get their image
         console.log("Looking for author:", authorName);
         const author = await Author_1.AuthorModel.findOne({ authorName });
         if (!author) {
@@ -97,10 +90,7 @@ const createNews = async (req, res) => {
             res.status(400).json({ message: "Зохиогч олдсонгүй" });
             return;
         }
-        // console.log("Author found:", author);
         let authorImageUrl = author.authorImage;
-        // console.log("Using author image:", authorImageUrl);
-        // Upload news images
         const newsImageUrls = [];
         for (const file of newsImageFiles) {
             try {
@@ -111,20 +101,8 @@ const createNews = async (req, res) => {
             }
             catch (uploadError) {
                 console.error("Error uploading news image to Cloudinary:", uploadError);
-                // Continue with other images even if one fails
             }
         }
-        // Creating a new news entry
-        // console.log("Creating new news entry with data:", {
-        //   title,
-        //   content,
-        //   authorName,
-        //   authorImage: authorImageUrl,
-        //   category: categoryData ? categoryData.categoryName : category,
-        //   newsImages: newsImageUrls,
-        //   banner: banner || false,
-        //   slug,
-        // });
         const news = new news_model_1.NewsModel({
             title,
             content,
@@ -136,7 +114,6 @@ const createNews = async (req, res) => {
             slug,
         });
         await news.save();
-        // console.log("News created successfully:", news._id);
         res.status(201).json({
             message: "Мэдээ амжилттай үүслээ",
             news: {

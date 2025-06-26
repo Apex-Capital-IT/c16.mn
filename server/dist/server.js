@@ -13,11 +13,13 @@ const authorRoutes_1 = __importDefault(require("./routes/authorRoutes"));
 const banner_routes_1 = __importDefault(require("./routes/banner.routes"));
 const path_1 = __importDefault(require("path"));
 const multer_1 = __importDefault(require("multer"));
-// import { ensureDirectories } from "./utils/ensureDirectories";
+const basicAuth_1 = require("./middleware/basicAuth");
+const adminAuth_routes_1 = __importDefault(require("./routes/adminAuth.routes"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 8000;
 const MONGO_URI = process.env.MONGO_URI || "";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 // Ensure required directories exist
 // ensureDirectories();
 // Configure CORS to accept requests from the frontend
@@ -73,7 +75,7 @@ app.get("/test", (req, res) => {
     res.status(200).json({
         message: "Server is working!",
         environment: process.env.NODE_ENV || "development",
-        apiUrl: process.env.NEXT_PUBLIC_API_URL,
+        apiUrl: API_URL,
         allowedOrigins: allowedOrigins,
     });
 });
@@ -106,11 +108,13 @@ app.use((err, req, res, next) => {
         },
     });
 });
-app.use("/uploads", express_1.default.static(path_1.default.join(__dirname, "../uploads")));
-app.use("/api/news", news_routes_1.default);
-app.use("/api", categoriesRoutes_1.default);
-app.use("/api", authorRoutes_1.default);
-app.use("/api/banners", banner_routes_1.default);
+// Register adminAuthRouter BEFORE protected routes and WITHOUT basicAuth
+app.use("/api", adminAuth_routes_1.default);
+app.use("/uploads", basicAuth_1.basicAuth, express_1.default.static(path_1.default.join(__dirname, "../uploads")));
+app.use("/api/news", basicAuth_1.basicAuth, news_routes_1.default);
+app.use("/api", basicAuth_1.basicAuth, categoriesRoutes_1.default);
+app.use("/api", basicAuth_1.basicAuth, authorRoutes_1.default);
+app.use("/api/banners", basicAuth_1.basicAuth, banner_routes_1.default);
 // MongoDB Connection with retry logic
 const connectWithRetry = async () => {
     try {

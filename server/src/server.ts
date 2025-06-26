@@ -8,13 +8,15 @@ import authorRouter from "./routes/authorRoutes";
 import bannerRouter from "./routes/banner.routes";
 import path from "path";
 import multer from "multer";
-// import { ensureDirectories } from "./utils/ensureDirectories";
+import { basicAuth } from "./middleware/basicAuth";
+import adminAuthRouter from "./routes/adminAuth.routes";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 8000;
 const MONGO_URI = process.env.MONGO_URI || "";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 // Ensure required directories exist
 // ensureDirectories();
@@ -79,7 +81,7 @@ app.get("/test", (req, res) => {
   res.status(200).json({
     message: "Server is working!",
     environment: process.env.NODE_ENV || "development",
-    apiUrl: process.env.NEXT_PUBLIC_API_URL,
+    apiUrl: API_URL,
     allowedOrigins: allowedOrigins,
   });
 });
@@ -124,12 +126,14 @@ app.use(
   }
 );
 
-app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+// Register adminAuthRouter BEFORE protected routes and WITHOUT basicAuth
+app.use("/api", adminAuthRouter);
 
-app.use("/api/news", newsRouter);
-app.use("/api", categoryRouter);
-app.use("/api", authorRouter);
-app.use("/api/banners", bannerRouter);
+app.use("/uploads", basicAuth, express.static(path.join(__dirname, "../uploads")));
+app.use("/api/news", basicAuth, newsRouter);
+app.use("/api", basicAuth, categoryRouter);
+app.use("/api", basicAuth, authorRouter);
+app.use("/api/banners", basicAuth, bannerRouter);
 
 // MongoDB Connection with retry logic
 const connectWithRetry = async () => {
