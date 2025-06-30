@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useEffect, useState } from "react";
+import { useAdminList } from "./useAdminList";
 
 type Category = {
   _id: string;
@@ -18,42 +18,12 @@ type Category = {
 };
 
 export function CategoryList() {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        
-        const res = await fetch("/api/categories");
-        let data;
-        
-        try {
-          data = await res.json();
-        } catch (parseError) {
-          console.error("Failed to parse response as JSON:", parseError);
-          throw new Error("Ангилал авахад алдаа гарлаа - Серверээс буруу хариу ирлээ");
-        }
-        
-        if (!res.ok) {
-          throw new Error(data.error || data.message || "Ангилал авахад алдаа гарлаа");
-        }
-        
-        setCategories(Array.isArray(data.categories) ? data.categories : []);
-      } catch (error) {
-        console.error("Ангилал авахад алдаа гарлаа", error);
-        setError(error instanceof Error ? error.message : "Ангилал авахад алдаа гарлаа");
-        setCategories([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCategories();
-  }, []);
+  const {
+    loading,
+    error,
+    items: categories,
+    refresh,
+  } = useAdminList<Category>({ endpoint: "/api/categories", dataKey: "categories", pageSize: 100 });
 
   if (loading) {
     return <div>Loading...</div>;

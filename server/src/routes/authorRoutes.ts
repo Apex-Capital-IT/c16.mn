@@ -4,6 +4,7 @@ import { createAuthor } from "../controllers/createAuthor";
 import { updateAuthor } from "../controllers/UpdateAuthor";
 import { deleteAuthor } from "../controllers/DeleteAuthor";
 import multer from "multer";
+import { basicAuth } from "../middleware/basicAuth";
 
 const authorRouter = express.Router();
 
@@ -31,12 +32,12 @@ authorRouter.get("/authors", getAllAuthors);
 authorRouter.get("/authors/:id", getAuthorById);
 
 // Create new author
-authorRouter.post("/authors", upload.single("authorImage"), createAuthor);
+authorRouter.post("/authors", basicAuth, upload.single("authorImage"), createAuthor);
 
 // Update author
-authorRouter.put("/authors/:id", upload.single("authorImage"), updateAuthor);
+authorRouter.put("/authors/:id", basicAuth, upload.single("authorImage"), updateAuthor);
 
 // Delete author
-authorRouter.delete("/authors/:id", deleteAuthor);
+authorRouter.delete("/authors/:id", basicAuth, deleteAuthor);
 
 export default authorRouter;

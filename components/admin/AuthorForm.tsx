@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { FaInstagram, FaFacebook, FaYoutube } from "react-icons/fa";
+import { useAdminList } from "./useAdminList";
 
 export default function AuthorForm({ onSuccess }: { onSuccess?: () => void }) {
   const router = useRouter();
@@ -17,6 +18,7 @@ export default function AuthorForm({ onSuccess }: { onSuccess?: () => void }) {
     authorImage: null as File | null,
     socialMedia: "",
   });
+  const { refresh } = useAdminList({ endpoint: "/api/authors", dataKey: "data", pageSize: 100 });
 
   const getSocialMediaIcon = (url: string) => {
     if (url.includes("instagram.com")) return <FaInstagram className="w-5 h-5 text-pink-600" />;
@@ -108,6 +110,9 @@ export default function AuthorForm({ onSuccess }: { onSuccess?: () => void }) {
 
       const response = await fetch("/api/authors", {
         method: "POST",
+        headers: {
+          "Authorization": "Basic " + (typeof window !== "undefined" ? localStorage.getItem("admin_auth") || "" : ""),
+        },
         body: formDataToSend,
       });
 
@@ -122,7 +127,7 @@ export default function AuthorForm({ onSuccess }: { onSuccess?: () => void }) {
       if (onSuccess) {
         onSuccess();
       }
-      
+      refresh();
       toast.success("Зохиолч амжилттай үүслээ");
       router.push("/admin/authors");
     } catch (error) {

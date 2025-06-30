@@ -72,9 +72,18 @@ export default function CreatePostPage() {
         setLoading(true);
 
         const [categoriesRes, authorsRes] = await Promise.all([
-          axios.get<{ categories: any[] }>("/api/categories"),
-          axios.get<{ data: any[] }>("/api/authors"),
-          axios.get<{ data: any[] }>("/api/authors"),
+          axios.get<{ categories: any[] }>("/api/categories", {
+            headers: {
+              "Authorization": "Basic " + (typeof window !== "undefined" ? localStorage.getItem("admin_auth") || "" : ""),
+              "Content-Type": "application/json",
+            },
+          }),
+          axios.get<{ data: any[] }>("/api/authors", {
+            headers: {
+              "Authorization": "Basic " + (typeof window !== "undefined" ? localStorage.getItem("admin_auth") || "" : ""),
+              "Content-Type": "application/json",
+            },
+          }),
         ]);
 
         const categoriesData = categoriesRes.data.categories || [];
@@ -226,6 +235,7 @@ export default function CreatePostPage() {
         formDataToSend,
         {
           headers: {
+            "Authorization": "Basic " + (typeof window !== "undefined" ? localStorage.getItem("admin_auth") || "" : ""),
             "Content-Type": "multipart/form-data",
           },
           withCredentials: true,

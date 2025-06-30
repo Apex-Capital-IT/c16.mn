@@ -10,6 +10,7 @@ import {
   Tooltip,
 } from "recharts";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useAdminList } from "./useAdminList";
 
 const data = [
   {

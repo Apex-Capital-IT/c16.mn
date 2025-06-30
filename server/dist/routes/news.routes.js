@@ -9,6 +9,7 @@ const GetNews_1 = require("../controllers/GetNews");
 const DeleteNews_1 = require("../controllers/DeleteNews");
 const UpdateNews_1 = require("../controllers/UpdateNews");
 const upload_1 = require("../middleware/upload");
+const basicAuth_1 = require("../middleware/basicAuth");
 const router = express_1.default.Router();
 // Get all news
 router.get("/", GetNews_1.getNews);
@@ -18,9 +19,9 @@ router.get("/:id", GetNews_1.getNewsById);
 router.get("/edit/:id", GetNews_1.getNewsById);
 // Create news - add logging middleware and fix file upload
 // Make sure to use the exact field name expected by the frontend
-router.post("/", upload_1.logRequest, upload_1.upload.array("newsImages", 10), CreateNews_1.createNews);
+router.post("/", basicAuth_1.basicAuth, upload_1.logRequest, upload_1.upload.array("newsImages", 10), CreateNews_1.createNews);
 // Update news
-router.put("/:id", upload_1.logRequest, upload_1.upload.array("newsImages", 10), UpdateNews_1.updateNews);
+router.put("/:id", basicAuth_1.basicAuth, upload_1.logRequest, upload_1.upload.array("newsImages", 10), UpdateNews_1.updateNews);
 // Delete news
-router.delete("/:id", DeleteNews_1.deleteNews);
+router.delete("/:id", basicAuth_1.basicAuth, DeleteNews_1.deleteNews);
 exports.default = router;

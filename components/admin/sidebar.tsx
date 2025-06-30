@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { FileText, Home, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -14,6 +14,7 @@ interface SidebarNavProps extends React.HTMLAttributes<HTMLDivElement> {}
 export function Sidebar({ className }: SidebarNavProps) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(true);
+  const router = useRouter();
 
   const items = [
     {
@@ -36,24 +37,19 @@ export function Sidebar({ className }: SidebarNavProps) {
       href: "/admin/categories",
       icon: Tag,
     },
-    // {
-    //   title: "Banner",
-    //   href: "/admin/banners",
-    //   icon: FileText,
-    // },
   ];
 
   return (
     <>
       <div
         className={cn(
-          "flex flex-col border-r bg-background h-screen fixed",
+          "flex flex-col border-r bg-background h-full",
           "transition-all duration-300 ease-in-out",
           isOpen ? "w-[250px]" : "w-[60px]",
           className
         )}
         data-sidebar-collapsed={!isOpen}>
-        <div className="flex h-14 items-center border-b px-4">
+        <div className="flex h-14 items-center px-4">
           <Link
             href="/admin"
             className="flex items-center gap-2 font-semibold justify-center">
@@ -71,7 +67,7 @@ export function Sidebar({ className }: SidebarNavProps) {
             <Menu className="h-5 w-5" />
           </Button>
         </div>
-        <ScrollArea className="flex-1">
+        <ScrollArea className="flex">
           <nav className="grid gap-1 px-2 py-4">
             {items.map((item) => (
               <Link
@@ -90,12 +86,22 @@ export function Sidebar({ className }: SidebarNavProps) {
             ))}
           </nav>
         </ScrollArea>
-        {/* <div className="mt-auto border-t p-4">
-          <Button variant="outline" className={cn("w-full", !isOpen && "p-2")}>
+        <div className="mt-auto p-4">
+          <Button
+            variant="outline"
+            className={cn("w-full", !isOpen && "p-2")}
+            onClick={() => {
+              if (typeof window !== "undefined") {
+                localStorage.removeItem("admin_auth");
+                localStorage.removeItem("admin_logged_in");
+              }
+              router.push("/admin/login");
+            }}
+          >
             <LogOut className="h-5 w-5" />
             {isOpen && <span className="ml-2">Logout</span>}
           </Button>
-        </div> */}
+        </div>
       </div>
     </>
   );

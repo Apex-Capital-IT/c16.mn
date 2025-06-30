@@ -4,6 +4,7 @@ import { getNews, getNewsById } from "../controllers/GetNews";
 import { deleteNews } from "../controllers/DeleteNews";
 import { updateNews } from "../controllers/UpdateNews";
 import { upload, logRequest } from "../middleware/upload";
+import { basicAuth } from "../middleware/basicAuth";
 
 const router = express.Router();
 
@@ -18,12 +19,12 @@ router.get("/edit/:id", getNewsById as RequestHandler);
 
 // Create news - add logging middleware and fix file upload
 // Make sure to use the exact field name expected by the frontend
-router.post("/", logRequest, upload.array("newsImages", 10), createNews as RequestHandler);
+router.post("/", basicAuth, logRequest, upload.array("newsImages", 10), createNews as RequestHandler);
 
 // Update news
-router.put("/:id", logRequest, upload.array("newsImages", 10), updateNews as RequestHandler);
+router.put("/:id", basicAuth, logRequest, upload.array("newsImages", 10), updateNews as RequestHandler);
 
 // Delete news
-router.delete("/:id", deleteNews as RequestHandler);
+router.delete("/:id", basicAuth, deleteNews as RequestHandler);
 
 export default router;

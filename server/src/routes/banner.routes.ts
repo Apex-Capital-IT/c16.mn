@@ -6,6 +6,7 @@ import {
   deleteBanner,
 } from "../controllers/bannerController";
 import multer from "multer";
+import { basicAuth } from "../middleware/basicAuth";
 
 const router = express.Router();
 
@@ -13,9 +14,9 @@ const router = express.Router();
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-router.post("/", upload.single("file"), createBanner);
+router.post("/", basicAuth, upload.single("file"), createBanner);
 router.get("/", getBanners);
-router.put("/:id", updateBanner);
-router.delete("/:id", deleteBanner);
+router.put("/:id", basicAuth, updateBanner);
+router.delete("/:id", basicAuth, deleteBanner);
 
 export default router;

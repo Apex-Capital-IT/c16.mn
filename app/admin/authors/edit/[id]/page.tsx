@@ -96,7 +96,13 @@ export default function EditAuthorPage() {
 
         console.log("Fetching author with ID:", authorId);
         const response = await api.get<ApiResponse<Author>>(
-          `/api/authors/${authorId}`
+          `/api/authors/${authorId}`,
+          {
+            headers: {
+              "Authorization": "Basic " + (typeof window !== "undefined" ? localStorage.getItem("admin_auth") || "" : ""),
+              "Content-Type": "application/json",
+            },
+          }
         );
         // console.log('API Response:', response.data);
 
@@ -183,6 +189,7 @@ export default function EditAuthorPage() {
         formData,
         {
           headers: {
+            "Authorization": "Basic " + (typeof window !== "undefined" ? localStorage.getItem("admin_auth") || "" : ""),
             "Content-Type": "multipart/form-data",
           },
         }

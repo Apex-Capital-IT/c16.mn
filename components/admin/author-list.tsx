@@ -26,6 +26,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import axios from "axios";
+import { useAdminList } from "./useAdminList";
 
 interface ApiResponse<T> {
   status: "success" | "error";
@@ -71,72 +72,23 @@ const fallbackAuthorData: Author[] = [];
 export const AuthorList = forwardRef<{ refresh: () => void }, {}>(
   (props, ref) => {
     const router = useRouter();
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [page, setPage] = useState(1);
-    const [hasMore, setHasMore] = useState(true);
-    const [totalAuthors, setTotalAuthors] = useState(0);
-    const [authors, setAuthors] = useState<Author[]>([]);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [authorToDelete, setAuthorToDelete] = useState<Author | null>(null);
 
-    const fetchAuthors = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const res = await fetch(`/api/authors?page=${page}&limit=10`);
-
-        if (!res.ok) {
-          const errorData = await res.json();
-          throw new Error(errorData.error || "Authors авахад алдаа гарлаа");
-        }
-
-        const totalCount = parseInt(res.headers.get("X-Total-Count") || "0");
-        setTotalAuthors(totalCount);
-        setHasMore(page * 10 < totalCount);
-
-        const data = await res.json();
-
-        if (page === 1) {
-          setAuthors(Array.isArray(data.data) ? data.data : []);
-        } else {
-          setAuthors((prev) => [
-            ...prev,
-            ...(Array.isArray(data.data) ? data.data : []),
-          ]);
-        }
-      } catch (error) {
-        console.error("Authors авахад алдаа гарлаа", error);
-        setError(
-          error instanceof Error ? error.message : "Authors авахад алдаа гарлаа"
-        );
-
-        if (page === 1) {
-          setAuthors(fallbackAuthorData);
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    useEffect(() => {
-      fetchAuthors();
-    }, [page]);
-
-    const refresh = () => {
-      setPage(1);
-      setAuthors([]);
-      fetchAuthors();
-    };
+    // useAdminList ашиглах
+    const {
+      loading,
+      error,
+      items: authors,
+      hasMore,
+      refresh,
+      loadMore,
+      page,
+    } = useAdminList<Author>({ endpoint: "/api/authors", dataKey: "data" });
 
     useImperativeHandle(ref, () => ({
       refresh,
     }));
-
-    const loadMore = () => {
-      setPage((prev) => prev + 1);
-    };
 
     const handleEdit = (author: Author) => {
       router.push(`/admin/authors/edit/${author._id}`);

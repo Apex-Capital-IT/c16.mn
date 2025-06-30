@@ -18,28 +18,22 @@ const PORT = process.env.PORT || 8000;
 const MONGO_URI = process.env.MONGO_URI || "";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
-// Ensure required directories exist
-// ensureDirectories();
-
-// Configure CORS to accept requests from the frontend
 const allowedOrigins = [
-  "http://localhost:3000", // Local frontend development
-  "http://localhost:3002", // Local frontend development
-  "http://localhost:8000", // Local backend development
-  "https://c16-mn.onrender.com", // Production backend
-  "https://c16-mn.vercel.app", // Production frontend
+  // "http://localhost:3000", 
+  "http://localhost:8000", 
+  "https://c16-mn.onrender.com", 
+  "https://c16-mn.vercel.app", 
   "https://c16.mn",
-  "https://www.c16.mn", // Custom domain if used
+  "https://www.c16.mn", 
 ];
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps or curl requests)  
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        console.log("Blocked origin:", origin); // Log blocked origins for debugging
+        console.log("Blocked origin:", origin); 
         callback(new Error("Not allowed by CORS"));
       }
     },
@@ -52,7 +46,7 @@ app.use(
       "X-Requested-With",
     ],
     credentials: true,
-    maxAge: 86400, // CORS preflight cache for 24 hours
+    maxAge: 86400, 
   })
 );
 
@@ -129,11 +123,11 @@ app.use(
 // Register adminAuthRouter BEFORE protected routes and WITHOUT basicAuth
 app.use("/api", adminAuthRouter);
 
-app.use("/uploads", basicAuth, express.static(path.join(__dirname, "../uploads")));
-app.use("/api/news", basicAuth, newsRouter);
-app.use("/api", basicAuth, categoryRouter);
-app.use("/api", basicAuth, authorRouter);
-app.use("/api/banners", basicAuth, bannerRouter);
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+app.use("/api/news", newsRouter);
+app.use("/api", categoryRouter);
+app.use("/api", authorRouter);
+app.use("/api/banners", bannerRouter);
 
 // MongoDB Connection with retry logic
 const connectWithRetry = async () => {

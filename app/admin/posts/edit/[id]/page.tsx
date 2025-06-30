@@ -68,29 +68,6 @@ interface AuthorOption {
   image: string;
 }
 
-const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "https://c16-mn.onrender.com",
-  timeout: 10000, 
-  headers: {
-    "Content-Type": "application/json",
-  },
-  withCredentials: true, 
-});
-
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    console.error("API Error:", error);
-    if (error.code === "ECONNABORTED") {
-      throw new Error("Request timeout. Please try again.");
-    }
-    if (!error.response) {
-      throw new Error("Network error. Please check your connection.");
-    }
-    throw error;
-  }
-);
-
 export default function EditPostPage({
   params,
 }: {
@@ -144,11 +121,26 @@ export default function EditPostPage({
       try {
         setLoading(true);
 
-        // Fetch post data, categories and authors
+        // Fetch post data, categories and authors using axios with relative URLs
         const [postRes, categoriesRes, authorsRes] = await Promise.all([
-          api.get<Post>(`/api/news/${postId}`),
-          api.get<{ categories: Category[] }>("/api/categories"),
-          api.get<{ authors: Author[] }>("/api/authors"),
+          axios.get<Post>(`/api/news/${postId}`, {
+            headers: {
+              "Authorization": "Basic " + (typeof window !== "undefined" ? localStorage.getItem("admin_auth") || "" : ""),
+              "Content-Type": "application/json",
+            },
+          }),
+          axios.get<{ categories: Category[] }>("/api/categories", {
+            headers: {
+              "Authorization": "Basic " + (typeof window !== "undefined" ? localStorage.getItem("admin_auth") || "" : ""),
+              "Content-Type": "application/json",
+            },
+          }),
+          axios.get<{ data: Author[] }>("/api/authors", {
+            headers: {
+              "Authorization": "Basic " + (typeof window !== "undefined" ? localStorage.getItem("admin_auth") || "" : ""),
+              "Content-Type": "application/json",
+            },
+          }),
         ]);
 
         // Set post data
@@ -186,7 +178,7 @@ export default function EditPostPage({
         );
 
         // Process authors data
-        const authorsData = authorsRes.data.authors || [];
+        const authorsData = authorsRes.data.data || [];
         setAuthors(
           authorsData.map((author) => ({
             id: author._id,
@@ -195,7 +187,6 @@ export default function EditPostPage({
           }))
         );
 
-        // Set author image preview if exists
         const author = authorsData.find(
           (a) => a.authorName === post.authorName
         );
@@ -334,18 +325,29 @@ export default function EditPostPage({
         formDataToSend.append("existingImages", JSON.stringify([]));
       }
 
+      // Debug: Log newsImages before appending
+      console.log("newsImages to upload:", newsImages);
+
       // Append news images
       newsImages.forEach((file) => {
+        console.log("Appending file to FormData:", file);
         formDataToSend.append("newsImages", file);
       });
 
-      const response = await api.put<ApiResponse<Post>>(
+      // Debug: Log FormData keys and values
+      for (let pair of formDataToSend.entries()) {
+        console.log(pair[0]+ ':', pair[1]);
+      }
+
+      const response = await axios.put<ApiResponse<Post>>(
         `/api/news/${postId}`,
         formDataToSend,
         {
           headers: {
+            "Authorization": "Basic " + (typeof window !== "undefined" ? localStorage.getItem("admin_auth") || "" : ""),
             "Content-Type": "multipart/form-data",
           },
+          withCredentials: true,
         }
       );
 
@@ -449,9 +451,8 @@ export default function EditPostPage({
                   <Label htmlFor="authorName">Author</Label>
                   <Select
                     value={formData.authorName}
-                    onValueChange={(value) =>
-                      handleSelectChange("authorName", value)
-                    }>
+                    onValueChange={(value) => handleSelectChange("authorName", value)}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select an author" />
                     </SelectTrigger>
@@ -474,7 +475,7 @@ export default function EditPostPage({
                   <Label htmlFor="banner">Set as banner post</Label>
                 </div>
 
-                <div className="grid gap-3">
+                {/* <div className="grid gap-3">
                   <Label htmlFor="authorImage">Author Image</Label>
                   <Input
                     id="authorImage"
@@ -550,7 +551,7 @@ export default function EditPostPage({
                       </Table>
                     </div>
                   )}
-                </div>
+                </div> */}
 
                 <div className="grid gap-3">
                   <Label htmlFor="newsImages">Мэдээний зураг</Label>
@@ -640,6 +641,20 @@ export default function EditPostPage({
                     </div>
                   )}
                 </div>
+
+                {formData.authorName && (
+                  <div className="flex items-center gap-2">
+                    <img
+                      src={
+                        (authors.find((a) => a.name === formData.authorName)?.image) ||
+                        "https://via.placeholder.com/150"
+                      }
+                      alt="Selected author"
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                    <span className="font-medium">{formData.authorName}</span>
+                  </div>
+                )}
               </form>
             </CardContent>
           </Card>

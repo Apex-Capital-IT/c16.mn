@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import axios from "axios";
+import { useAdminList } from "./useAdminList";
 
 const API_URL =
   process.env.NEXT_PUBLIC_BACKEND_URL || "https://c16-mn.onrender.com";
@@ -33,6 +34,13 @@ interface Author {
 }
 
 export default function CreateNews() {
+  const {
+    items: authors,
+    loading: authorsLoading,
+    error: authorsError,
+    refresh: refreshAuthors,
+  } = useAdminList<Author>({ endpoint: "/api/authors", dataKey: "data", pageSize: 100 });
+
   const [formData, setFormData] = useState<NewsFormData>({
     title: "",
     content: "",
@@ -41,23 +49,7 @@ export default function CreateNews() {
     authorName: "",
     authorImage: "",
   });
-
-  const [authors, setAuthors] = useState<Author[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    const fetchAuthors = async () => {
-      try {
-        const response = await axiosInstance.get<Author[]>("/api/authors");
-        setAuthors(response.data);
-      } catch (error) {
-        toast.error("Failed to fetch authors");
-        console.error("Error fetching authors:", error);
-      }
-    };
-
-    fetchAuthors();
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -241,11 +233,11 @@ export default function CreateNews() {
             required
           >
             <option value="">Select Author</option>
-            {/* {authors.map((author) => (
+            {authors.map((author) => (
               <option key={author._id} value={author._id}>
-                {author.authorName}
+                {author.name}
               </option>
-            ))} */}
+            ))}
           </select>
         </div>
 

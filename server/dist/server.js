@@ -13,33 +13,27 @@ const authorRoutes_1 = __importDefault(require("./routes/authorRoutes"));
 const banner_routes_1 = __importDefault(require("./routes/banner.routes"));
 const path_1 = __importDefault(require("path"));
 const multer_1 = __importDefault(require("multer"));
-const basicAuth_1 = require("./middleware/basicAuth");
 const adminAuth_routes_1 = __importDefault(require("./routes/adminAuth.routes"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 8000;
 const MONGO_URI = process.env.MONGO_URI || "";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-// Ensure required directories exist
-// ensureDirectories();
-// Configure CORS to accept requests from the frontend
 const allowedOrigins = [
-    "http://localhost:3000", // Local frontend development
-    "http://localhost:3002", // Local frontend development
-    "http://localhost:8000", // Local backend development
-    "https://c16-mn.onrender.com", // Production backend
-    "https://c16-mn.vercel.app", // Production frontend
+    // "http://localhost:3000", 
+    "http://localhost:8000",
+    "https://c16-mn.onrender.com",
+    "https://c16-mn.vercel.app",
     "https://c16.mn",
-    "https://www.c16.mn", // Custom domain if used
+    "https://www.c16.mn",
 ];
 app.use((0, cors_1.default)({
     origin: (origin, callback) => {
-        // Allow requests with no origin (like mobile apps or curl requests)  
         if (!origin || allowedOrigins.includes(origin)) {
             callback(null, true);
         }
         else {
-            console.log("Blocked origin:", origin); // Log blocked origins for debugging
+            console.log("Blocked origin:", origin);
             callback(new Error("Not allowed by CORS"));
         }
     },
@@ -52,7 +46,7 @@ app.use((0, cors_1.default)({
         "X-Requested-With",
     ],
     credentials: true,
-    maxAge: 86400, // CORS preflight cache for 24 hours
+    maxAge: 86400,
 }));
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
@@ -110,11 +104,11 @@ app.use((err, req, res, next) => {
 });
 // Register adminAuthRouter BEFORE protected routes and WITHOUT basicAuth
 app.use("/api", adminAuth_routes_1.default);
-app.use("/uploads", basicAuth_1.basicAuth, express_1.default.static(path_1.default.join(__dirname, "../uploads")));
-app.use("/api/news", basicAuth_1.basicAuth, news_routes_1.default);
-app.use("/api", basicAuth_1.basicAuth, categoriesRoutes_1.default);
-app.use("/api", basicAuth_1.basicAuth, authorRoutes_1.default);
-app.use("/api/banners", basicAuth_1.basicAuth, banner_routes_1.default);
+app.use("/uploads", express_1.default.static(path_1.default.join(__dirname, "../uploads")));
+app.use("/api/news", news_routes_1.default);
+app.use("/api", categoriesRoutes_1.default);
+app.use("/api", authorRoutes_1.default);
+app.use("/api/banners", banner_routes_1.default);
 // MongoDB Connection with retry logic
 const connectWithRetry = async () => {
     try {

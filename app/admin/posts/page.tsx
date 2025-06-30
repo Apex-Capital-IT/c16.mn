@@ -22,6 +22,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useAdminList } from "@/components/admin/useAdminList";
 
 interface Post {
   _id: string;
@@ -37,64 +38,18 @@ interface Post {
 }
 
 export default function PostsPage() {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
+  const {
+    loading,
+    error,
+    items: posts,
+    refresh,
+    hasMore,
+    loadMore,
+    page,
+    deleteItem,
+  } = useAdminList<Post>({ endpoint: "/api/news", dataKey: "data", pageSize: 20 });
   const { toast } = useToast();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetchPosts();
-  }, []);
-
-  const fetchPosts = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get<{
-        status: string;
-        data: Post[];
-        count: number;
-      }>("/api/news", {
-        headers: {
-          "Cache-Control": "no-cache",
-          Pragma: "no-cache",
-        },
-      });
-      // console.log('API Response:', response.data);
-      // Access the data property from the response
-      setPosts(Array.isArray(response.data.data) ? response.data.data : []);
-    } catch (error) {
-      console.error("Error fetching posts:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load posts",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    try {
-      setLoading(true);
-      await axios.delete(`/api/news/${id}`);
-      // Refresh posts list
-      await fetchPosts();
-      toast({
-        title: "Success",
-        description: "Post deleted successfully",
-      });
-    } catch (error) {
-      console.error("Error deleting post:", error);
-      toast({
-        title: "Error",
-        description: "Failed to delete post",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -221,7 +176,21 @@ export default function PostsPage() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() => handleDelete(post._id)}>
+                        onClick={async () => {
+                          try {
+                            await deleteItem(post._id);
+                            toast({
+                              title: "Success",
+                              description: "Post deleted successfully",
+                            });
+                          } catch (error) {
+                            toast({
+                              title: "Error",
+                              description: "Failed to delete post",
+                              variant: "destructive",
+                            });
+                          }
+                        }}>
                         <Trash2 className="h-4 w-4 text-destructive" />
                         <span className="sr-only">Delete</span>
                       </Button>
