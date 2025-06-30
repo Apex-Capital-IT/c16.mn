@@ -70,7 +70,7 @@ export default function CreatePostPage() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        // Fetch categories and authors from the API
+
         const [categoriesRes, authorsRes] = await Promise.all([
           axios.get<{ categories: any[] }>("/api/categories"),
           axios.get<{ data: any[] }>("/api/authors"),
