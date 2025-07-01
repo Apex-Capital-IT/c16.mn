@@ -18,9 +18,9 @@ dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 8000;
 const MONGO_URI = process.env.MONGO_URI || "";
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const NEXT_PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL;
 const allowedOrigins = [
-    // "http://localhost:3000", 
+    "http://localhost:3000",
     "http://localhost:8000",
     "https://c16-mn.onrender.com",
     "https://c16-mn.vercel.app",
@@ -50,13 +50,11 @@ app.use((0, cors_1.default)({
 }));
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
-// Add request logging middleware
 app.use((req, res, next) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
     console.log('Headers:', req.headers);
     next();
 });
-// Health check endpoint
 app.get("/health", (req, res) => {
     res.status(200).json({
         status: "ok",
@@ -64,16 +62,14 @@ app.get("/health", (req, res) => {
         mongodb: mongoose_1.default.connection.readyState === 1 ? "connected" : "disconnected",
     });
 });
-// Test endpoint
 app.get("/test", (req, res) => {
     res.status(200).json({
         message: "Server is working!",
         environment: process.env.NODE_ENV || "development",
-        apiUrl: API_URL,
+        apiUrl: NEXT_PUBLIC_API_URL,
         allowedOrigins: allowedOrigins,
     });
 });
-// Configure multer for file uploads
 const storage = multer_1.default.diskStorage({
     destination: function (req, file, cb) {
         cb(null, path_1.default.join(__dirname, "../uploads"));
@@ -84,7 +80,6 @@ const storage = multer_1.default.diskStorage({
     },
 });
 const upload = (0, multer_1.default)({ storage: storage });
-// File upload endpoint
 app.post("/api/upload", upload.single("file"), (req, res) => {
     if (!req.file) {
         res.status(400).json({ error: "No file uploaded" });
@@ -92,7 +87,6 @@ app.post("/api/upload", upload.single("file"), (req, res) => {
     }
     res.json({ url: `/uploads/${req.file.filename}` });
 });
-// Error handling middleware
 app.use((err, req, res, next) => {
     console.error("Error:", err);
     res.status(err.status || 500).json({
@@ -102,24 +96,21 @@ app.use((err, req, res, next) => {
         },
     });
 });
-// Register adminAuthRouter BEFORE protected routes and WITHOUT basicAuth
 app.use("/api", adminAuth_routes_1.default);
 app.use("/uploads", express_1.default.static(path_1.default.join(__dirname, "../uploads")));
 app.use("/api/news", news_routes_1.default);
 app.use("/api", categoriesRoutes_1.default);
 app.use("/api", authorRoutes_1.default);
 app.use("/api/banners", banner_routes_1.default);
-// MongoDB Connection with retry logic
 const connectWithRetry = async () => {
     try {
         console.log("Attempting to connect to MongoDB...");
-        console.log("MONGO_URI:", MONGO_URI.replace(/\/\/[^:]+:[^@]+@/, "//***:***@")); // Log URI without credentials
+        console.log("MONGO_URI:", MONGO_URI.replace(/\/\/[^:]+:[^@]+@/, "//***:***@"));
         await mongoose_1.default.connect(MONGO_URI, {
-            serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
-            socketTimeoutMS: 45000, // Close sockets after 45s of inactivity
+            serverSelectionTimeoutMS: 5000,
+            socketTimeoutMS: 45000,
         });
         console.log("MongoDB connected successfully");
-        // Start server only after successful database connection
         app.listen(PORT, () => {
             console.log(`Server running on port ${PORT}`);
         });
@@ -132,10 +123,8 @@ const connectWithRetry = async () => {
             code: err.code,
             codeName: err.codeName,
         });
-        // Retry connection after 5 seconds
         console.log("Retrying connection in 5 seconds...");
         setTimeout(connectWithRetry, 5000);
     }
 };
-// Initial connection attempt
 connectWithRetry();

@@ -13,7 +13,7 @@ export default function AdminLogin() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const NEXT_PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  const NEXT_PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,7 +30,6 @@ export default function AdminLogin() {
       if (res.ok) {
 
         localStorage.setItem("admin_auth", btoa(`${username}:${password}`));
-        // Store login flag (for demo, use localStorage)
         localStorage.setItem("admin_logged_in", "true");
         router.push("/admin");
       } else {

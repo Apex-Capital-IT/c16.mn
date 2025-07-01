@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useEffect, useState, forwardRef, useImperativeHandle } from "react";
+import { useState, forwardRef, useImperativeHandle } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -25,7 +25,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import axios from "axios";
 import { useAdminList } from "./useAdminList";
 
 interface ApiResponse<T> {
@@ -35,30 +34,6 @@ interface ApiResponse<T> {
   error?: string;
 }
 
-// Configure axios with base URL and default settings
-const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
-  timeout: 10000,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
-
-// Add response interceptor for better error handling
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    console.error("API Error:", error);
-    if (error.code === "ECONNABORTED") {
-      throw new Error("Request timeout. Please try again.");
-    }
-    if (!error.response) {
-      throw new Error("Network error. Please check your connection.");
-    }
-    throw error;
-  }
-);
-
 interface Author {
   _id: string;
   authorName: string;
@@ -67,15 +42,12 @@ interface Author {
   createdAt: string;
 }
 
-const fallbackAuthorData: Author[] = [];
-
 export const AuthorList = forwardRef<{ refresh: () => void }, {}>(
   (props, ref) => {
     const router = useRouter();
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [authorToDelete, setAuthorToDelete] = useState<Author | null>(null);
-
-    // useAdminList ашиглах
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     const {
       loading,
       error,
@@ -84,7 +56,8 @@ export const AuthorList = forwardRef<{ refresh: () => void }, {}>(
       refresh,
       loadMore,
       page,
-    } = useAdminList<Author>({ endpoint: "/api/authors", dataKey: "data" });
+      deleteItem,
+    } = useAdminList<Author>({ endpoint: `${apiUrl}/api/authors`, dataKey: "data" });
 
     useImperativeHandle(ref, () => ({
       refresh,
@@ -101,58 +74,11 @@ export const AuthorList = forwardRef<{ refresh: () => void }, {}>(
 
     const handleDeleteConfirm = async () => {
       if (!authorToDelete) return;
-
       try {
-        const response = await api.delete<ApiResponse<void>>(
-          `/api/authors/${authorToDelete._id}`,
-          {
-            headers: {
-              Accept: "application/json",
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (response.data.status === "success") {
-          toast.success(
-            response.data.message || "Зохиолч амжилттай устгагдлаа"
-          );
-          refresh();
-        } else {
-          toast.error(response.data.message || "Зохиолч устгахад алдаа гарлаа");
-        }
-      } catch (err: unknown) {
-        console.error("Error deleting author:", err);
-        if (
-          err &&
-          typeof err === "object" &&
-          "isAxiosError" in err &&
-          err.isAxiosError
-        ) {
-          const axiosError = err as {
-            response?: { status: number; data?: { message?: string } };
-          };
-
-          if (axiosError.response?.status === 404) {
-            toast.error("Зохиолч олдсонгүй!");
-          } else if (axiosError.response?.status === 403) {
-            toast.error("Энэ үйлдлийг хийх эрх байхгүй байна");
-          } else if (axiosError.response?.status === 400) {
-            toast.error(
-              axiosError.response.data?.message ||
-                "Зохиолчтой холбоотой мэдээ байгаа учраас устгах боломжгүй"
-            );
-          } else if (!axiosError.response) {
-            toast.error("Сервертэй холбогдоход алдаа гарлаа");
-          } else {
-            toast.error(
-              axiosError.response.data?.message ||
-                "Зохиолч устгахад алдаа гарлаа"
-            );
-          }
-        } else {
-          toast.error("Зохиолч устгахад алдаа гарлаа");
-        }
+        await deleteItem(authorToDelete._id);
+        toast.success("Зохиолч амжилттай устгагдлаа");
+      } catch (error) {
+        toast.error("Зохиолч устгахад алдаа гарлаа");
       } finally {
         setDeleteDialogOpen(false);
         setAuthorToDelete(null);

@@ -339,8 +339,9 @@ export default function EditPostPage({
         console.log(pair[0]+ ':', pair[1]);
       }
 
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
       const response = await axios.put<ApiResponse<Post>>(
-        `/api/news/${postId}`,
+        `${apiUrl}/api/news/${postId}`,
         formDataToSend,
         {
           headers: {

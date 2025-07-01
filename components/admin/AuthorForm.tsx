@@ -108,13 +108,17 @@ export default function AuthorForm({ onSuccess }: { onSuccess?: () => void }) {
         imageSize: formData.authorImage.size,
       });
 
-      const response = await fetch("/api/authors", {
-        method: "POST",
-        headers: {
-          "Authorization": "Basic " + (typeof window !== "undefined" ? localStorage.getItem("admin_auth") || "" : ""),
-        },
-        body: formDataToSend,
-      });
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      const response = await fetch(
+        apiUrl ? `${apiUrl}/api/authors` : "/api/authors",
+        {
+          method: "POST",
+          headers: {
+            "Authorization": "Basic " + (typeof window !== "undefined" ? localStorage.getItem("admin_auth") || "" : ""),
+          },
+          body: formDataToSend,
+        }
+      );
 
       const data = await response.json();
       console.log("Response:", data);

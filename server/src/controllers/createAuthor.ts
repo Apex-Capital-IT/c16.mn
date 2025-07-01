@@ -44,14 +44,12 @@ export const createAuthor = async (
       return;
     }
 
-    // Validate file type
     if (!file.mimetype.startsWith('image/')) {
       console.log("Validation error: Invalid file type", file.mimetype);
       res.status(400).json({ message: "Зөвхөн зураг файл оруулах боломжтой" });
       return;
     }
 
-    // Handle image upload
     let imageUrl: string;
     try {
       console.log("Uploading author image to Cloudinary...");
@@ -67,7 +65,6 @@ export const createAuthor = async (
       return;
     }
 
-    // Create new author
     const newAuthor = new AuthorModel({
       authorName: authorName.trim(),
       authorImage: imageUrl,

@@ -10,7 +10,6 @@ import { basicAuth } from "../middleware/basicAuth";
 
 const router = express.Router();
 
-// Configure multer for file uploads
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 

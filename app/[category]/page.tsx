@@ -6,11 +6,12 @@ import { NewsArticle } from "@/lib/axios";
 
 async function getNewsByCategory(category: string): Promise<NewsArticle[]> {
   try {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     const response = await axios.get<{
       status: string;
       data: NewsArticle[];
       count: number;
-    }>("https://c16-mn.onrender.com/api/news", {
+    }>(`${apiUrl}/api/news`, {
       headers: {
         "Cache-Control": "no-cache",
         Pragma: "no-cache",

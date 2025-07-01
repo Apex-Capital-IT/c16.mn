@@ -230,8 +230,9 @@ export default function CreatePostPage() {
         );
       }
 
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
       const response = await axios.post(
-        "https://c16-mn.onrender.com/api/news",
+        `${apiUrl}/api/news`,
         formDataToSend,
         {
           headers: {

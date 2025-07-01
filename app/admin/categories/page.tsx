@@ -10,7 +10,6 @@ export default function CategoriesPage() {
   const [refreshKey, setRefreshKey] = useState(0);
 
   const handleCategoryCreated = () => {
-    // Force the CategoryList to refresh
     setRefreshKey(prev => prev + 1);
   };
 
@@ -20,7 +19,6 @@ export default function CategoriesPage() {
         title="Ангилалууд"
         description="Мэдээний ангилалуудыг удирдах"
       />
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>

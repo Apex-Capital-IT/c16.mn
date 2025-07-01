@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import axios from "axios";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -38,6 +37,7 @@ interface Post {
 }
 
 export default function PostsPage() {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   const {
     loading,
     error,
@@ -47,7 +47,7 @@ export default function PostsPage() {
     loadMore,
     page,
     deleteItem,
-  } = useAdminList<Post>({ endpoint: "/api/news", dataKey: "data", pageSize: 20 });
+  } = useAdminList<Post>({ endpoint: `${apiUrl}/api/news`, dataKey: "data", pageSize: 20 });
   const { toast } = useToast();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 

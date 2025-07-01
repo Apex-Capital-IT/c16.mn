@@ -11,7 +11,6 @@ export const updateNews = async (
     const { title, content, category, authorName, banner, existingImages } =
       req.body;
 
-    // Check if MongoDB is connected
     if (!NewsModel.db.readyState) {
       console.error("MongoDB is not connected");
       res.status(503).json({
@@ -22,7 +21,6 @@ export const updateNews = async (
       return;
     }
 
-    // Get the current news article to check existing images
     const currentNews = await NewsModel.findById(id);
     if (!currentNews) {
       res.status(404).json({

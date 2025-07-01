@@ -8,23 +8,16 @@ import { basicAuth } from "../middleware/basicAuth";
 
 const router = express.Router();
 
-// Get all news
 router.get("/", getNews as RequestHandler);
 
-// Get single news by ID
 router.get("/:id", getNewsById as RequestHandler);
 
-// Get news for editing
 router.get("/edit/:id", getNewsById as RequestHandler);
 
-// Create news - add logging middleware and fix file upload
-// Make sure to use the exact field name expected by the frontend
 router.post("/", basicAuth, logRequest, upload.array("newsImages", 10), createNews as RequestHandler);
 
-// Update news
 router.put("/:id", basicAuth, logRequest, upload.array("newsImages", 10), updateNews as RequestHandler);
 
-// Delete news
 router.delete("/:id", basicAuth, deleteNews as RequestHandler);
 
 export default router;

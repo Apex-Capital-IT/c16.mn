@@ -8,7 +8,6 @@ const bannerController_1 = require("../controllers/bannerController");
 const multer_1 = __importDefault(require("multer"));
 const basicAuth_1 = require("../middleware/basicAuth");
 const router = express_1.default.Router();
-// Configure multer for file uploads
 const storage = multer_1.default.memoryStorage();
 const upload = (0, multer_1.default)({ storage: storage });
 router.post("/", basicAuth_1.basicAuth, upload.single("file"), bannerController_1.createBanner);
