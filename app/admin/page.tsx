@@ -14,6 +14,7 @@ import {
 import { BarChart3, Users, FolderTree, Eye, LucideIcon } from "lucide-react";
 import AdminDashboardLoading from "./loading";
 import { Skeleton } from "@/components/ui/skeleton";
+import { adminStore } from "@/components/admin/mock-store";
 
 interface StatsCardProps {
   title: string;
@@ -64,6 +65,10 @@ function StatsCard({
 }
 
 export default function AdminDashboard() {
+  const totalPosts = adminStore.news.length;
+  const totalAuthors = adminStore.authors.length;
+  const totalCategories = adminStore.categories.length;
+  const totalViews = adminStore.news.reduce((sum, n) => sum + (n.views || 0), 0);
   return (
     <Suspense fallback={<AdminDashboardLoading />}>
       <div className="flex flex-col gap-8 p-6 bg-background">
@@ -75,25 +80,25 @@ export default function AdminDashboard() {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           <StatsCard
             title="Total Posts"
-            value="142"
+            value={String(totalPosts)}
             change="↑ 20% from last month"
             icon={BarChart3}
           />
           <StatsCard
             title="Authors"
-            value="12"
-            change="+2 new authors"
+            value={String(totalAuthors)}
+            change="Идэвхтэй зохиолчид"
             icon={Users}
           />
           <StatsCard
             title="Categories"
-            value="8"
-            change="+1 from last month"
+            value={String(totalCategories)}
+            change="Нийт ангилал"
             icon={FolderTree}
           />
           <StatsCard
             title="Page Views"
-            value="24,563"
+            value={totalViews.toLocaleString()}
             change="↑ 12.5% from last month"
             icon={Eye}
           />
@@ -104,7 +109,7 @@ export default function AdminDashboard() {
             <CardHeader>
               <CardTitle className="text-xl font-semibold">Overview</CardTitle>
               <CardDescription className="text-muted-foreground">
-                Blog post views for the last 30 days
+                Ангилал тус бүрийн нийт үзэлт
               </CardDescription>
             </CardHeader>
             <CardContent className="pl-2">

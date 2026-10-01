@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import toast from "react-hot-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function AdminLogin() {
@@ -13,33 +14,20 @@ export default function AdminLogin() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const NEXT_PUBLIC_API_URL = process.env.NEXT_PUBLIC_API_URL;
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError("");
-    try {
-      const res = await fetch(`${NEXT_PUBLIC_API_URL}/api/admin-auth`, {
-        method: "POST",
-        headers: {
-          "Authorization": "Basic " + btoa(`${username}:${password}`),
-          "Content-Type": "application/json",
-        },
-      });
-      if (res.ok) {
-
-        localStorage.setItem("admin_auth", btoa(`${username}:${password}`));
-        localStorage.setItem("admin_logged_in", "true");
-        router.push("/admin");
-      } else {
-        setError("Нэвтрэх нэр эсвэл нууц үг буруу байна");
-      }
-    } catch (err) {
-      setError("Сүлжээний алдаа. Дахин оролдоно уу.");
-    } finally {
-      setLoading(false);
+    if (!username.trim() || !password.trim()) {
+      setError("Нэвтрэх нэр болон нууц үгээ оруулна уу");
+      return;
     }
+    setLoading(true);
+    // Mock login: any non-empty credentials are accepted.
+    await new Promise((r) => setTimeout(r, 400));
+    localStorage.setItem("admin_auth", btoa(unescape(encodeURIComponent(`${username}:${password}`))));
+    localStorage.setItem("admin_logged_in", "true");
+    toast.success("Амжилттай нэвтэрлээ");
+    router.push("/admin");
   };
 
   return (
@@ -72,6 +60,9 @@ export default function AdminLogin() {
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Нэвтэрч байна..." : "Нэвтрэх"}
             </Button>
+            <p className="text-center text-xs text-muted-foreground">
+              Demo: <code>admin</code> / <code>admin</code> (ямар ч утга зөвшөөрнө)
+            </p>
           </form>
         </CardContent>
       </Card>

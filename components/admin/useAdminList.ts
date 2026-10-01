@@ -1,105 +1,59 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import {
+  adminStore,
+  collectionFromEndpoint,
+  fakeDelay,
+  removeFromStore,
+} from "./mock-store";
 
 interface UseAdminListOptions {
-  endpoint: string;
+  endpoint: string; // used only to pick the mock collection: news / categories / authors
   pageSize?: number;
   headers?: Record<string, string>;
-  dataKey?: string; // API response дотор өгөгдөл хадгалагддаг key (жишээ нь: data, categories)
+  dataKey?: string;
 }
 
-export function useAdminList<T = any>({ endpoint, pageSize = 10, headers = {}, dataKey = "data" }: UseAdminListOptions) {
+// Mock list hook: reads from the in-memory admin store, simulates pagination and delete.
+export function useAdminList<T = any>({ endpoint, pageSize = 10 }: UseAdminListOptions) {
+  const collection = collectionFromEndpoint(endpoint);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const [total, setTotal] = useState(0);
+  const [version, setVersion] = useState(0);
   const [items, setItems] = useState<T[]>([]);
+  const [total, setTotal] = useState(0);
 
   useEffect(() => {
     let isMounted = true;
-    const fetchItems = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const url = `${endpoint}${endpoint.includes("?") ? "&" : "?"}page=${page}&limit=${pageSize}`;
-        const res = await fetch(url, {
-          method: "GET",
-          headers: {
-            ...headers,
-            "Authorization": "Basic " + (typeof window !== "undefined" ? localStorage.getItem("admin_auth") || "" : ""),
-            "Content-Type": "application/json",
-          },
-        });
-        let data;
-        try {
-          data = await res.json();
-        } catch (parseError) {
-          throw new Error("Серверээс буруу хариу ирлээ");
-        }
-        if (!res.ok) {
-          throw new Error(data.error || data.message || "Алдаа гарлаа");
-        }
-        const totalCount = parseInt(res.headers.get("X-Total-Count") || "0");
-        if (!isMounted) return;
-        setTotal(totalCount);
-        setHasMore(page * pageSize < totalCount);
-        const list = Array.isArray(data[dataKey]) ? data[dataKey] : [];
-        if (page === 1) {
-          setItems(list);
-        } else {
-          setItems((prev) => [...prev, ...list]);
-        }
-      } catch (error) {
-        if (!isMounted) return;
-        setError(error instanceof Error ? error.message : "Алдаа гарлаа");
-        if (page === 1) setItems([]);
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    };
-    fetchItems();
+    setLoading(true);
+    setError(null);
+    fakeDelay(250).then(() => {
+      if (!isMounted) return;
+      const all = adminStore[collection] as unknown as T[];
+      setTotal(all.length);
+      setItems(all.slice(0, page * pageSize));
+      setLoading(false);
+    });
     return () => {
       isMounted = false;
     };
-  }, [endpoint, page, pageSize, dataKey, JSON.stringify(headers)]);
+  }, [collection, page, pageSize, version]);
 
-  const refresh = () => {
+  const refresh = useCallback(() => {
     setPage(1);
-  };
+    setVersion((v) => v + 1);
+  }, []);
 
   const loadMore = () => setPage((prev) => prev + 1);
 
   const deleteItem = async (id: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch(`${endpoint}/${id}`, {
-        method: "DELETE",
-        headers: {
-          ...headers,
-          "Authorization": "Basic " + (typeof window !== "undefined" ? localStorage.getItem("admin_auth") || "" : ""),
-          "Content-Type": "application/json",
-        },
-      });
-      let data;
-      try {
-        data = await res.json();
-      } catch (parseError) {
-        throw new Error("Серверээс буруу хариу ирлээ");
-      }
-      if (!res.ok) {
-        throw new Error(data.error || data.message || "Устгах үед алдаа гарлаа");
-      }
-      // Optimistic update: remove deleted item from list
-      setItems((prev) => prev.filter((item: any) => item._id !== id));
-      // Refresh list after delete
-      refresh();
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "Устгах үед алдаа гарлаа");
-    } finally {
-      setLoading(false);
-    }
+    await fakeDelay(200);
+    removeFromStore(collection, id);
+    setItems((prev) => prev.filter((item: any) => item._id !== id));
+    setTotal((t) => Math.max(0, t - 1));
   };
 
+  const hasMore = items.length < total;
+
   return { loading, error, items, hasMore, total, refresh, loadMore, page, deleteItem };
-} 
+}

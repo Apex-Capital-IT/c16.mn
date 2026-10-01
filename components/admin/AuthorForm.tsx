@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 import { FaInstagram, FaFacebook, FaYoutube } from "react-icons/fa";
-import { useAdminList } from "./useAdminList";
+import { adminStore, fakeDelay, newId, nowIso } from "./mock-store";
 
 export default function AuthorForm({ onSuccess }: { onSuccess?: () => void }) {
   const router = useRouter();
@@ -18,7 +18,6 @@ export default function AuthorForm({ onSuccess }: { onSuccess?: () => void }) {
     authorImage: null as File | null,
     socialMedia: "",
   });
-  const { refresh } = useAdminList({ endpoint: "/api/authors", dataKey: "data", pageSize: 100 });
 
   const getSocialMediaIcon = (url: string) => {
     if (url.includes("instagram.com")) return <FaInstagram className="w-5 h-5 text-pink-600" />;
@@ -95,43 +94,20 @@ export default function AuthorForm({ onSuccess }: { onSuccess?: () => void }) {
         return;
       }
 
-      const formDataToSend = new FormData();
-      formDataToSend.append("authorName", formData.authorName.trim());
-      formDataToSend.append("authorImage", formData.authorImage);
-      formDataToSend.append("socialMedia", formData.socialMedia.trim());
-
-      console.log("Sending form data:", {
-        authorName: formData.authorName,
-        socialMedia: formData.socialMedia,
-        imageFile: formData.authorImage.name,
-        imageType: formData.authorImage.type,
-        imageSize: formData.authorImage.size,
+      await fakeDelay();
+      adminStore.authors.unshift({
+        _id: newId("a"),
+        authorName: formData.authorName.trim(),
+        authorImage: previewImage || "/placeholder.svg",
+        bio: "",
+        socialMedia: formData.socialMedia.trim(),
+        createdAt: nowIso(),
       });
-
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      const response = await fetch(
-        apiUrl ? `${apiUrl}/api/authors` : "/api/authors",
-        {
-          method: "POST",
-          headers: {
-            "Authorization": "Basic " + (typeof window !== "undefined" ? localStorage.getItem("admin_auth") || "" : ""),
-          },
-          body: formDataToSend,
-        }
-      );
-
-      const data = await response.json();
-      console.log("Response:", data);
-
-      if (!response.ok) {
-        throw new Error(data.error || "Зохиолч үүсгэхэд алдаа гарлаа");
-      }
 
       // Refresh list immediately after successful API call
       if (onSuccess) {
         onSuccess();
       }
-      refresh();
       toast.success("Зохиолч амжилттай үүслээ");
       router.push("/admin/authors");
     } catch (error) {
