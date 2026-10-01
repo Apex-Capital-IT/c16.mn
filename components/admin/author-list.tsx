@@ -9,12 +9,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useState, forwardRef, useImperativeHandle } from "react";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Pencil, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,13 +25,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useAdminList } from "./useAdminList";
-
-interface ApiResponse<T> {
-  status: "success" | "error";
-  data: T;
-  message?: string;
-  error?: string;
-}
 
 interface Author {
   _id: string;
@@ -47,7 +39,6 @@ export const AuthorList = forwardRef<{ refresh: () => void }, {}>(
     const router = useRouter();
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [authorToDelete, setAuthorToDelete] = useState<Author | null>(null);
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     const {
       loading,
       error,
@@ -57,7 +48,7 @@ export const AuthorList = forwardRef<{ refresh: () => void }, {}>(
       loadMore,
       page,
       deleteItem,
-    } = useAdminList<Author>({ endpoint: `${apiUrl}/api/authors`, dataKey: "data" });
+    } = useAdminList<Author>({ endpoint: "authors" });
 
     useImperativeHandle(ref, () => ({
       refresh,
@@ -154,11 +145,10 @@ export const AuthorList = forwardRef<{ refresh: () => void }, {}>(
                     <TableCell>
                       {author.authorImage && (
                         <div className="relative w-10 h-10">
-                          <Image
+                          <img
                             src={author.authorImage}
                             alt={author.authorName}
-                            fill
-                            className="object-cover rounded-full"
+                            className="w-10 h-10 object-cover rounded-full"
                           />
                         </div>
                       )}

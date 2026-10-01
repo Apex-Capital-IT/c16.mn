@@ -7,13 +7,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Search, Menu, X } from "lucide-react";
 import Image from "next/image";
+import { mockNews } from "@/lib/mock-data";
 
 const categories = [
-  { name: "Нийгэм, Улс Төр", href: "/category/politics" },
-  { name: "Эдийн Засаг", href: "/category/economy" },
-  { name: "Бусад", href: "/category/other" },
-  { name: "Нийтлэлчид", href: "/category/bloggers" },
-  { name: "Видео Контент", href: "/category/video" },
+  { name: "Нийгэм, Улс Төр", href: "/politics" },
+  { name: "Эдийн Засаг", href: "/economy" },
+  { name: "Бусад", href: "/other" },
+  { name: "Нийтлэлчид", href: "/bloggers" },
+  { name: "Видео Контент", href: "/video" },
 ];
 
 interface SearchResult {
@@ -21,6 +22,7 @@ interface SearchResult {
   title: string;
   description: string;
   category: string;
+  categoryName: string;
   newsImage: string;
   authorName: string;
   publishedDate: string;
@@ -33,6 +35,7 @@ export default function Header() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
@@ -44,6 +47,7 @@ export default function Header() {
         !searchRef.current.contains(event.target as Node)
       ) {
         setSearchResults([]);
+        setHasSearched(false);
       }
     }
 
@@ -54,24 +58,36 @@ export default function Header() {
   }, []);
 
   // Handle search
-  const handleSearch = async () => {
-    if (!searchQuery.trim()) {
+  const handleSearch = () => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) {
       setSearchResults([]);
       return;
     }
 
     setIsLoading(true);
-    try {
-      const response = await fetch(
-        `/api/search?q=${encodeURIComponent(searchQuery)}`
-      );
-      const data = await response.json();
-      setSearchResults(data);
-    } catch (error) {
-      console.error("Search error:", error);
-    } finally {
-      setIsLoading(false);
-    }
+    const results: SearchResult[] = mockNews
+      .filter(
+        (n) =>
+          n.title.toLowerCase().includes(q) ||
+          n.description.toLowerCase().includes(q) ||
+          n.authorName.toLowerCase().includes(q) ||
+          n.categoryName.toLowerCase().includes(q)
+      )
+      .map((n) => ({
+        _id: n._id,
+        title: n.title,
+        description: n.description,
+        category: n.category,
+        categoryName: n.categoryName,
+        newsImage: n.newsImages?.[0] || "",
+        authorName: n.authorName,
+        publishedDate: n.publishedDate,
+        slug: n.slug,
+      }));
+    setSearchResults(results);
+    setHasSearched(true);
+    setIsLoading(false);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -81,9 +97,11 @@ export default function Header() {
   };
 
   // Navigate to article and reset search
-  const handleResultClick = (category: string, slug: string) => {
-    router.push(`/${category.toLowerCase()}/${slug}`);
+  const handleResultClick = (category: string, id: string) => {
+    router.push(`/${category}/${id}`);
     setSearchResults([]);
+    setHasSearched(false);
+    setIsSearchOpen(false);
     setSearchQuery("");
   };
 
@@ -141,7 +159,10 @@ export default function Header() {
                 type="text"
                 placeholder="Search news..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setHasSearched(false);
+                }}
                 onKeyDown={handleKeyDown}
                 className="w-full bg-white text-black px-4 py-2 rounded-md focus:outline-none border-[1px] border-black "
               />
@@ -164,7 +185,7 @@ export default function Header() {
                     <li key={article._id} className="border-b last:border-0">
                       <button
                         onClick={() =>
-                          handleResultClick(article.category, article.slug)
+                          handleResultClick(article.category, article._id)
                         }
                         className="w-full text-left p-3 hover:bg-gray-100 transition-colors">
                         <div className="flex items-start">
@@ -177,7 +198,7 @@ export default function Header() {
                             </p>
                             <div className="flex items-center mt-1">
                               <span className="text-xs bg-red-100 text-red-800 px-2 py-0.5 rounded">
-                                {article.category}
+                                {article.categoryName}
                               </span>
                               <span className="text-xs text-gray-500 ml-2">
                                 {new Date(
@@ -191,6 +212,12 @@ export default function Header() {
                     </li>
                   ))}
                 </ul>
+              </div>
+            )}
+
+            {hasSearched && searchResults.length === 0 && (
+              <div className="absolute z-10 mt-2 w-full bg-white rounded-md shadow-lg p-4 text-center text-sm text-gray-500">
+                Илэрц олдсонгүй
               </div>
             )}
 

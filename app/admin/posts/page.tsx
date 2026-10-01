@@ -11,7 +11,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { PlusCircle, Pencil, Trash2, Eye, X } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/admin/admin-toast";
+import { stripHtml } from "@/components/admin/mock-store";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { DashboardHeader } from "@/components/admin/dashboard-header";
@@ -28,6 +29,7 @@ interface Post {
   title: string;
   content: string;
   category: string;
+  categoryName?: string;
   authorName: string;
   banner: boolean;
   slug: string;
@@ -37,7 +39,6 @@ interface Post {
 }
 
 export default function PostsPage() {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   const {
     loading,
     error,
@@ -47,7 +48,7 @@ export default function PostsPage() {
     loadMore,
     page,
     deleteItem,
-  } = useAdminList<Post>({ endpoint: `${apiUrl}/api/news`, dataKey: "data", pageSize: 20 });
+  } = useAdminList<Post>({ endpoint: "news", dataKey: "data", pageSize: 20 });
   const { toast } = useToast();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
@@ -79,7 +80,7 @@ export default function PostsPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {loading ? (
+            {loading && posts.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="text-center py-4">
                   Loading posts...
@@ -102,7 +103,7 @@ export default function PostsPage() {
                           {post.title}
                         </div>
                         <div className="text-sm text-muted-foreground line-clamp-2">
-                          {post.content}
+                          {stripHtml(post.content)}
                         </div>
                       </div>
 
@@ -146,7 +147,7 @@ export default function PostsPage() {
 
                   {/* Category */}
                   <TableCell className="text-sm text-muted-foreground">
-                    {post.category}
+                    {post.categoryName || post.category}
                   </TableCell>
 
                   {/* Author */}
@@ -202,6 +203,14 @@ export default function PostsPage() {
           </TableBody>
         </Table>
       </div>
+
+      {hasMore && !loading && (
+        <div className="text-center">
+          <Button variant="outline" onClick={loadMore}>
+            Дараагийн
+          </Button>
+        </div>
+      )}
 
       {/* Image Preview Modal */}
       <Dialog

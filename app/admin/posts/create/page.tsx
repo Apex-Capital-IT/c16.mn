@@ -3,7 +3,6 @@
 import type React from "react";
 
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,7 +13,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/admin/admin-toast";
+import { adminStore, fakeDelay, newId, nowIso } from "@/components/admin/mock-store";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
@@ -67,76 +67,18 @@ export default function CreatePostPage() {
   const [selectedAuthor, setSelectedAuthor] = useState<string>("");
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-
-        const [categoriesRes, authorsRes] = await Promise.all([
-          axios.get<{ categories: any[] }>("/api/categories", {
-            headers: {
-              "Authorization": "Basic " + (typeof window !== "undefined" ? localStorage.getItem("admin_auth") || "" : ""),
-              "Content-Type": "application/json",
-            },
-          }),
-          axios.get<{ data: any[] }>("/api/authors", {
-            headers: {
-              "Authorization": "Basic " + (typeof window !== "undefined" ? localStorage.getItem("admin_auth") || "" : ""),
-              "Content-Type": "application/json",
-            },
-          }),
-        ]);
-
-        const categoriesData = categoriesRes.data.categories || [];
-        setCategories(
-          categoriesData.map((cat: any) => ({
-            id: cat._id,
-            name: cat.categoryName,
-          }))
-        );
-
-        // Process authors data
-        const authorsData = authorsRes.data.data || [];
-        console.log("Authors data:", authorsData); // Debug log
-        setAuthors(
-          authorsData.map((author: any) => ({
-            id: author._id,
-            name: author.authorName,
-            image: author.authorImage || "https://via.placeholder.com/150",
-          }))
-        );
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load data. Please try again later.",
-          variant: "destructive",
-        });
-
-        setCategories([
-          { id: "1", name: "Development" },
-          { id: "2", name: "React" },
-          { id: "3", name: "Technology" },
-        ]);
-
-        setAuthors([
-          {
-            id: "1",
-            name: "John Doe",
-            image: "https://via.placeholder.com/150",
-          },
-          {
-            id: "2",
-            name: "Jane Smith",
-            image: "https://via.placeholder.com/150",
-          },
-        ]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [toast]);
+    setCategories(
+      adminStore.categories.map((cat) => ({ id: cat._id, name: cat.categoryName }))
+    );
+    setAuthors(
+      adminStore.authors.map((author) => ({
+        id: author._id,
+        name: author.authorName,
+        image: author.authorImage || "/placeholder.svg",
+      }))
+    );
+    setLoading(false);
+  }, []);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -208,87 +150,36 @@ export default function CreatePostPage() {
       return;
     }
 
-    try {
-      setSubmitting(true);
-
-      const formDataToSend = new FormData();
-      formDataToSend.append("title", formData.title);
-      formDataToSend.append("content", formData.content);
-      formDataToSend.append("category", formData.category);
-      formDataToSend.append("authorName", formData.authorName);
-      formDataToSend.append("banner", formData.banner.toString());
-
-      newsImages.forEach((file) => {
-        formDataToSend.append("newsImages", file);
-      });
-
-      for (const pair of formDataToSend.entries()) {
-        console.log(
-          pair[0],
-          typeof pair[1],
-          pair[1] instanceof File ? pair[1].name : pair[1]
-        );
-      }
-
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      const response = await axios.post(
-        `${apiUrl}/api/news`,
-        formDataToSend,
-        {
-          headers: {
-            "Authorization": "Basic " + (typeof window !== "undefined" ? localStorage.getItem("admin_auth") || "" : ""),
-            "Content-Type": "multipart/form-data",
-          },
-          withCredentials: true,
-        }
-      );
-
-      console.log("Response from API:", response.data);
-
-      toast({
-        title: "Success",
-        description: "News post created successfully",
-      });
-
-      router.push("/admin/posts");
-    } catch (error: any) {
-      console.error("Error creating news post:", error);
-
-      if (error.response) {
-        console.error("Error response data:", error.response.data);
-        console.error("Error response status:", error.response.status);
-
-        const errorMessage =
-          error.response.data.message || "Failed to create news post";
-        const missingFields = error.response.data.missingFields;
-
-        let description = errorMessage;
-        if (missingFields) {
-          const missingFieldsList = Object.entries(missingFields)
-            .filter(([_, isMissing]) => isMissing)
-            .map(([field]) => field)
-            .join(", ");
-
-          if (missingFieldsList) {
-            description = `${errorMessage}: ${missingFieldsList}`;
-          }
-        }
-
-        toast({
-          title: "Error",
-          description,
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Error",
-          description: "Failed to create news post",
-          variant: "destructive",
-        });
-      }
-    } finally {
-      setSubmitting(false);
-    }
+    setSubmitting(true);
+    await fakeDelay();
+    const cat = adminStore.categories.find((c) => c.categoryName === formData.category);
+    const author = adminStore.authors.find((a) => a.authorName === formData.authorName);
+    const id = newId("n");
+    const now = nowIso();
+    adminStore.news.unshift({
+      _id: id,
+      title: formData.title,
+      description: formData.content.slice(0, 140),
+      content: formData.content,
+      category: cat?.slug || formData.category,
+      categoryName: formData.category,
+      newsImages: previewNewsImages,
+      authorName: formData.authorName,
+      authorId: author?._id || "",
+      authorImage: author?.authorImage || "",
+      banner: formData.banner,
+      slug: id,
+      publishedDate: now,
+      createdAt: now,
+      updatedAt: now,
+      views: 0,
+    });
+    toast({
+      title: "Success",
+      description: "Мэдээ амжилттай нийтлэгдлээ (mock)",
+    });
+    setSubmitting(false);
+    router.push("/admin/posts");
   };
 
   if (loading) {

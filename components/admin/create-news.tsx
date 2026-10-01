@@ -3,19 +3,9 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { toast } from "sonner";
-import axios from "axios";
+import toast from "react-hot-toast";
 import { useAdminList } from "./useAdminList";
-
-const API_URL =
-  process.env.NEXT_PUBLIC_BACKEND_URL || "https://c16-mn.onrender.com";
-const axiosInstance = axios.create({
-  baseURL: API_URL,
-  headers: {
-    "Content-Type": "multipart/form-data",
-  },
-  withCredentials: true,
-});
+import { adminStore, fakeDelay, newId, nowIso } from "./mock-store";
 
 interface NewsFormData {
   title: string;
@@ -29,8 +19,8 @@ interface NewsFormData {
 
 interface Author {
   _id: string;
-  name: string;
-  image: string;
+  authorName: string;
+  authorImage: string;
 }
 
 export default function CreateNews() {
@@ -39,7 +29,7 @@ export default function CreateNews() {
     loading: authorsLoading,
     error: authorsError,
     refresh: refreshAuthors,
-  } = useAdminList<Author>({ endpoint: "/api/authors", dataKey: "data", pageSize: 100 });
+  } = useAdminList<Author>({ endpoint: "authors", pageSize: 100 });
 
   const [formData, setFormData] = useState<NewsFormData>({
     title: "",
@@ -56,15 +46,30 @@ export default function CreateNews() {
     setIsLoading(true);
 
     try {
-      // Create a FormData object
-      const formDataObj = new FormData();
-      (Object.keys(formData) as Array<keyof NewsFormData>).forEach((key) => {
-        if (formData[key]) {
-          formDataObj.append(key, formData[key]);
-        }
+      await fakeDelay();
+      const cat = adminStore.categories.find(
+        (c) => c.categoryName === formData.category || c.slug === formData.category
+      );
+      const id = newId("n");
+      const now = nowIso();
+      adminStore.news.unshift({
+        _id: id,
+        title: formData.title,
+        description: formData.content.slice(0, 140),
+        content: formData.content,
+        category: cat?.slug || formData.category,
+        categoryName: cat?.categoryName || formData.category,
+        newsImages: formData.newsImage ? [formData.newsImage] : [],
+        authorName: formData.authorName,
+        authorId: formData.authorId || "",
+        authorImage: formData.authorImage,
+        banner: false,
+        slug: id,
+        publishedDate: now,
+        createdAt: now,
+        updatedAt: now,
+        views: 0,
       });
-
-      // const response = await axiosInstance.post("/api/news", formDataObj);
 
       toast.success("News created successfully!");
       setFormData({
@@ -98,34 +103,13 @@ export default function CreateNews() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", "default_preset"); // Таны жинхэнэ upload_preset-г энд бичнэ үү
-
-    try {
-      const res = await fetch(
-        "https://api.cloudinary.com/v1_1/dw0kyzkwp/image/upload",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-
-      const data = await res.json();
-
-      if (data.secure_url) {
-        setFormData((prev) => ({
-          ...prev,
-          newsImage: data.secure_url,
-        }));
-        toast.success("Image uploaded successfully!");
-      } else {
-        throw new Error("Cloudinary upload failed.");
-      }
-    } catch (err) {
-      toast.error("Image upload failed.");
-      console.error("Upload error:", err);
-    }
+    // Mock upload: keep a local preview (data URL) only.
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setFormData((prev) => ({ ...prev, newsImage: reader.result as string }));
+      toast.success("Зураг сонгогдлоо (local preview)");
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleAuthorChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -138,8 +122,8 @@ export default function CreateNews() {
       setFormData((prev) => ({
         ...prev,
         authorId: selectedAuthor._id,
-        authorName: selectedAuthor.name,
-        authorImage: selectedAuthor.image,
+        authorName: selectedAuthor.authorName,
+        authorImage: selectedAuthor.authorImage,
       }));
     }
   };
@@ -235,7 +219,7 @@ export default function CreateNews() {
             <option value="">Select Author</option>
             {authors.map((author) => (
               <option key={author._id} value={author._id}>
-                {author.name}
+                {author.authorName}
               </option>
             ))}
           </select>

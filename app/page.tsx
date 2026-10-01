@@ -3,47 +3,20 @@ import Link from "next/link";
 import { Clock, Eye, MessageSquare } from "lucide-react";
 import TrendingNews from "@/components/trending-news";
 import EmailSubscription from "@/components/email";
-import axios from "axios";
-import { NewsArticle } from "@/lib/axios";
+import type { NewsArticle } from "@/lib/axios";
+import { mockNews, mockCategories } from "@/lib/mock-data";
 
-// Disable caching for this page
-export const revalidate = 0;
-
-function generateSlug(title: string) {
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
+function getLatestNews(): NewsArticle[] {
+  return [...mockNews].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
 }
 
-async function getLatestNews(): Promise<NewsArticle[]> {
-  try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-    const response = await axios.get<{ status: string; data: NewsArticle[]; count: number }>(
-      `${apiUrl}/api/news`,
-      {
-        headers: {
-          "Cache-Control": "no-cache",
-          Pragma: "no-cache",
-        },
-      }
-    );
+const categoryLabel = (slug: string) =>
+  mockCategories.find((c) => c.slug === slug)?.categoryName || slug;
 
-    if (response.data.status === "success" && Array.isArray(response.data.data)) {
-      return response.data.data.sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      );
-    }
-    return [];
-  } catch (error) {
-    console.error("Error fetching news:", error);
-    return [];
-  }
-}
-
-export default async function Home() {
-  const news = await getLatestNews();
+export default function Home() {
+  const news = getLatestNews();
 
   if (!news || news.length === 0) {
     return (
@@ -60,35 +33,20 @@ export default async function Home() {
   const bannerArticles = news.filter((article) => article.banner);
   const latestBannerArticle = bannerArticles[0];
 
-  const getArticleIndex = (article: NewsArticle) => {
-    if (!article) return 1;
-    const categoryArticles = news
-      .filter(
-        (a) => a.category.toLowerCase() === article.category.toLowerCase()
-      )
-      .sort(
-        (a, b) =>
-          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-      );
-    return categoryArticles.findIndex((a) => a._id === article._id) + 1;
-  };
-
   return (
     <main className="min-h-screen bg-white">
       <div className="container mx-auto px-4 py-8">
         {latestBannerArticle && (
           <div className="mb-12">
             <Link
-              href={`/${latestBannerArticle.category}/${getArticleIndex(
-                latestBannerArticle
-              )}`}
+              href={`/${categoryLabel(latestBannerArticle.category)}/${latestBannerArticle._id}`}
               prefetch={false}
             >
               <div className="relative h-[500px] w-full overflow-hidden rounded-lg">
                 <Image
                   src={
                     latestBannerArticle.newsImages?.[0] ||
-                    "https://unread.today/files/007afc64-288a-4208-b9d7-3eda84011c1d/6b14a94472c91bd94f086dac96694c79.jpeg"
+                    "https://picsum.photos/seed/c16-fallback/1200/675"
                   }
                   alt={latestBannerArticle.title}
                   fill
@@ -100,7 +58,7 @@ export default async function Home() {
                 <div className="absolute bottom-0 left-0 p-6 text-white">
                   <div className="mb-2">
                     <span className="bg-red-600 text-white text-xs px-2 py-1 rounded uppercase font-semibold">
-                      {latestBannerArticle.category}
+                      {categoryLabel(latestBannerArticle.category)}
                     </span>
                   </div>
                   <h1 className="text-3xl md:text-4xl font-bold mb-3 uppercase">
@@ -138,14 +96,14 @@ export default async function Home() {
               {allArticles.map((article: NewsArticle) => (
                 <div key={article._id} className="border-b pb-6">
                   <Link
-                    href={`/${article.category}/${getArticleIndex(article)}`}
+                    href={`/${article.category}/${article._id}`}
                     prefetch={false}
                   >
                     <div className="relative h-40 mb-4 overflow-hidden rounded-md">
                       <Image
                         src={
                           article.newsImages?.[0] ||
-                          "https://unread.today/files/007afc64-288a-4208-b9d7-3eda84011c1d/6b14a94472c91bd94f086dac96694c79.jpeg"
+                          "https://picsum.photos/seed/c16-fallback/1200/675"
                         }
                         alt={article.title}
                         fill
@@ -157,7 +115,7 @@ export default async function Home() {
                       {article.title}
                     </h3>
                     <p className="text-gray-600 h-fit max-h-[40px] overflow-hidden text-sm mb-4">
-                      {article.content}
+                      {article.description}
                     </p>
                   </Link>
                 </div>
@@ -167,17 +125,17 @@ export default async function Home() {
           <div className="flex flex-col">
             <h2 className="text-2xl font-bold mb-6">Popular news</h2>
             <div className="flex flex-col justify-center gap-6">
-              {allArticles.map((article: NewsArticle) => (
+              {[...allArticles].sort((a, b) => b.views - a.views).slice(0, 6).map((article: NewsArticle) => (
                 <div key={article._id} className="border-b pb-6">
                   <Link
-                    href={`/${article.category}/${getArticleIndex(article)}`}
+                    href={`/${article.category}/${article._id}`}
                     prefetch={false}
                   >
                     <div className="relative h-40 mb-4 overflow-hidden rounded-md">
                       <Image
                         src={
                           article.newsImages?.[0] ||
-                          "https://unread.today/files/007afc64-288a-4208-b9d7-3eda84011c1d/6b14a94472c91bd94f086dac96694c79.jpeg"
+                          "https://picsum.photos/seed/c16-fallback/1200/675"
                         }
                         alt={article.title}
                         fill
@@ -189,7 +147,7 @@ export default async function Home() {
                       {article.title}
                     </h3>
                     <p className="text-gray-600 h-fit max-h-[100px] overflow-hidden text-sm mb-4">
-                      {article.content}
+                      {article.description}
                     </p>
                   </Link>
                 </div>

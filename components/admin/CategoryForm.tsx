@@ -1,22 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
-import { useAdminList } from "./useAdminList";
+import toast from "react-hot-toast";
+import { adminStore, fakeDelay, newId, nowIso, slugify } from "./mock-store";
 
 interface CategoryFormProps {
   onSuccess?: () => void;
 }
 
 export default function CategoryForm({ onSuccess }: CategoryFormProps) {
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [categoryName, setCategoryName] = useState("");
-  const { refresh } = useAdminList({ endpoint: "/api/categories", dataKey: "categories", pageSize: 100 });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,25 +27,22 @@ export default function CategoryForm({ onSuccess }: CategoryFormProps) {
         return;
       }
 
-      const response = await fetch("/api/create/categories", {
-        method: "POST",
-        headers: {
-          "Authorization": "Basic " + (typeof window !== "undefined" ? localStorage.getItem("admin_auth") || "" : ""),
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ categoryName: categoryName.trim() }),
+      await fakeDelay();
+      const name = categoryName.trim();
+      if (adminStore.categories.some((c) => c.categoryName === name)) {
+        throw new Error("Ийм нэртэй ангилал аль хэдийн байна");
+      }
+      const now = nowIso();
+      adminStore.categories.push({
+        _id: newId("c"),
+        categoryName: name,
+        slug: slugify(name),
+        createdAt: now,
+        updatedAt: now,
       });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Ангилал үүсгэхэд алдаа гарлаа");
-      }
-
       toast.success("Ангилал амжилттай үүслээ");
-      router.refresh();
       setCategoryName("");
-      refresh();
       
       // Call the onSuccess callback if provided
       if (onSuccess) {

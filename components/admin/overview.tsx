@@ -10,67 +10,26 @@ import {
   Tooltip,
 } from "recharts";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAdminList } from "./useAdminList";
+import { adminStore } from "./mock-store";
 
-const data = [
-  {
-    name: "Jan",
-    total: 1200,
-  },
-  {
-    name: "Feb",
-    total: 1900,
-  },
-  {
-    name: "Mar",
-    total: 2100,
-  },
-  {
-    name: "Apr",
-    total: 2400,
-  },
-  {
-    name: "May",
-    total: 2700,
-  },
-  {
-    name: "Jun",
-    total: 3000,
-  },
-  {
-    name: "Jul",
-    total: 2500,
-  },
-  {
-    name: "Aug",
-    total: 2800,
-  },
-  {
-    name: "Sep",
-    total: 3200,
-  },
-  {
-    name: "Oct",
-    total: 3500,
-  },
-  {
-    name: "Nov",
-    total: 3700,
-  },
-  {
-    name: "Dec",
-    total: 3900,
-  },
-];
+function buildData() {
+  return adminStore.categories.map((c) => ({
+    name: c.categoryName.length > 12 ? c.categoryName.slice(0, 12) + "…" : c.categoryName,
+    total: adminStore.news
+      .filter((n) => n.category === c.slug || n.categoryName === c.categoryName)
+      .reduce((sum, n) => sum + (n.views || 0), 0),
+  }));
+}
 
 export function Overview() {
   const [loading, setLoading] = useState(true);
+  const [data] = useState(buildData);
 
   useEffect(() => {
     // Simulate data loading
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 1000);
+    }, 300);
 
     return () => clearTimeout(timer);
   }, []);
@@ -80,7 +39,7 @@ export function Overview() {
       <div className="space-y-4">
         <Skeleton className="h-[350px] w-full" />
         <div className="flex justify-between">
-          {Array.from({ length: 12 }).map((_, i) => (
+          {Array.from({ length: 5 }).map((_, i) => (
             <Skeleton key={i} className="h-4 w-8" />
           ))}
         </div>

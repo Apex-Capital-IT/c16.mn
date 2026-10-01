@@ -4,6 +4,7 @@ import type React from "react";
 import { useState, useEffect } from "react";
 import { Mail, Check, AlertCircle } from "lucide-react";
 import Image from "next/image";
+import toast from "react-hot-toast";
 
 export default function EmailSubscription() {
   const [email, setEmail] = useState("");
@@ -33,33 +34,15 @@ export default function EmailSubscription() {
     setIsSubmitting(true);
     setSubscriptionStatus(null);
 
-    try {
-      const response = await fetch("/api/subscribe", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      const data = await response.json();
-
-      setSubscriptionStatus({
-        success: data.success,
-        message: data.message,
-      });
-
-      if (data.success) {
-        setEmail("");
-      }
-    } catch (error) {
-      setSubscriptionStatus({
-        success: false,
-        message: "An error occurred. Please try again later.",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    // Mock-up: no backend request — simulate a successful subscription.
+    await new Promise((resolve) => setTimeout(resolve, 600));
+    setSubscriptionStatus({
+      success: true,
+      message: "Амжилттай бүртгүүллээ! Баярлалаа.",
+    });
+    toast.success("Амжилттай бүртгүүллээ!");
+    setEmail("");
+    setIsSubmitting(false);
   };
 
   return (
@@ -106,8 +89,8 @@ export default function EmailSubscription() {
                 <div
                   className={`mt-2 p-2 rounded-md text-center ${
                     subscriptionStatus.success
-                      ? "bg-green-900/30 text-green-200 border border-green-800"
-                      : "bg-red-900/30 text-red-200 border border-red-800"
+                      ? "bg-green-50 text-green-700 border border-green-300"
+                      : "bg-red-50 text-red-700 border border-red-300"
                   }`}
                 >
                   <div className="flex items-center justify-center">

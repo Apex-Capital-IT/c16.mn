@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,7 +11,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/admin/admin-toast";
+import { adminStore, fakeDelay, nowIso } from "@/components/admin/mock-store";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
@@ -28,13 +28,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Trash2 } from "lucide-react";
-
-interface ApiResponse<T> {
-  status: "success" | "error";
-  data: T;
-  message?: string;
-  error?: string;
-}
 
 interface Category {
   _id: string;
@@ -115,100 +108,36 @@ export default function EditPostPage({
   }, [params, toast]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (!postId) return;
-
-      try {
-        setLoading(true);
-
-        // Fetch post data, categories and authors using axios with relative URLs
-        const [postRes, categoriesRes, authorsRes] = await Promise.all([
-          axios.get<Post>(`/api/news/${postId}`, {
-            headers: {
-              "Authorization": "Basic " + (typeof window !== "undefined" ? localStorage.getItem("admin_auth") || "" : ""),
-              "Content-Type": "application/json",
-            },
-          }),
-          axios.get<{ categories: Category[] }>("/api/categories", {
-            headers: {
-              "Authorization": "Basic " + (typeof window !== "undefined" ? localStorage.getItem("admin_auth") || "" : ""),
-              "Content-Type": "application/json",
-            },
-          }),
-          axios.get<{ data: Author[] }>("/api/authors", {
-            headers: {
-              "Authorization": "Basic " + (typeof window !== "undefined" ? localStorage.getItem("admin_auth") || "" : ""),
-              "Content-Type": "application/json",
-            },
-          }),
-        ]);
-
-        // Set post data
-        const post = postRes.data;
-        if (!post) {
-          throw new Error("Post not found");
-        }
-
-        setFormData({
-          title: post.title,
-          content: post.content,
-          category: post.category,
-          authorName: post.authorName,
-          banner: post.banner,
-        });
-
-        // Filter and validate existing images
-        const validImages = (post.newsImages || []).filter(
-          (url) =>
-            url &&
-            typeof url === "string" &&
-            (url.startsWith("https://res.cloudinary.com") ||
-              url.startsWith("http://res.cloudinary.com"))
-        );
-
-        setExistingNewsImages(validImages);
-
-        // Process categories data
-        const categoriesData = categoriesRes.data.categories || [];
-        setCategories(
-          categoriesData.map((cat) => ({
-            id: cat._id,
-            name: cat.categoryName,
-          }))
-        );
-
-        // Process authors data
-        const authorsData = authorsRes.data.data || [];
-        setAuthors(
-          authorsData.map((author) => ({
-            id: author._id,
-            name: author.authorName,
-            image: author.authorImage,
-          }))
-        );
-
-        const author = authorsData.find(
-          (a) => a.authorName === post.authorName
-        );
-        if (author) {
-          setSelectedAuthor(author.authorName);
-          setExistingAuthorImage(author.authorImage);
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        toast({
-          title: "Error",
-          description:
-            error instanceof Error ? error.message : "Failed to load data",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [postId, toast]);
+    if (!postId) return;
+    const post = adminStore.news.find((n) => n._id === postId || n.slug === postId);
+    setCategories(
+      adminStore.categories.map((cat) => ({ id: cat._id, name: cat.categoryName }))
+    );
+    setAuthors(
+      adminStore.authors.map((author) => ({
+        id: author._id,
+        name: author.authorName,
+        image: author.authorImage,
+      }))
+    );
+    if (!post) {
+      toast({ title: "Error", description: "Мэдээ олдсонгүй", variant: "destructive" });
+      setLoading(false);
+      router.push("/admin/posts");
+      return;
+    }
+    setFormData({
+      title: post.title,
+      content: post.content,
+      category: post.categoryName,
+      authorName: post.authorName,
+      banner: post.banner,
+    });
+    setExistingNewsImages(post.newsImages || []);
+    setSelectedAuthor(post.authorName);
+    setExistingAuthorImage(post.authorImage);
+    setLoading(false);
+  }, [postId, toast, router]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -284,94 +213,31 @@ export default function EditPostPage({
       return;
     }
 
-    try {
-      setSubmitting(true);
-
-      // Create FormData object for file upload
-      const formDataToSend = new FormData();
-      formDataToSend.append("title", formData.title);
-      formDataToSend.append("content", formData.content);
-      formDataToSend.append("category", formData.category);
-      formDataToSend.append("authorName", formData.authorName);
-      formDataToSend.append("banner", formData.banner.toString());
-
-      // Handle existing author image
-      if (existingAuthorImage) {
-        formDataToSend.append("existingAuthorImage", existingAuthorImage);
-      }
-
-      // Handle author image upload
-      if (authorImage) {
-        formDataToSend.append("authorImage", authorImage);
-      }
-
-      // Handle existing images - only include valid Cloudinary URLs
-      if (existingNewsImages.length > 0) {
-        const validExistingImages = existingNewsImages.filter(
-          (url) =>
-            url &&
-            typeof url === "string" &&
-            (url.startsWith("https://res.cloudinary.com") ||
-              url.startsWith("http://res.cloudinary.com"))
-        );
-        if (validExistingImages.length > 0) {
-          formDataToSend.append(
-            "existingImages",
-            JSON.stringify(validExistingImages)
-          );
-        }
-      } else {
-        // If no images are selected, send empty array to delete all images
-        formDataToSend.append("existingImages", JSON.stringify([]));
-      }
-
-      // Debug: Log newsImages before appending
-      console.log("newsImages to upload:", newsImages);
-
-      // Append news images
-      newsImages.forEach((file) => {
-        console.log("Appending file to FormData:", file);
-        formDataToSend.append("newsImages", file);
+    setSubmitting(true);
+    await fakeDelay();
+    const post = adminStore.news.find((n) => n._id === postId);
+    if (post) {
+      const cat = adminStore.categories.find((c) => c.categoryName === formData.category);
+      const author = adminStore.authors.find((a) => a.authorName === formData.authorName);
+      Object.assign(post, {
+        title: formData.title,
+        content: formData.content,
+        category: cat?.slug || post.category,
+        categoryName: formData.category,
+        authorName: formData.authorName,
+        authorId: author?._id || post.authorId,
+        authorImage: author?.authorImage || post.authorImage,
+        banner: formData.banner,
+        newsImages: [...existingNewsImages, ...previewNewsImages],
+        updatedAt: nowIso(),
       });
-
-      // Debug: Log FormData keys and values
-      for (let pair of formDataToSend.entries()) {
-        console.log(pair[0]+ ':', pair[1]);
-      }
-
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      const response = await axios.put<ApiResponse<Post>>(
-        `${apiUrl}/api/news/${postId}`,
-        formDataToSend,
-        {
-          headers: {
-            "Authorization": "Basic " + (typeof window !== "undefined" ? localStorage.getItem("admin_auth") || "" : ""),
-            "Content-Type": "multipart/form-data",
-          },
-          withCredentials: true,
-        }
-      );
-
-      if (response.data.status === "success") {
-        toast({
-          title: "Success",
-          description: "Post updated successfully",
-        });
-        router.push("/admin/posts");
-      } else {
-        throw new Error(response.data.message || "Failed to update post");
-      }
-    } catch (error) {
-      console.error("Error updating post:", error);
-      toast({
-        title: "Error",
-        description:
-          error instanceof Error ? error.message : "Failed to update post",
-        variant: "destructive",
-      });
-    } finally {
-      setSubmitting(false);
     }
+    toast({
+      title: "Success",
+      description: "Мэдээ амжилттай шинэчлэгдлээ (mock)",
+    });
+    setSubmitting(false);
+    router.push("/admin/posts");
   };
 
   if (loading) {

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import axios from "axios";
+import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import {
   FacebookIcon,
   InstagramIcon,
@@ -8,63 +9,30 @@ import {
   Newspaper,
   Clock,
 } from "lucide-react";
-import { NewsArticle } from "@/lib/axios";
+import type { NewsArticle } from "@/lib/axios";
+import {
+  mockAuthors,
+  mockNews,
+  getNewsById,
+  getNewsByCategory,
+} from "@/lib/mock-data";
 
-const VALID_CATEGORIES = ["politics", "economy", "video", "bloggers"];
-
-async function getAuthorByName(authorName: string) {
-  try {
-    const res = await fetch(
-      `https://c16-mn.onrender.com/api/authors?name=${authorName}`
-    );
-    const data = await res.json();
-    if (res.ok && Array.isArray(data.data)) {
-      return data.data.find(
-        (author: any) =>
-          author.authorName.toLowerCase() === authorName.toLowerCase()
-      );
-    }
-    return null;
-  } catch {
-    return null;
-  }
+function getAuthorByName(authorName: string) {
+  return (
+    mockAuthors.find(
+      (a) => a.authorName.toLowerCase() === authorName.toLowerCase()
+    ) || null
+  );
 }
 
-async function getNewsByCategory(category: string): Promise<NewsArticle[]> {
-  try {
-    const response = await axios.get<{
-      status: string;
-      data: NewsArticle[];
-      count: number;
-    }>("https://c16-mn.onrender.com/api/news", {
-      headers: {
-        "Cache-Control": "no-cache",
-        Pragma: "no-cache",
-      },
-    });
+function getCategoryArticles(category: string): NewsArticle[] {
+  return [...getNewsByCategory(category)].sort(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+  );
+}
 
-    if (
-      response.data.status === "success" &&
-      Array.isArray(response.data.data)
-    ) {
-      return response.data.data
-        .filter((article) => {
-          const actualCategory = article.category.toLowerCase();
-          if (VALID_CATEGORIES.includes(category.toLowerCase())) {
-            return actualCategory === category.toLowerCase();
-          } else {
-            return !VALID_CATEGORIES.includes(actualCategory);
-          }
-        })
-        .sort(
-          (a, b) =>
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-        );
-    }
-    return [];
-  } catch {
-    return [];
-  }
+export function generateStaticParams() {
+  return mockNews.map((n) => ({ category: n.category, id: n._id }));
 }
 
 // ✅ FIX: explicit typing only for `params`
@@ -75,32 +43,39 @@ interface PageParams {
   }>;
 }
 
-export default async function CategoryPage({ params }: PageParams) {
+export async function generateMetadata({
+  params,
+}: PageParams): Promise<Metadata> {
+  const { id } = await params;
+  const article = getNewsById(id);
+  if (!article) return { title: "Мэдээ олдсонгүй" };
+  return {
+    title: article.title,
+    description: article.description,
+    openGraph: {
+      title: article.title,
+      description: article.description,
+      images: article.newsImages?.slice(0, 1),
+    },
+  };
+}
+
+export default async function ArticlePage({ params }: PageParams) {
   const resolvedParams = await params;
   const { category, id } = resolvedParams;
 
-  const articles = await getNewsByCategory(category);
-  const articleIndex = parseInt(id) - 1;
-  const article = articles[articleIndex];
-
-  if (!article) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-center p-8">
-        <div>
-          <h1 className="text-2xl font-bold">Article not found</h1>
-          <p className="text-gray-600 mt-2">
-            The requested article could not be found.
-          </p>
-          <Link href="/" className="text-blue-600 hover:underline mt-4 block">
-            Return to home
-          </Link>
-        </div>
-      </div>
-    );
+  const article = getNewsById(id);
+  if (!article || article.category !== category) {
+    notFound();
   }
 
-  const author = await getAuthorByName(article.authorName);
-  const authorPostsCount = articles.filter(
+  const articles = getCategoryArticles(category);
+  const articleIndex = articles.findIndex((a) => a._id === article._id);
+
+  const author = getAuthorByName(article.authorName);
+  const socialMedia = (author as { socialMedia?: string } | null)
+    ?.socialMedia;
+  const authorPostsCount = mockNews.filter(
     (a) =>
       a.authorName?.trim().toLowerCase() ===
       article.authorName.trim().toLowerCase()
@@ -118,9 +93,7 @@ export default async function CategoryPage({ params }: PageParams) {
             {author ? (
               <div className="bg-gray-50 rounded-xl shadow-sm border">
                 <Link
-                  href={`/category/bloggers/${encodeURIComponent(
-                    author.authorName
-                  )}`}
+                  href="/bloggers"
                   className="flex flex-col items-center justify-center gap-3 hover:text-blue-600 transition"
                 >
                   <Image
@@ -137,11 +110,11 @@ export default async function CategoryPage({ params }: PageParams) {
 
                 <div className="mt-4 space-y-2 text-sm text-gray-600">
                   {/* Social Media Link */}
-                  {author.socialMedia && (
+                  {socialMedia && (
                     <div className="flex items-center justify-center gap-2">
-                      {author.socialMedia.includes("youtube") && (
+                      {socialMedia.includes("youtube") && (
                         <a
-                          href={author.socialMedia}
+                          href={socialMedia}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center gap-1 text-red-500 hover:underline"
@@ -150,9 +123,9 @@ export default async function CategoryPage({ params }: PageParams) {
                           <span>YouTube</span>
                         </a>
                       )}
-                      {author.socialMedia.includes("facebook") && (
+                      {socialMedia.includes("facebook") && (
                         <a
-                          href={author.socialMedia}
+                          href={socialMedia}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center gap-1 text-blue-600 hover:underline"
@@ -161,9 +134,9 @@ export default async function CategoryPage({ params }: PageParams) {
                           <span>Facebook</span>
                         </a>
                       )}
-                      {author.socialMedia.includes("instagram") && (
+                      {socialMedia.includes("instagram") && (
                         <a
-                          href={author.socialMedia}
+                          href={socialMedia}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center gap-1 text-pink-500 hover:underline"
@@ -213,7 +186,7 @@ export default async function CategoryPage({ params }: PageParams) {
                 <span>
                   {Math.max(
                     1,
-                    Math.ceil((article.content?.split(/\s+/).length || 0) / 200)
+                    Math.ceil((article.content?.replace(/<[^>]+>/g, " ").split(/\s+/).length || 0) / 200)
                   )}{" "}
                   мин унших
                 </span>
@@ -225,7 +198,7 @@ export default async function CategoryPage({ params }: PageParams) {
             <Image
               src={
                 article.newsImages?.[0] ||
-                "https://unread.today/files/007afc64-288a-4208-b9d7-3eda84011c1d/6b14a94472c91bd94f086dac96694c79.jpeg"
+                "https://picsum.photos/seed/c16-fallback/1200/675"
               }
               alt={article.title}
               fill
@@ -236,15 +209,16 @@ export default async function CategoryPage({ params }: PageParams) {
 
           <div className="prose max-w-none">
             <p className="text-lg text-gray-700 mb-6">{article.description}</p>
-            <div className="text-gray-800 whitespace-pre-line">
-              {article.content}
-            </div>
+            <div
+              className="text-gray-800 space-y-4"
+              dangerouslySetInnerHTML={{ __html: article.content }}
+            />
           </div>
 
           <div className="mt-12 flex justify-between items-center border-t pt-6">
             {articleIndex > 0 && (
               <Link
-                href={`/${category}/${articleIndex}`}
+                href={`/${category}/${articles[articleIndex - 1]?._id}`}
                 className="text-blue-600 hover:underline"
               >
                 ← Өмнөх нийтлэл
@@ -252,7 +226,7 @@ export default async function CategoryPage({ params }: PageParams) {
             )}
             {articleIndex < articles.length - 1 && (
               <Link
-                href={`/${category}/${articleIndex + 2}`}
+                href={`/${category}/${articles[articleIndex + 1]?._id}`}
                 className="text-blue-600 hover:underline ml-auto"
               >
                 Дараагийн нийтлэл →

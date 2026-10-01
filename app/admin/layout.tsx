@@ -25,6 +25,10 @@ export default function AdminLayout({
     }
   }, [router, pathname]);
 
+  if (pathname === "/admin/login") {
+    return <>{children}</>;
+  }
+
   return (
     <div className="flex min-h-screen">
       <Sidebar />

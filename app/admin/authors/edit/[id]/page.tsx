@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import Image from "next/image";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
+import { adminStore, fakeDelay, removeFromStore } from "@/components/admin/mock-store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,14 +30,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import axios from "axios";
-
-interface ApiResponse<T> {
-  status: "success" | "error";
-  data: T;
-  message?: string;
-  error?: string;
-}
 
 interface Author {
   _id: string;
@@ -45,30 +37,8 @@ interface Author {
   authorImage?: string;
   socialMedia?: string;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
 }
-
-const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
-  timeout: 10000,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
-
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    console.error("API Error:", error);
-    if (error.code === "ECONNABORTED") {
-      throw new Error("Request timeout. Please try again.");
-    }
-    if (!error.response) {
-      throw new Error("Network error. Please check your connection.");
-    }
-    throw error;
-  }
-);
 
 export default function EditAuthorPage() {
   const params = useParams();
@@ -85,48 +55,18 @@ export default function EditAuthorPage() {
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    const fetchAuthor = async () => {
-      try {
-        const authorId = params.id as string;
-        if (!authorId) {
-          throw new Error("Author ID is missing");
-        }
-
-        console.log("Fetching author with ID:", authorId);
-        const response = await api.get<ApiResponse<Author>>(
-          `/api/authors/${authorId}`,
-          {
-            headers: {
-              "Authorization": "Basic " + (typeof window !== "undefined" ? localStorage.getItem("admin_auth") || "" : ""),
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        // console.log('API Response:', response.data);
-
-        if (response.data.status === "error") {
-          throw new Error(response.data.message || "Failed to fetch author");
-        }
-
-        if (!response.data.data) {
-          throw new Error("Author data is missing");
-        }
-
-        setAuthor(response.data.data);
-        if (response.data.data.authorImage) {
-          setPreviewUrl(response.data.data.authorImage);
-          setExistingAuthorImage(response.data.data.authorImage);
-        }
-      } catch (err) {
-        console.error("Error fetching author:", err);
-        setError(err instanceof Error ? err.message : "An error occurred");
-        toast.error("Зохиолч ачаалахад алдаа гарлаа");
-      } finally {
-        setLoading(false);
+    const authorId = params.id as string;
+    const found = adminStore.authors.find((a) => a._id === authorId);
+    if (!found) {
+      setError("Зохиолч олдсонгүй");
+    } else {
+      setAuthor({ ...found });
+      if (found.authorImage) {
+        setPreviewUrl(found.authorImage);
+        setExistingAuthorImage(found.authorImage);
       }
-    };
-
-    fetchAuthor();
+    }
+    setLoading(false);
   }, [params.id]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -168,107 +108,27 @@ export default function EditAuthorPage() {
     if (!author) return;
 
     setIsSubmitting(true);
-    try {
-      const formData = new FormData();
-      formData.append("authorName", author.authorName);
-      if (author.socialMedia) {
-        formData.append("socialMedia", author.socialMedia);
-      }
-      if (selectedImage) {
-        formData.append("authorImage", selectedImage);
-      }
-      if (existingAuthorImage) {
-        formData.append("existingAuthorImage", existingAuthorImage);
-      }
-
-      console.log("Updating author with ID:", params.id);
-      const response = await api.put<ApiResponse<Author>>(
-        `/api/authors/${params.id}`,
-        formData,
-        {
-          headers: {
-            "Authorization": "Basic " + (typeof window !== "undefined" ? localStorage.getItem("admin_auth") || "" : ""),
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-      console.log("Update Response:", response.data);
-
-      if (response.data.status === "success") {
-        toast.success(
-          response.data.message || "Зохиолч амжилттай шинэчлэгдлээ"
-        );
-        router.push("/admin/authors");
-      } else {
-        throw new Error(response.data.message || "Failed to update author");
-      }
-    } catch (err) {
-      console.error("Error updating author:", err);
-      setError(err instanceof Error ? err.message : "Failed to update author");
-      toast.error(
-        err instanceof Error ? err.message : "Зохиолч шинэчлэхэд алдаа гарлаа"
-      );
-    } finally {
-      setIsSubmitting(false);
+    await fakeDelay();
+    const target = adminStore.authors.find((a) => a._id === author._id);
+    if (target) {
+      target.authorName = author.authorName;
+      target.socialMedia = author.socialMedia;
+      target.authorImage = previewUrl || "/placeholder.svg";
     }
+    toast.success("Зохиолч амжилттай шинэчлэгдлээ");
+    setIsSubmitting(false);
+    router.push("/admin/authors");
   };
 
   const handleDelete = async () => {
     if (!author) return;
 
     setIsDeleting(true);
-    try {
-      const response = await api.delete<ApiResponse<void>>(
-        `/api/authors/${params.id}`,
-        {
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (response.data.status === "success") {
-        toast.success(response.data.message || "Зохиолч амжилттай устгагдлаа");
-        router.push("/admin/authors");
-      } else {
-        toast.error(response.data.message || "Зохиолч устгахад алдаа гарлаа");
-      }
-    } catch (err: unknown) {
-      console.error("Error deleting author:", err);
-      if (
-        err &&
-        typeof err === "object" &&
-        "isAxiosError" in err &&
-        err.isAxiosError
-      ) {
-        const axiosError = err as {
-          response?: { status: number; data?: { message?: string } };
-        };
-
-        // Handle different error cases
-        if (axiosError.response?.status === 404) {
-          toast.error("Зохиолч олдсонгүй!");
-        } else if (axiosError.response?.status === 403) {
-          toast.error("Энэ үйлдлийг хийх эрх байхгүй байна");
-        } else if (axiosError.response?.status === 400) {
-          toast.error(
-            axiosError.response.data?.message ||
-              "Зохиолчтой холбоотой мэдээ байгаа учраас устгах боломжгүй"
-          );
-        } else if (!axiosError.response) {
-          toast.error("Сервертэй холбогдоход алдаа гарлаа");
-        } else {
-          toast.error(
-            axiosError.response.data?.message || "Зохиолч устгахад алдаа гарлаа"
-          );
-        }
-      } else {
-        toast.error("Зохиолч устгахад алдаа гарлаа");
-      }
-    } finally {
-      setIsDeleting(false);
-    }
+    await fakeDelay();
+    removeFromStore("authors", author._id);
+    toast.success("Зохиолч амжилттай устгагдлаа");
+    setIsDeleting(false);
+    router.push("/admin/authors");
   };
 
   if (loading) {
@@ -442,11 +302,10 @@ export default function EditAuthorPage() {
                 <div className="flex items-center gap-4">
                   {previewUrl && (
                     <div className="relative w-32 h-32">
-                      <Image
+                      <img
                         src={previewUrl}
                         alt={author.authorName}
-                        fill
-                        className="object-cover rounded-full"
+                        className="w-32 h-32 object-cover rounded-full"
                       />
                     </div>
                   )}
