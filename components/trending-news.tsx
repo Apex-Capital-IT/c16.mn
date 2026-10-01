@@ -1,27 +1,14 @@
 import Link from "next/link";
 import { Eye } from "lucide-react";
-import axiosInstance, { NewsArticle, fallbackNewsData } from "@/lib/axios";
+import type { NewsArticle } from "@/lib/axios";
+import { mockNews } from "@/lib/mock-data";
 
-async function getTrendingNews(): Promise<NewsArticle[]> {
-  try {
-    const res = await axiosInstance.get<NewsArticle[]>("/api/news");
-    return res.data;
-  } catch (error: any) {
-    console.error("Error fetching trending news:", error);
-    // Return fallback data during build or when API is unavailable
-    if (
-      process.env.NODE_ENV === "production" ||
-      error.code === "ECONNREFUSED"
-    ) {
-      console.warn("Using fallback data for trending news");
-      return fallbackNewsData;
-    }
-    return [];
-  }
+function getTrendingNews(): NewsArticle[] {
+  return [...mockNews].sort((a, b) => b.views - a.views).slice(0, 6);
 }
 
-export default async function TrendingNews() {
-  const news = await getTrendingNews();
+export default function TrendingNews() {
+  const news = getTrendingNews();
 
   return (
     <div className="lg:col-span-2">

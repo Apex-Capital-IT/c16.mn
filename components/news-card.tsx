@@ -46,7 +46,7 @@ export default function NewsCard({
         </div>
       </div>
       <div className="p-4">
-        <Link href={`/article/${slug}`}>
+        <Link href={`/${category}/${slug}`}>
           <h3 className="text-xl font-bold mb-2 hover:text-blue-600 transition-colors">
             {title}
           </h3>
